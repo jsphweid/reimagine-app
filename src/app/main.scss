@@ -1,0 +1,42 @@
+body {
+    margin: 0;
+}
+
+.jlw-headerOffset {
+    padding-top: 80px;
+}
+
+@media screen and (max-width: 700px) {
+    .jlw-headerOffset {
+        padding-top: 50px;
+    }
+}
+
+p {
+    font-size: 20px;
+}
+
+.jlw {
+    font-family: Montserrat, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+hr {
+    margin: 40px auto;
+    padding: 0;
+    max-width: 250px;
+    border: 0;
+    border-top: solid 5px;
+    text-align: center;
+}
+
+.prevent-selection {
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+button {
+    @extend .prevent-selection;
+}
