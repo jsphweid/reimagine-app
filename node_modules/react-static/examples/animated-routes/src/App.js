@@ -1,9 +1,10 @@
 import React from 'react'
-import { Router, Route, Link } from 'react-static'
+import { Router, Route, Link, cleanPath } from 'react-static'
 import { easeQuadOut } from 'd3-ease'
 import { NodeGroup } from 'react-move'
 import { withContext, getContext } from 'recompose'
 import PropTypes from 'prop-types'
+import { hot } from 'react-hot-loader'
 //
 import Routes from 'react-static-routes'
 
@@ -22,7 +23,7 @@ const AnimatedRoutes = getContext({
     path="*"
     render={props => {
       // Get the component for this path
-      let Comp = getComponentForPath(props.location.pathname)
+      let Comp = getComponentForPath(cleanPath(props.location.pathname))
       if (!Comp) {
         Comp = getComponentForPath('404')
       }
@@ -109,7 +110,7 @@ const AnimatedRoutes = getContext({
   />
 ))
 
-export default () => (
+const App = () => (
   <Router>
     <div>
       <nav>
@@ -123,3 +124,5 @@ export default () => (
     </div>
   </Router>
 )
+
+export default hot(module)(App)
