@@ -1,11 +1,11 @@
-const axios = require('axios')
-const path = require('path')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
+import axios from 'axios'
+import path from 'path'
+import ExtractTextPlugin from 'extract-text-webpack-plugin'
 
 // Paths Aliases defined through tsconfig.json
 const typescriptWebpackPaths = require('./webpack.config.js')
 
-const config = {
+export default {
 	entry: path.join(__dirname, 'src', 'index.tsx'),
 	getSiteProps: () => ({
 		title: 'Joseph Weidinger'
@@ -68,5 +68,3 @@ const config = {
 		return config
 	}
 }
-
-exports.default = config
