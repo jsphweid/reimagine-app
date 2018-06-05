@@ -1,9 +1,20 @@
 import { combineReducers } from 'redux'
 
-import counter from './counter'
+import graphql, { GraphqlStoreStateType } from './graphql'
+import { getGraphqlDefaultState } from './graphql'
 
 const reducer = combineReducers({
-	counter
+	graphql
 })
+
+export const getSimpleDefaultStore = () => {
+	return {
+		graphql: getGraphqlDefaultState()
+	}
+}
+
+export interface SimpleDefaultStoreType {
+	graphql: GraphqlStoreStateType
+}
 
 export default reducer

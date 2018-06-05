@@ -1,4 +1,5 @@
-import { createStore } from 'redux'
+import { createStore, applyMiddleware } from 'redux'
+import thunk from 'redux-thunk'
 
 import reducer from './reducers'
 
@@ -6,12 +7,6 @@ if (typeof window === 'undefined') {
 	;(<any>global).window = {}
 }
 
-/* eslint-disable no-underscore-dangle */
-const store = createStore(
-	reducer,
-	{}, // initial state
-	(<any>window).__REDUX_DEVTOOLS_EXTENSION__ && (<any>window).__REDUX_DEVTOOLS_EXTENSION__()
-)
-/* eslint-enable */
+const store = createStore(reducer, applyMiddleware(thunk))
 
 export default store

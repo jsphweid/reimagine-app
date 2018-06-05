@@ -1,40 +1,40 @@
 import * as React from 'react'
-import gql from 'graphql-tag'
-import { Query } from 'react-apollo'
 import MidiVisualizer from 'react-midi-visualizer'
 import Metronome from 'react-conductor'
-import { Note, MIDI } from 'midiconvert'
+import { Note } from 'midiconvert'
+import { getSegment } from '../connectors/redux/actions/graphql'
+import { withSiteData } from 'react-static'
+import { connect } from 'react-redux'
+import { SegmentType } from '../utils/types'
+import { midiToFreq, getSecondsPerBeat } from '../utils/helpers'
+import { INPUT_OBJECT_TYPE_DEFINITION } from 'graphql/language/kinds'
 
-export interface MainProps {}
+export interface MainProps {
+	dispatch: any
+	activeSegment: SegmentType
+	segmentLoading: boolean
+}
 
 export interface MainState {
 	startTime: number
 	reactResetKey: string
 	isRecording: boolean
+	audioContextOccupied: boolean
+	playMetronome: boolean
 }
 
-const myQuery = gql`
-	{
-		segment {
-			id
-			date
-			midiJson
-			difficulty
-			pieceId
-			offsetTime
-		}
-	}
-`
-
-export default class Main extends React.Component<MainProps, MainState> {
-	audioContext: AudioContext
+export class Main extends React.Component<MainProps, MainState> {
+	audioContext: AudioContext = null
+	allOscs: OscillatorNode[] = []
 
 	constructor(props: MainProps) {
 		super(props)
 		this.state = {
 			startTime: null,
 			reactResetKey: 'firstKey',
-			isRecording: false
+			isRecording: false,
+			audioContextOccupied: false,
+			playMetronome: false
 		}
 	}
 
@@ -69,54 +69,121 @@ export default class Main extends React.Component<MainProps, MainState> {
 		)
 	}
 
-	private handleStartRecording(): void {
-		this.setState({ isRecording: true, startTime: this.audioContext.currentTime })
+	private scheduleSoundEvent(timeOffset: number, time: number, duration: number, frequency: number): void {
+		const osc = this.audioContext.createOscillator()
+		osc.connect(this.audioContext.destination)
+		osc.frequency.value = frequency
+		const adjustedTime = time + timeOffset
+		osc.start(adjustedTime)
+		osc.stop(adjustedTime + duration - 0.05)
+		this.allOscs.push(osc)
+	}
+
+	private scheduleSounds(timeOffset: number, playNotes: boolean) {
+		const { midiJson } = this.props.activeSegment
+		if (playNotes) {
+			midiJson.tracks[0].notes.forEach(note => {
+				this.scheduleSoundEvent(timeOffset, note.time, note.duration, midiToFreq(note.midi))
+			})
+		}
+		if (this.state.playMetronome) {
+			const numberOfMetronomeBeats = 40
+			const secondsPerBeat = getSecondsPerBeat(midiJson.header.bpm)
+			for (let i = 0; i < numberOfMetronomeBeats; i++) {
+				this.scheduleSoundEvent(timeOffset, i * secondsPerBeat, 0.15, 440)
+			}
+		}
+	}
+
+	private handleStartRecording(dryRun: boolean = false): void {
+		const startTime = this.audioContext.currentTime
+		this.scheduleSounds(startTime, dryRun)
+		this.setState({ startTime, isRecording: !dryRun, audioContextOccupied: true })
 	}
 
 	private handleStopRecording(): void {
-		this.setState({ isRecording: false, startTime: null })
+		this.shutOffOscillators()
+		this.setState({ isRecording: false, startTime: null, audioContextOccupied: false })
+	}
+
+	private shutOffOscillators() {
+		this.allOscs.forEach(osc => osc.disconnect())
 	}
 
 	private renderStartStopButton(): JSX.Element {
-		const { isRecording } = this.state
-		const buttonText = isRecording ? 'STOP' : 'START!'
-		const clickHandler = isRecording ? this.handleStopRecording : this.handleStartRecording
-		return <button onClick={clickHandler.bind(this)}>{buttonText}</button>
+		const { audioContextOccupied } = this.state
+		const buttonText = audioContextOccupied ? 'STOP' : 'RECORD'
+		const clickHandler = audioContextOccupied ? this.handleStopRecording : this.handleStartRecording
+		return <button onClick={clickHandler.bind(this, false)}>{buttonText}</button>
 	}
 
-	private handleNewSegment(refetch: Function): void {
+	private handleNewSegment(): void {
 		const randomHash: string = Math.random()
 			.toString(36)
 			.substring(7)
 		this.setState({ reactResetKey: randomHash })
 		this.handleStopRecording()
-		refetch()
+		this.props.dispatch(getSegment())
+	}
+
+	private renderPlayThroughButton(): JSX.Element {
+		return this.state.audioContextOccupied ? null : (
+			<button onClick={this.handleStartRecording.bind(this, true)}>Play Through</button>
+		)
+	}
+
+	private renderMetronomeCheckbox(): JSX.Element {
+		return (
+			<div>
+				<input
+					type="checkbox"
+					checked={this.state.playMetronome}
+					onChange={() => this.setState({ playMetronome: !this.state.playMetronome })}
+				/>
+				Play Metronome
+			</div>
+		)
+	}
+
+	private renderInteractivePart(): JSX.Element {
+		const { segmentLoading, activeSegment } = this.props
+		switch (true) {
+			default:
+			case !segmentLoading && !activeSegment:
+				return <div>Fetch a segment and let's get started.</div>
+			case segmentLoading:
+				return <div>LOADING!!</div>
+			case !!activeSegment:
+				const { midiJson } = this.props.activeSegment
+				// whats the next thing to do...?
+				// implement sounds...
+				return (
+					<div>
+						{this.renderMetronomeCheckbox()}
+						{this.renderPlayThroughButton()}
+						{this.renderStartStopButton()}
+						{this.renderMidiVisualizer(midiJson.tracks[0].notes)}
+						{this.renderMetronome(midiJson.header.bpm)}
+						{this.state.isRecording ? 'recording for real...' : null}
+					</div>
+				)
+		}
 	}
 
 	render() {
 		return (
 			<div className="reimagine">
-				<Query query={myQuery}>
-					{({ loading, error, data, refetch }) => {
-						if (loading) return 'Loading...'
-						if (error) return `Error! ${error.message}`
-						const midiJson = JSON.parse(data.segment.midiJson) as MIDI
-						const bpm = midiJson.header.bpm
-						const notes = midiJson.tracks[0].notes
-
-						return (
-							<div>
-								<div>{this.renderMidiVisualizer(notes)}</div>
-								<div>
-									{this.renderStartStopButton()}
-									<button onClick={this.handleNewSegment.bind(this, refetch)}>New Segment</button>
-									{this.renderMetronome(bpm)}
-								</div>
-							</div>
-						)
-					}}
-				</Query>
+				<button onClick={this.handleNewSegment.bind(this)}>Fetch Segment</button>
+				{this.renderInteractivePart()}
 			</div>
 		)
 	}
 }
+
+const mapStateToProps = (store: any, ownProp?: any): MainProps => ({
+	dispatch: ownProp.dispatch,
+	activeSegment: store.graphql.activeSegment,
+	segmentLoading: store.graphql.segmentLoading
+})
+
+export default withSiteData(connect(mapStateToProps)(Main))
