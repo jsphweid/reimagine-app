@@ -65,6 +65,18 @@ class AudioEngine {
 		})
 	}
 
+	public playBlob(blobUrl: string): void {
+		new Audio(blobUrl).play()
+
+		// const audioBufferNode: AudioBufferSourceNode = this.audioContext.createBufferSource()
+		// const gainNode = this.audioContext.createGain()
+		// audioBufferNode.buffer = buffer
+		// audioBufferNode.start(0)
+		// gainNode.gain.value = 0.5
+		// audioBufferNode.connect(gainNode)
+		// gainNode.connect(this.audioContext.destination)
+	}
+
 	private shutOffOscillators() {
 		this.oscillators.forEach(osc => osc.disconnect())
 		this.oscillators = []

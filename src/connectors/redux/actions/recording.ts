@@ -36,7 +36,3 @@ export function uploadRecording(recording: RecordingType) {
 		})
 	}
 }
-
-export function playRecording(recording: RecordingType) {
-	// calls a general play function
-}

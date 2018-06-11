@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import { StoreType } from '../../connectors/redux/reducers'
 import { RecordingType } from '../../utils/types'
 import { uploadRecording } from '../../connectors/redux/actions/recording'
+import AudioEngine from '../../audio-engine'
 
 export interface RecordingsProps {
 	dispatch: any
@@ -43,7 +44,7 @@ export class Recordings extends React.Component<RecordingsProps> {
 				: `Recording of ${recording.segment.midiJson.header.name} on ${recording.recordingDate.toString()}`
 
 			const uploadOnClick = cantUpload ? null : () => dispatch(uploadRecording(recording))
-			const playOnClick = isPlaying ? null : () => this.props.dispatch(playRecording(recording))
+			const playOnClick = isPlaying ? null : () => this.handlePlayRecording(recording)
 
 			const playingText = isPlaying ? 'Playing...' : 'Click to Play'
 
@@ -64,6 +65,12 @@ export class Recordings extends React.Component<RecordingsProps> {
 				</div>
 			)
 		})
+	}
+
+	private handlePlayRecording(recording: RecordingType): void {
+		const blobUrl = URL.createObjectURL(recording.blob)
+		AudioEngine.playBlob(blobUrl)
+		// dispatch some action
 	}
 
 	public render() {
