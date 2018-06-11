@@ -1,20 +1,31 @@
 import { combineReducers } from 'redux'
 
-import graphql, { GraphqlStoreStateType } from './graphql'
-import { getGraphqlDefaultState } from './graphql'
+import segment, { SegmentStoreStateType, getSegmentDefaultState } from './segment'
+import recording, { getRecordingDefaultState, RecordingStoreStateType } from './recording'
+import general, { GeneralStoreStateType, getGeneralDefaultState } from './general'
+import audio, { getAudioDefaultState, AudioStoreStateType } from './audio'
 
 const reducer = combineReducers({
-	graphql
+	segment,
+	recording,
+	general,
+	audio
 })
 
 export const getSimpleDefaultStore = () => {
 	return {
-		graphql: getGraphqlDefaultState()
+		segment: getSegmentDefaultState(),
+		recording: getRecordingDefaultState(),
+		general: getGeneralDefaultState(),
+		audio: getAudioDefaultState()
 	}
 }
 
-export interface SimpleDefaultStoreType {
-	graphql: GraphqlStoreStateType
+export interface StoreType {
+	segment: SegmentStoreStateType
+	recording: RecordingStoreStateType
+	general: GeneralStoreStateType
+	audio: AudioStoreStateType
 }
 
 export default reducer

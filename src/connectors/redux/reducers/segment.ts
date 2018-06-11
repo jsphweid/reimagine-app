@@ -2,29 +2,33 @@ import { GET_SEGMENT_SUCCESS, GET_SEGMENT_LOADING } from '../constants'
 import { cloneDeep } from '../../../utils/helpers'
 import { SegmentType } from '../../../utils/types'
 
-export interface GraphqlStoreStateType {
+export interface SegmentStoreStateType {
 	activeSegment: SegmentType
 	segmentLoading: boolean
+	segments: SegmentType[]
 }
 
-const graphqlDefaultState: GraphqlStoreStateType = {
+const segmentDefaultState: SegmentStoreStateType = {
 	activeSegment: null,
-	segmentLoading: false
+	segmentLoading: false,
+	segments: []
 }
 
-export const getGraphqlDefaultState = () => cloneDeep(graphqlDefaultState)
+export const getSegmentDefaultState = () => cloneDeep(segmentDefaultState)
 
-export default (state = getGraphqlDefaultState(), action: any = {}) => {
+export default (state: SegmentStoreStateType = getSegmentDefaultState(), action: any = {}) => {
 	switch (action.type) {
 		case GET_SEGMENT_SUCCESS:
-			console.log('action.data', action.data)
-			const activeSegment = {
+			const segments = state.segments.slice()
+			const newSegment = {
 				...action.data.segment,
 				midiJson: JSON.parse(action.data.segment.midiJson)
 			}
+			segments.push(newSegment)
 			return {
 				...state,
-				activeSegment,
+				segments,
+				activeSegment: newSegment,
 				segmentLoading: false
 			}
 		case GET_SEGMENT_LOADING:

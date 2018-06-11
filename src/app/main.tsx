@@ -1,9 +1,11 @@
 import * as React from 'react'
-import { getSegment } from '../connectors/redux/actions/graphql'
+import { getSegmentFromGraphql } from '../connectors/redux/actions/segment'
 import { withSiteData } from 'react-static'
 import { connect } from 'react-redux'
 import { SegmentType } from '../utils/types'
 import InteractiveComponent from './interactive/interactive'
+import Recordings from './recordings/recordings'
+import { StoreType } from '../connectors/redux/reducers'
 
 export interface MainProps {
 	dispatch: any
@@ -46,12 +48,13 @@ export class Main extends React.Component<MainProps, MainState> {
 				.toString(36)
 				.substring(7)
 		})
-		this.props.dispatch(getSegment())
+		this.props.dispatch(getSegmentFromGraphql())
 	}
 
 	render() {
 		return (
 			<div className="reimagine">
+				<Recordings />
 				<button onClick={this.handleNewSegment.bind(this)}>Fetch Segment</button>
 				{this.renderInteractivePart()}
 			</div>
@@ -59,10 +62,10 @@ export class Main extends React.Component<MainProps, MainState> {
 	}
 }
 
-const mapStateToProps = (store: any, ownProp?: any): MainProps => ({
+const mapStateToProps = (store: StoreType, ownProp?: any): MainProps => ({
 	dispatch: ownProp.dispatch,
-	activeSegment: store.graphql.activeSegment,
-	segmentLoading: store.graphql.segmentLoading
+	activeSegment: store.segment.activeSegment,
+	segmentLoading: store.segment.segmentLoading
 })
 
 export default withSiteData(connect(mapStateToProps)(Main))

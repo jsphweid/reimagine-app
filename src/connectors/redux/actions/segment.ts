@@ -6,7 +6,7 @@ import { GET_SEGMENT_SUCCESS, GET_SEGMENT_LOADING } from '../constants'
 export const getSegmentSuccess = (data: any) => ({ data, type: GET_SEGMENT_SUCCESS })
 export const getSegmentLoading = () => ({ type: GET_SEGMENT_LOADING })
 
-export function getSegment(id?: string) {
+export function getSegmentFromGraphql(id?: string) {
 	return (dispatch: any) => {
 		dispatch(getSegmentLoading())
 		const randomKey = Math.random()

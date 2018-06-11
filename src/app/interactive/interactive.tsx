@@ -2,52 +2,44 @@ import * as React from 'react'
 import MidiVisualizer from 'react-midi-visualizer'
 import Metronome from 'react-conductor'
 import { Note } from 'midiconvert'
-import { SegmentType } from '../../utils/types'
-import { midiToFreq, getSecondsPerBeat } from '../../utils/helpers'
+import { SegmentType, RecordingSessionConfigType } from '../../utils/types'
+import { connect } from 'react-redux'
+import { withSiteData } from 'react-static'
+import { StoreType } from '../../connectors/redux/reducers'
+import AudioEngine from '../../audio-engine'
+import { startRecording, stopRecording } from '../../connectors/redux/actions/audio'
+import { addRecordingToStore } from '../../connectors/redux/actions/recording'
 
 export interface InteractiveComponentProps {
 	segment: SegmentType
+	dispatch: any
+	startTime: number
+	isRecording: boolean
 }
 
 export interface InteractiveComponentState {
-	startTime: number
-	isRecording: boolean
-	audioContextOccupied: boolean
 	playMetronome: boolean
+	recordingLinks: any[]
+	playNotes: boolean
 }
 
-export default class InteractiveComponent extends React.Component<
-	InteractiveComponentProps,
-	InteractiveComponentState
-> {
-	audioContext: AudioContext = null
-	allOscs: OscillatorNode[] = []
-
+export class InteractiveComponent extends React.Component<InteractiveComponentProps, InteractiveComponentState> {
 	constructor(props: InteractiveComponentProps) {
 		super(props)
 		this.state = {
-			startTime: null,
-			isRecording: false,
-			audioContextOccupied: false,
-			playMetronome: false
+			playNotes: false,
+			playMetronome: false,
+			recordingLinks: []
 		}
-	}
-
-	componentDidMount() {
-		this.audioContext = new AudioContext()
-	}
-
-	componentWillUnmount() {
-		this.handleStopRecording()
 	}
 
 	private renderMidiVisualizer(notes: Note[]): JSX.Element {
 		return notes ? (
 			<MidiVisualizer
-				audioContext={this.audioContext}
+				audioContext={AudioEngine.audioContext}
 				height={500}
 				width={800}
-				startTime={this.state.startTime}
+				startTime={this.props.startTime}
 				notes={notes}
 			/>
 		) : null
@@ -56,68 +48,71 @@ export default class InteractiveComponent extends React.Component<
 	private renderMetronome(bpm: number): JSX.Element {
 		return (
 			<Metronome
-				audioContext={this.audioContext}
+				audioContext={AudioEngine.audioContext}
 				width={200}
 				height={200}
 				bpm={bpm}
-				startTime={this.state.startTime}
+				startTime={this.props.startTime}
 				options={{}}
 			/>
 		)
 	}
 
-	private scheduleSoundEvent(timeOffset: number, time: number, duration: number, frequency: number): void {
-		const osc = this.audioContext.createOscillator()
-		osc.connect(this.audioContext.destination)
-		osc.frequency.value = frequency
-		const adjustedTime = time + timeOffset
-		osc.start(adjustedTime)
-		osc.stop(adjustedTime + duration - 0.05)
-		this.allOscs.push(osc)
-	}
-
-	private scheduleSounds(timeOffset: number, playNotes: boolean) {
-		const { midiJson } = this.props.segment
-		if (playNotes) {
-			midiJson.tracks[0].notes.forEach(note => {
-				this.scheduleSoundEvent(timeOffset, note.time, note.duration, midiToFreq(note.midi))
-			})
-		}
-		if (this.state.playMetronome) {
-			const numberOfMetronomeBeats = 40
-			const secondsPerBeat = getSecondsPerBeat(midiJson.header.bpm)
-			for (let i = 0; i < numberOfMetronomeBeats; i++) {
-				this.scheduleSoundEvent(timeOffset, i * secondsPerBeat, 0.15, 440)
-			}
+	private handleStop(): void {
+		this.props.dispatch(stopRecording())
+		const blob = AudioEngine.stopRecording(this.props.isRecording)
+		if (blob) {
+			this.props.dispatch(
+				addRecordingToStore({
+					blob,
+					segment: this.props.segment,
+					recordingDate: new Date(),
+					startTime: this.props.startTime
+				})
+			)
 		}
 	}
 
-	private handleStartRecording(dryRun: boolean = false): void {
-		const startTime = this.audioContext.currentTime
-		this.scheduleSounds(startTime, dryRun)
-		this.setState({ startTime, isRecording: !dryRun, audioContextOccupied: true })
+	private renderStopButton(): JSX.Element {
+		return <button onClick={this.handleStop.bind(this)}>STOP</button>
 	}
 
-	private handleStopRecording(): void {
-		this.shutOffOscillators()
-		this.setState({ isRecording: false, startTime: null, audioContextOccupied: false })
+	private handleStartRecording(recordingSessionConfig: RecordingSessionConfigType) {
+		AudioEngine.startRecording(recordingSessionConfig)
+		this.props.dispatch(startRecording(recordingSessionConfig.startTime))
 	}
 
-	private shutOffOscillators() {
-		this.allOscs.forEach(osc => osc.disconnect())
+	private getRecordingSessionConfig(isMockRecording: boolean): RecordingSessionConfigType {
+		return {
+			isMockRecording,
+			startTime: AudioEngine.audioContext.currentTime,
+			segment: this.props.segment,
+			playMetronome: this.state.playMetronome,
+			playNotes: this.state.playNotes
+		}
 	}
 
-	private renderStartStopButton(): JSX.Element {
-		const { audioContextOccupied } = this.state
-		const buttonText = audioContextOccupied ? 'STOP' : 'RECORD'
-		const clickHandler = audioContextOccupied ? this.handleStopRecording : this.handleStartRecording
-		return <button onClick={clickHandler.bind(this, false)}>{buttonText}</button>
+	private renderStartButton(): JSX.Element {
+		const recordingSessionConfig = this.getRecordingSessionConfig(false)
+		return <button onClick={() => this.handleStartRecording(recordingSessionConfig)}>RECORD</button>
 	}
 
-	private renderPlayThroughButton(): JSX.Element {
-		return this.state.audioContextOccupied ? null : (
-			<button onClick={this.handleStartRecording.bind(this, true)}>Play Through</button>
-		)
+	private renderMockRecordingButton(): JSX.Element {
+		const recordingSessionConfig = this.getRecordingSessionConfig(true)
+		return <button onClick={() => this.handleStartRecording(recordingSessionConfig)}>Play Through</button>
+	}
+
+	private renderPossibleBlobs(): JSX.Element {
+		const { recordingLinks } = this.state
+		return recordingLinks && recordingLinks.length ? (
+			<div>
+				{recordingLinks.map(link => (
+					<a href={link} key={link}>
+						{link}
+					</a>
+				))}
+			</div>
+		) : null
 	}
 
 	private renderMetronomeCheckbox(): JSX.Element {
@@ -134,18 +129,30 @@ export default class InteractiveComponent extends React.Component<
 	}
 
 	render() {
-		const { midiJson } = this.props.segment
+		const { segment, isRecording } = this.props
+		const startStopButton = isRecording ? this.renderStopButton() : this.renderStartButton()
+		const mockRecordButton = isRecording ? null : this.renderMockRecordingButton()
 		return (
 			<div className="reimagine-interactiveComponent">
 				<div>
+					{this.renderPossibleBlobs()}
 					{this.renderMetronomeCheckbox()}
-					{this.renderPlayThroughButton()}
-					{this.renderStartStopButton()}
-					{this.renderMidiVisualizer(midiJson.tracks[0].notes)}
-					{this.renderMetronome(midiJson.header.bpm)}
-					{this.state.isRecording ? 'recording for real...' : null}
+					{mockRecordButton}
+					{startStopButton}
+					{this.renderMidiVisualizer(segment.midiJson.tracks[0].notes)}
+					{this.renderMetronome(segment.midiJson.header.bpm)}
+					{this.props.isRecording ? 'recording for real...' : null}
 				</div>
 			</div>
 		)
 	}
 }
+
+const mapStateToProps = (store: StoreType, ownProp?: any): InteractiveComponentProps => ({
+	dispatch: ownProp.dispatch,
+	segment: ownProp.segment,
+	startTime: store.audio.startTime,
+	isRecording: !!store.audio.startTime
+})
+
+export default withSiteData(connect(mapStateToProps)(InteractiveComponent))
