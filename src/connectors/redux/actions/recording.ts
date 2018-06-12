@@ -18,7 +18,6 @@ export function uploadRecording(recording: RecordingType) {
 	return (dispatch: any) => {
 		dispatch(uploadRecordingStarted(recording))
 		return blobToBase64(recording.blob).then((dataString: string) => {
-			console.log('dataString', dataString)
 			return client
 				.mutate({
 					mutation: gql`

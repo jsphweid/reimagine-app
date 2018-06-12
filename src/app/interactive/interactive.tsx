@@ -9,6 +9,7 @@ import { StoreType } from '../../connectors/redux/reducers'
 import AudioEngine from '../../audio-engine'
 import { startRecording, stopRecording } from '../../connectors/redux/actions/audio'
 import { addRecordingToStore } from '../../connectors/redux/actions/recording'
+import { getRandomString } from '../../utils/helpers'
 
 export interface InteractiveComponentProps {
 	segment: SegmentType
@@ -21,6 +22,7 @@ export interface InteractiveComponentState {
 	playMetronome: boolean
 	recordingLinks: any[]
 	playNotes: boolean
+	randomResetKey: string
 }
 
 export class InteractiveComponent extends React.Component<InteractiveComponentProps, InteractiveComponentState> {
@@ -29,13 +31,15 @@ export class InteractiveComponent extends React.Component<InteractiveComponentPr
 		this.state = {
 			playNotes: false,
 			playMetronome: false,
-			recordingLinks: []
+			recordingLinks: [],
+			randomResetKey: ''
 		}
 	}
 
 	private renderMidiVisualizer(notes: Note[]): JSX.Element {
 		return notes ? (
 			<MidiVisualizer
+				key={`visualizer-${this.state.randomResetKey}`}
 				audioContext={AudioEngine.audioContext}
 				height={500}
 				width={800}
@@ -48,6 +52,7 @@ export class InteractiveComponent extends React.Component<InteractiveComponentPr
 	private renderMetronome(bpm: number): JSX.Element {
 		return (
 			<Metronome
+				key={`metronome-${this.state.randomResetKey}`}
 				audioContext={AudioEngine.audioContext}
 				width={200}
 				height={200}
@@ -79,13 +84,15 @@ export class InteractiveComponent extends React.Component<InteractiveComponentPr
 
 	private handleStartRecording(recordingSessionConfig: RecordingSessionConfigType) {
 		AudioEngine.startRecording(recordingSessionConfig)
+		this.setState({ randomResetKey: getRandomString() })
 		this.props.dispatch(startRecording(recordingSessionConfig.startTime))
 	}
 
 	private getRecordingSessionConfig(isMockRecording: boolean): RecordingSessionConfigType {
+		const startTime = AudioEngine.audioContext.currentTime
 		return {
 			isMockRecording,
-			startTime: AudioEngine.audioContext.currentTime,
+			startTime,
 			segment: this.props.segment,
 			playMetronome: this.state.playMetronome,
 			playNotes: this.state.playNotes
@@ -98,8 +105,11 @@ export class InteractiveComponent extends React.Component<InteractiveComponentPr
 	}
 
 	private renderMockRecordingButton(): JSX.Element {
-		const recordingSessionConfig = this.getRecordingSessionConfig(true)
-		return <button onClick={() => this.handleStartRecording(recordingSessionConfig)}>Play Through</button>
+		return (
+			<button onClick={() => this.handleStartRecording(this.getRecordingSessionConfig(true))}>
+				Play Through
+			</button>
+		)
 	}
 
 	private renderPossibleBlobs(): JSX.Element {
@@ -128,15 +138,30 @@ export class InteractiveComponent extends React.Component<InteractiveComponentPr
 		)
 	}
 
+	private renderPlayNotesCheckbox(): JSX.Element {
+		return (
+			<div>
+				<input
+					type="checkbox"
+					checked={this.state.playNotes}
+					onChange={() => this.setState({ playNotes: !this.state.playNotes })}
+				/>
+				Play Notes
+			</div>
+		)
+	}
+
 	render() {
 		const { segment, isRecording } = this.props
 		const startStopButton = isRecording ? this.renderStopButton() : this.renderStartButton()
 		const mockRecordButton = isRecording ? null : this.renderMockRecordingButton()
+
 		return (
 			<div className="reimagine-interactiveComponent">
 				<div>
 					{this.renderPossibleBlobs()}
 					{this.renderMetronomeCheckbox()}
+					{this.renderPlayNotesCheckbox()}
 					{mockRecordButton}
 					{startStopButton}
 					{this.renderMidiVisualizer(segment.midiJson.tracks[0].notes)}

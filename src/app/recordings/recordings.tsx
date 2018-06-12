@@ -38,10 +38,10 @@ export class Recordings extends React.Component<RecordingsProps> {
 				default:
 					hoverDivText = 'Click To Upload'
 			}
-
+			const formattedDate = recording.recordingDate.toLocaleTimeString()
 			const mainText = recording.isUploading
 				? 'Uploading Spinner'
-				: `Recording of ${recording.segment.midiJson.header.name} on ${recording.recordingDate.toString()}`
+				: `Recording of ${recording.segment.midiJson.header.name} at ${formattedDate} (${hoverDivText})`
 
 			const uploadOnClick = cantUpload ? null : () => dispatch(uploadRecording(recording))
 			const playOnClick = isPlaying ? null : () => this.handlePlayRecording(recording)

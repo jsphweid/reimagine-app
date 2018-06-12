@@ -90,7 +90,7 @@ class AudioEngine {
 	public stopRecording(getBlob: boolean): Blob {
 		this.shutOffOscillators()
 		this.disconnectRecordingNodes()
-		if (getBlob) {
+		if (getBlob && this.wavEncoder) {
 			const blob: Blob = this.wavEncoder.finish()
 			this.wavEncoder = null
 			return blob
