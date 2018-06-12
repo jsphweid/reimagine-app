@@ -100,8 +100,7 @@ export class InteractiveComponent extends React.Component<InteractiveComponentPr
 	}
 
 	private renderStartButton(): JSX.Element {
-		const recordingSessionConfig = this.getRecordingSessionConfig(false)
-		return <button onClick={() => this.handleStartRecording(recordingSessionConfig)}>RECORD</button>
+		return <button onClick={() => this.handleStartRecording(this.getRecordingSessionConfig(false))}>RECORD</button>
 	}
 
 	private renderMockRecordingButton(): JSX.Element {
