@@ -1,5 +1,5 @@
 import { START_RECORDING, STOP_RECORDING, START_MOCK_RECORDING, STOP_MOCK_RECORDING } from '../constants'
-import { SegmentType } from '../../../utils/types'
+import { SegmentType } from '../../../common/types'
 
 export const startRecording = (startTime: number) => ({
 	startTime,

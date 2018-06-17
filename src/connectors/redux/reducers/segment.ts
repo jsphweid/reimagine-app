@@ -1,6 +1,6 @@
 import { GET_SEGMENT_SUCCESS, GET_SEGMENT_LOADING } from '../constants'
-import { cloneDeep } from '../../../utils/helpers'
-import { SegmentType } from '../../../utils/types'
+import { cloneDeep } from '../../../common/helpers'
+import { SegmentType } from '../../../common/types'
 
 export interface SegmentStoreStateType {
 	activeSegment: SegmentType

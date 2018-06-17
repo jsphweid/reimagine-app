@@ -2,7 +2,7 @@ import * as React from 'react'
 import { withSiteData } from 'react-static'
 import { connect } from 'react-redux'
 import { StoreType } from '../../connectors/redux/reducers'
-import { RecordingType } from '../../utils/types'
+import { RecordingType } from '../../common/types'
 import { uploadRecording } from '../../connectors/redux/actions/recording'
 import AudioEngine from '../../audio-engine'
 

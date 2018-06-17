@@ -1,8 +1,8 @@
-import { RecordingType } from '../../../utils/types'
+import { RecordingType } from '../../../common/types'
 import { ADD_RECORDING_TO_STORE, UPLOAD_RECORDING_STARTED, UPLOAD_RECORDING_SUCCESS } from '../constants'
 import gql from 'graphql-tag'
 import client from '../../apollo'
-import { blobToBase64 } from '../../../utils/helpers'
+import { blobToBase64 } from '../../../common/helpers'
 
 export const addRecordingToStore = (recording: RecordingType) => ({ recording, type: ADD_RECORDING_TO_STORE })
 export const uploadRecordingStarted = (recording: RecordingType) => ({

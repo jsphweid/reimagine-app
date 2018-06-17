@@ -1,6 +1,6 @@
-import { cloneDeep } from '../../../utils/helpers'
+import { cloneDeep } from '../../../common/helpers'
 import { START_RECORDING, STOP_RECORDING } from '../constants'
-import { SegmentType } from '../../../utils/types'
+import { SegmentType } from '../../../common/types'
 
 // mixes state and stateless paradigms
 export interface AudioStoreStateType {

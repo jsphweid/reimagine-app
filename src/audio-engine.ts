@@ -1,7 +1,7 @@
-import { getSecondsPerBeat, midiToFreq } from './utils/helpers'
+import { getSecondsPerBeat, midiToFreq } from './common/helpers'
 import { Note } from 'midiconvert'
 import WavEncoder from './encoders/wav-encoder'
-import { RecordingSessionConfigType } from './utils/types'
+import { RecordingSessionConfigType } from './common/types'
 
 class AudioEngine {
 	public static instance: AudioEngine

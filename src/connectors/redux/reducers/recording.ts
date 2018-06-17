@@ -1,6 +1,6 @@
 import { ADD_RECORDING_TO_STORE, UPLOAD_RECORDING_SUCCESS, UPLOAD_RECORDING_STARTED } from '../constants'
-import { cloneDeep } from '../../../utils/helpers'
-import { RecordingType } from '../../../utils/types'
+import { cloneDeep } from '../../../common/helpers'
+import { RecordingType } from '../../../common/types'
 
 export interface RecordingStoreStateType {
 	recordings: RecordingType[]

@@ -28,7 +28,10 @@ export function getSegmentFromGraphql(id?: string) {
 					}
 				`
 			})
-			.then(response => dispatch(getSegmentSuccess(response.data)))
+			.then(response => {
+				console.log(response)
+				return dispatch(getSegmentSuccess(response.data))
+			})
 			.catch(error => console.error(error))
 	}
 }

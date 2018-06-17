@@ -1,21 +1,23 @@
 import * as React from 'react'
 import MidiVisualizer from 'react-midi-visualizer'
-import Metronome from 'react-conductor'
 import { Note } from 'midiconvert'
-import { SegmentType, RecordingSessionConfigType } from '../../utils/types'
+import { SegmentType, RecordingSessionConfigType } from '../../common/types'
 import { connect } from 'react-redux'
 import { withSiteData } from 'react-static'
 import { StoreType } from '../../connectors/redux/reducers'
 import AudioEngine from '../../audio-engine'
 import { startRecording, stopRecording } from '../../connectors/redux/actions/audio'
 import { addRecordingToStore } from '../../connectors/redux/actions/recording'
-import { getRandomString } from '../../utils/helpers'
+import { getRandomString } from '../../common/helpers'
+import Recordings from '../recordings/recordings'
+import { getSegmentFromGraphql } from '../../connectors/redux/actions/segment'
 
 export interface InteractiveComponentProps {
-	segment: SegmentType
 	dispatch: any
 	startTime: number
 	isRecording: boolean
+	activeSegment: SegmentType
+	segmentLoading: boolean
 }
 
 export interface InteractiveComponentState {
@@ -23,6 +25,7 @@ export interface InteractiveComponentState {
 	recordingLinks: any[]
 	playNotes: boolean
 	randomResetKey: string
+	reactResetKey: string
 }
 
 export class InteractiveComponent extends React.Component<InteractiveComponentProps, InteractiveComponentState> {
@@ -32,7 +35,14 @@ export class InteractiveComponent extends React.Component<InteractiveComponentPr
 			playNotes: false,
 			playMetronome: false,
 			recordingLinks: [],
-			randomResetKey: ''
+			randomResetKey: '',
+			reactResetKey: ''
+		}
+	}
+
+	public componentWillMount() {
+		if (!this.props.activeSegment) {
+			this.props.dispatch(getSegmentFromGraphql())
 		}
 	}
 
@@ -49,20 +59,6 @@ export class InteractiveComponent extends React.Component<InteractiveComponentPr
 		) : null
 	}
 
-	private renderMetronome(bpm: number): JSX.Element {
-		return (
-			<Metronome
-				key={`metronome-${this.state.randomResetKey}`}
-				audioContext={AudioEngine.audioContext}
-				width={200}
-				height={200}
-				bpm={bpm}
-				startTime={this.props.startTime}
-				options={{}}
-			/>
-		)
-	}
-
 	private handleStop(): void {
 		this.props.dispatch(stopRecording())
 		const blob = AudioEngine.stopRecording(this.props.isRecording)
@@ -70,7 +66,7 @@ export class InteractiveComponent extends React.Component<InteractiveComponentPr
 			this.props.dispatch(
 				addRecordingToStore({
 					blob,
-					segment: this.props.segment,
+					segment: this.props.activeSegment,
 					recordingDate: new Date(),
 					startTime: this.props.startTime
 				})
@@ -93,7 +89,7 @@ export class InteractiveComponent extends React.Component<InteractiveComponentPr
 		return {
 			isMockRecording,
 			startTime,
-			segment: this.props.segment,
+			segment: this.props.activeSegment,
 			playMetronome: this.state.playMetronome,
 			playNotes: this.state.playNotes
 		}
@@ -137,6 +133,15 @@ export class InteractiveComponent extends React.Component<InteractiveComponentPr
 		)
 	}
 
+	private handleNewSegment(): void {
+		this.setState({
+			reactResetKey: Math.random()
+				.toString(36)
+				.substring(7)
+		})
+		this.props.dispatch(getSegmentFromGraphql())
+	}
+
 	private renderPlayNotesCheckbox(): JSX.Element {
 		return (
 			<div>
@@ -151,20 +156,24 @@ export class InteractiveComponent extends React.Component<InteractiveComponentPr
 	}
 
 	render() {
-		const { segment, isRecording } = this.props
+		const { activeSegment, isRecording, segmentLoading } = this.props
+		if (segmentLoading) return <div>LOADING!!</div>
+		if (!activeSegment) return null
 		const startStopButton = isRecording ? this.renderStopButton() : this.renderStartButton()
 		const mockRecordButton = isRecording ? null : this.renderMockRecordingButton()
 
 		return (
 			<div className="reimagine-interactiveComponent">
 				<div>
+					<button onClick={this.handleNewSegment.bind(this)}>Fetch Segment</button>
+					<Recordings />
+
 					{this.renderPossibleBlobs()}
 					{this.renderMetronomeCheckbox()}
 					{this.renderPlayNotesCheckbox()}
 					{mockRecordButton}
 					{startStopButton}
-					{this.renderMidiVisualizer(segment.midiJson.tracks[0].notes)}
-					{this.renderMetronome(segment.midiJson.header.bpm)}
+					{this.renderMidiVisualizer(activeSegment.midiJson.tracks[0].notes)}
 					{this.props.isRecording ? 'recording for real...' : null}
 				</div>
 			</div>
@@ -174,9 +183,10 @@ export class InteractiveComponent extends React.Component<InteractiveComponentPr
 
 const mapStateToProps = (store: StoreType, ownProp?: any): InteractiveComponentProps => ({
 	dispatch: ownProp.dispatch,
-	segment: ownProp.segment,
 	startTime: store.audio.startTime,
-	isRecording: !!store.audio.startTime
+	isRecording: !!store.audio.startTime,
+	activeSegment: store.segment.activeSegment,
+	segmentLoading: store.segment.segmentLoading
 })
 
 export default withSiteData(connect(mapStateToProps)(InteractiveComponent))
