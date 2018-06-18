@@ -3,6 +3,7 @@ import { MIDI } from 'midiconvert'
 export interface SegmentType {
 	readonly date: Date
 	readonly difficulty?: number
+	readonly humanHash: string
 	readonly id: string
 	readonly midiJson: MIDI
 	readonly pieceId: string

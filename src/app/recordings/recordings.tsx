@@ -5,6 +5,7 @@ import { StoreType } from '../../connectors/redux/reducers'
 import { RecordingType } from '../../common/types'
 import { uploadRecording } from '../../connectors/redux/actions/recording'
 import AudioEngine from '../../audio-engine'
+import { timeSince } from '../../common/helpers'
 
 export interface RecordingsProps {
 	dispatch: any
@@ -38,10 +39,10 @@ export class Recordings extends React.Component<RecordingsProps> {
 				default:
 					hoverDivText = 'Click To Upload'
 			}
-			const formattedDate = recording.recordingDate.toLocaleTimeString()
+			const timeSinceText = timeSince(new Date(recording.recordingDate).getTime())
 			const mainText = recording.isUploading
 				? 'Uploading Spinner'
-				: `Recording of ${recording.segment.midiJson.header.name} at ${formattedDate} (${hoverDivText})`
+				: `Recording of ${recording.segment.humanHash} recorded ${timeSinceText} (${hoverDivText})`
 
 			const uploadOnClick = cantUpload ? null : () => dispatch(uploadRecording(recording))
 			const playOnClick = isPlaying ? null : () => this.handlePlayRecording(recording)

@@ -19,6 +19,7 @@ export function getSegmentFromGraphql(id?: string) {
 					{
 						segment(${args}) {
 							id
+							humanHash
 							date
 							midiJson
 							difficulty
@@ -29,7 +30,6 @@ export function getSegmentFromGraphql(id?: string) {
 				`
 			})
 			.then(response => {
-				console.log(response)
 				return dispatch(getSegmentSuccess(response.data))
 			})
 			.catch(error => console.error(error))
