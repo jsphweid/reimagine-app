@@ -7,7 +7,7 @@ import { StoreType } from '../../connectors/redux/reducers'
 import AudioEngine from '../../audio-engine'
 import { startRecording, stopRecording } from '../../connectors/redux/actions/audio'
 import { addRecordingToStore } from '../../connectors/redux/actions/recording'
-import { getRandomString, blobToBase64 } from '../../common/helpers'
+import { getRandomString, blobToBase64, cloneDeep } from '../../common/helpers'
 import { getSegmentFromGraphql } from '../../connectors/redux/actions/segment'
 import { uploadRecording } from '../../connectors/redux/actions/recording'
 
@@ -39,9 +39,7 @@ export interface InteractiveProps {
 }
 
 export interface InteractiveState {
-	recordingLinks: any[]
 	randomResetKey: string
-	reactResetKey: string
 	midiVisualizerDims: { height: number; width: number }
 }
 
@@ -49,9 +47,7 @@ export class Interactive extends React.Component<InteractiveProps, InteractiveSt
 	constructor(props: InteractiveProps) {
 		super(props)
 		this.state = {
-			recordingLinks: [],
 			randomResetKey: 'default',
-			reactResetKey: '',
 			midiVisualizerDims: null
 		}
 	}
@@ -62,6 +58,13 @@ export class Interactive extends React.Component<InteractiveProps, InteractiveSt
 		}
 	}
 
+	public componentWillReceiveProps(nextProps: InteractiveProps) {
+		const { activeSegment } = this.props
+		if (activeSegment && cloneDeep(activeSegment) !== cloneDeep(nextProps.activeSegment)) {
+			this.setState({ randomResetKey: getRandomString() })
+		}
+	}
+
 	private handleSetMidiVisualizerDims(ref: any): void {
 		if (this.state.midiVisualizerDims) return
 		const { clientWidth, clientHeight } = ref
@@ -69,7 +72,7 @@ export class Interactive extends React.Component<InteractiveProps, InteractiveSt
 	}
 
 	private renderMidiVisualizer(): JSX.Element {
-		if (!this.props.activeSegment || !this.state.midiVisualizerDims) return null
+		if (!this.props.activeSegment || !this.state.midiVisualizerDims || this.props.segmentLoading) return null
 
 		const { notes } = this.props.activeSegment.midiJson.tracks[0]
 
@@ -111,12 +114,13 @@ export class Interactive extends React.Component<InteractiveProps, InteractiveSt
 
 	private getRecordingSessionConfig(isMockRecording: boolean): RecordingSessionConfigType {
 		const startTime = AudioEngine.audioContext.currentTime
+		const configProfile = isMockRecording ? 'playConfig' : 'recordConfig'
 		return {
 			isMockRecording,
 			startTime,
 			segment: this.props.activeSegment,
-			playMetronome: defaultUserConfig.recordConfig.playMetronome,
-			playNotes: defaultUserConfig.recordConfig.playNotes
+			playMetronome: defaultUserConfig[configProfile].playMetronome,
+			playNotes: defaultUserConfig[configProfile].playNotes
 		}
 	}
 
@@ -128,10 +132,7 @@ export class Interactive extends React.Component<InteractiveProps, InteractiveSt
 		) : (
 			<NewIcon
 				className={segmentLoading ? 'reimagine-spin reimagine-unclickable' : ''}
-				onClick={() => {
-					this.setState({ randomResetKey: getRandomString() })
-					this.props.dispatch(getSegmentFromGraphql())
-				}}
+				onClick={() => this.props.dispatch(getSegmentFromGraphql())}
 			/>
 		)
 	}
