@@ -18,7 +18,7 @@ export default (
 ): RecordingStoreStateType => {
 	switch (action.type) {
 		case ADD_RECORDING_TO_STORE: {
-			const recordings = state.recordings.slice()
+			const recordings = cloneDeep(state.recordings)
 			recordings.push(action.recording)
 			return {
 				...state,
@@ -26,7 +26,7 @@ export default (
 			}
 		}
 		case UPLOAD_RECORDING_STARTED: {
-			const recordings = state.recordings.slice()
+			const recordings = cloneDeep(state.recordings)
 			const index = recordings.findIndex(recording => recording.recordingDate === action.recording.recordingDate)
 			recordings[index].isUploading = true
 			return {
@@ -35,7 +35,7 @@ export default (
 			}
 		}
 		case UPLOAD_RECORDING_SUCCESS: {
-			const recordings = state.recordings.slice()
+			const recordings = cloneDeep(state.recordings)
 			const index = recordings.findIndex(recording => recording.recordingDate === action.recording.recordingDate)
 			recordings[index].isUploading = false
 			recordings[index].id = 'test'

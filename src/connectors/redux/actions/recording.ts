@@ -17,21 +17,21 @@ export const uploadRecordingSuccess = (recording: RecordingType) => ({
 export function uploadRecording(recording: RecordingType) {
 	return (dispatch: any) => {
 		dispatch(uploadRecordingStarted(recording))
-		return blobToBase64(recording.blob).then((dataString: string) => {
-			return client
-				.mutate({
-					mutation: gql`
+		return client
+			.mutate({
+				mutation: gql`
 					mutation {
-						postRecording(base64Blob: "${dataString}", startTime: ${recording.startTime}, segmentId: "${recording.segment.id}") {
+						postRecording(base64Blob: "${recording.base64blob}", startTime: ${recording.startTime}, segmentId: "${
+					recording.segment.id
+				}") {
 							id
 						}
 					}
 				`
-				})
-				.then(response => {
-					dispatch(uploadRecordingSuccess({ ...recording, id: response.data.postRecording.id }))
-				})
-				.catch((error: any) => console.error(error))
-		})
+			})
+			.then(response => {
+				dispatch(uploadRecordingSuccess({ ...recording, id: response.data.postRecording.id }))
+			})
+			.catch((error: any) => console.error(error))
 	}
 }

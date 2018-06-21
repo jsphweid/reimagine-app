@@ -2,9 +2,10 @@ import * as React from 'react'
 import { withSiteData } from 'react-static'
 import { connect } from 'react-redux'
 import { SegmentType } from '../common/types'
-import InteractiveComponent from './interactive/interactive'
+import Interactive from './interactive/interactive'
 import { StoreType } from '../connectors/redux/reducers'
 import { MainSection } from '../common/constants'
+import Navigation from './navigation/navigation'
 
 export interface MainProps {
 	dispatch: any
@@ -26,13 +27,18 @@ export class Main extends React.Component<MainProps, null> {
 		switch (this.props.activeMainSection) {
 			default:
 			case MainSection.Interactive: {
-				return <InteractiveComponent />
+				return <Interactive />
 			}
 		}
 	}
 
 	render() {
-		return <div className="reimagine">{this.renderMainArea()}</div>
+		return (
+			<div className="reimagine">
+				<Navigation />
+				{this.renderMainArea()}
+			</div>
+		)
 	}
 }
 

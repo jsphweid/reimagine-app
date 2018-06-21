@@ -20,6 +20,10 @@ export function blobToBase64(blob: Blob): Promise<string> {
 	})
 }
 
+export function base64ToBlob(base64: string): Promise<Blob> {
+	return fetch(base64).then(res => res.blob())
+}
+
 export function getRandomString(): string {
 	return Math.random()
 		.toString(36)

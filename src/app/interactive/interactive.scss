@@ -1,0 +1,43 @@
+.reimagine-interactive {
+	height: calc(100% - 64px);
+}
+
+.reimagine-interactive-midiVisualizer {
+	height: 100%;
+}
+
+.reimagine-interactive-overlay {
+	position: absolute;
+	width: 100%;
+	display: inline-flex;
+
+	& > div {
+		flex: 1;
+	}
+
+	div:nth-child(2) {
+		text-align: center;
+		flex: 4;
+	}
+
+	div:last-child {
+		svg {
+			float: right;
+		}
+	}
+
+	svg {
+		height: 32px;
+		width: 32px;
+		margin: 24px;
+		cursor: pointer;
+	}
+}
+
+@media (max-width: 584px) {
+	.reimagine-interactive-overlay {
+		svg {
+			margin: 8px;
+		}
+	}
+}

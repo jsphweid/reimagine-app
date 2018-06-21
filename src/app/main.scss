@@ -1,10 +1,36 @@
 @import 'recordings/recordings';
 @import 'navigation/navigation';
+@import 'interactive/interactive';
+
+.reimagine {
+	max-width: 1280px;
+	width: 100%;
+	// margin: 0 auto;
+	// overflow: auto;
+	height: 100%;
+
+	// & > div:first-child {
+	// 	float: left;
+	// 	width: 250px;
+	// 	height: calc(100% - 2px);
+	// }
+	// & > div:last-child {
+	// 	float: right;
+	// 	width: calc(100% - 252px);
+	// 	height: 100%;
+	// }
+}
 
 body {
 	margin: 0;
 }
 
+html,
+body,
+#root,
+.reimagine {
+	height: 100%;
+}
 .jlw-headerOffset {
 	padding-top: 80px;
 }
@@ -46,4 +72,35 @@ button {
 
 .pointer {
 	cursor: pointer;
+}
+
+.reimagine-spin {
+	-webkit-animation: reimagine-spin 2s infinite linear;
+	animation: reimagine-spin 2s infinite linear;
+}
+@-webkit-keyframes reimagine-spin {
+	0% {
+		-webkit-transform: rotate(0deg);
+		transform: rotate(0deg);
+	}
+	100% {
+		-webkit-transform: rotate(359deg);
+		transform: rotate(359deg);
+	}
+}
+@keyframes reimagine-spin {
+	0% {
+		-webkit-transform: rotate(0deg);
+		transform: rotate(0deg);
+	}
+	100% {
+		-webkit-transform: rotate(359deg);
+		transform: rotate(359deg);
+	}
+}
+
+.reimagine-unclickable {
+	color: $grey;
+	opacity: 0.7;
+	cursor: default;
 }

@@ -1,5 +1,6 @@
 .reimagine-recordings {
 	border: 1px solid $black;
+	width: 100%;
 }
 
 .reimagine-recordings-recording {
@@ -46,4 +47,8 @@
 
 .reimagine-recordings-recording:hover .reimagine-recordings-recording-hoverDiv {
 	visibility: visible;
+}
+
+.reimagine-recordings-carousel {
+	height: 80px;
 }

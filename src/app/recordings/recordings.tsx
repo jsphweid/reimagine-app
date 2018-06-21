@@ -5,7 +5,7 @@ import { StoreType } from '../../connectors/redux/reducers'
 import { RecordingType } from '../../common/types'
 import { uploadRecording } from '../../connectors/redux/actions/recording'
 import AudioEngine from '../../audio-engine'
-import { timeSince } from '../../common/helpers'
+import { timeSince, base64ToBlob } from '../../common/helpers'
 
 export interface RecordingsProps {
 	dispatch: any
@@ -13,17 +13,15 @@ export interface RecordingsProps {
 	isPlaying: boolean
 }
 
-// refactor this whole class???!?!? renderRecordings looks terrible
-
 export class Recordings extends React.Component<RecordingsProps> {
 	constructor(props: RecordingsProps) {
 		super(props)
 	}
 
-	private renderRecordings(): JSX.Element[] {
+	private renderRecordings(): JSX.Element {
 		const { dispatch, isPlaying } = this.props
 
-		return this.props.recordings.map((recording: RecordingType) => {
+		const content = this.props.recordings.map((recording: RecordingType) => {
 			const additionalClass = recording.id ? 'reimagine-recordings-recording--uploaded' : ''
 
 			const cantUpload = recording.id || recording.isUploading
@@ -66,11 +64,15 @@ export class Recordings extends React.Component<RecordingsProps> {
 				</div>
 			)
 		})
+
+		return <div>{content}</div>
 	}
 
 	private handlePlayRecording(recording: RecordingType): void {
-		const blobUrl = URL.createObjectURL(recording.blob)
-		AudioEngine.playBlob(blobUrl)
+		base64ToBlob(recording.base64blob).then((blob: Blob) => {
+			const blobUrl = URL.createObjectURL(blob)
+			AudioEngine.playBlob(blobUrl)
+		})
 		// dispatch some action
 	}
 

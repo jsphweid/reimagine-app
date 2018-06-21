@@ -18,7 +18,7 @@
 		"paths": {
 			"@myPathAlias/*": ["src/path-alias-example/*"]
 		},
-		"typeRoots": ["./node_modules/@types"],
+		"typeRoots": ["./node_modules/@types", "./local-types"],
 		"lib": ["dom", "es2015", "es2016"]
 	},
 	"exclude": ["dist/**/*", "public/**/*"]

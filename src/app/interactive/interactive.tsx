@@ -1,58 +1,84 @@
 import * as React from 'react'
 import MidiVisualizer from 'react-midi-visualizer'
-import { Note } from 'midiconvert'
-import { SegmentType, RecordingSessionConfigType } from '../../common/types'
+import { SegmentType, RecordingSessionConfigType, RecordingType } from '../../common/types'
 import { connect } from 'react-redux'
 import { withSiteData } from 'react-static'
 import { StoreType } from '../../connectors/redux/reducers'
 import AudioEngine from '../../audio-engine'
 import { startRecording, stopRecording } from '../../connectors/redux/actions/audio'
 import { addRecordingToStore } from '../../connectors/redux/actions/recording'
-import { getRandomString } from '../../common/helpers'
-import Recordings from '../recordings/recordings'
+import { getRandomString, blobToBase64 } from '../../common/helpers'
 import { getSegmentFromGraphql } from '../../connectors/redux/actions/segment'
+import { uploadRecording } from '../../connectors/redux/actions/recording'
 
-export interface InteractiveComponentProps {
+import PlayIcon from 'react-icons/lib/fa/play'
+import StopIcon from 'react-icons/lib/fa/stop'
+import RecordIcon from 'react-icons/lib/fa/circle'
+import NewIcon from 'react-icons/lib/fa/refresh'
+import UploadIcon from 'react-icons/lib/fa/upload'
+import SpinnerIcon from 'react-icons/lib/fa/spinner'
+
+const defaultUserConfig = {
+	playConfig: {
+		playMetronome: true,
+		playNotes: true
+	},
+	recordConfig: {
+		playMetronome: false,
+		playNotes: false
+	}
+}
+
+export interface InteractiveProps {
 	dispatch: any
 	startTime: number
 	isRecording: boolean
 	activeSegment: SegmentType
 	segmentLoading: boolean
+	latestRecording: RecordingType
 }
 
-export interface InteractiveComponentState {
-	playMetronome: boolean
+export interface InteractiveState {
 	recordingLinks: any[]
-	playNotes: boolean
 	randomResetKey: string
 	reactResetKey: string
+	midiVisualizerDims: { height: number; width: number }
 }
 
-export class InteractiveComponent extends React.Component<InteractiveComponentProps, InteractiveComponentState> {
-	constructor(props: InteractiveComponentProps) {
+export class Interactive extends React.Component<InteractiveProps, InteractiveState> {
+	constructor(props: InteractiveProps) {
 		super(props)
 		this.state = {
-			playNotes: false,
-			playMetronome: false,
 			recordingLinks: [],
-			randomResetKey: '',
-			reactResetKey: ''
+			randomResetKey: 'default',
+			reactResetKey: '',
+			midiVisualizerDims: null
 		}
 	}
 
-	public componentWillMount() {
+	public componentDidMount() {
 		if (!this.props.activeSegment) {
 			this.props.dispatch(getSegmentFromGraphql())
 		}
 	}
 
-	private renderMidiVisualizer(notes: Note[]): JSX.Element {
+	private handleSetMidiVisualizerDims(ref: any): void {
+		if (this.state.midiVisualizerDims) return
+		const { clientWidth, clientHeight } = ref
+		this.setState({ midiVisualizerDims: { width: clientWidth, height: clientHeight } })
+	}
+
+	private renderMidiVisualizer(): JSX.Element {
+		if (!this.props.activeSegment || !this.state.midiVisualizerDims) return null
+
+		const { notes } = this.props.activeSegment.midiJson.tracks[0]
+
 		return notes ? (
 			<MidiVisualizer
 				key={`visualizer-${this.state.randomResetKey}`}
 				audioContext={AudioEngine.audioContext}
-				height={500}
-				width={800}
+				height={this.state.midiVisualizerDims.height}
+				width={this.state.midiVisualizerDims.width}
 				startTime={this.props.startTime}
 				notes={notes}
 			/>
@@ -62,25 +88,24 @@ export class InteractiveComponent extends React.Component<InteractiveComponentPr
 	private handleStop(): void {
 		this.props.dispatch(stopRecording())
 		const blob = AudioEngine.stopRecording(this.props.isRecording)
-		if (blob) {
-			this.props.dispatch(
-				addRecordingToStore({
-					blob,
-					segment: this.props.activeSegment,
-					recordingDate: new Date(),
-					startTime: this.props.startTime
-				})
-			)
-		}
-	}
+		const startTime = this.props.startTime
 
-	private renderStopButton(): JSX.Element {
-		return <button onClick={this.handleStop.bind(this)}>STOP</button>
+		if (blob) {
+			blobToBase64(blob).then((base64blob: string) => {
+				this.props.dispatch(
+					addRecordingToStore({
+						base64blob,
+						startTime,
+						segment: this.props.activeSegment,
+						recordingDate: new Date().toString()
+					})
+				)
+			})
+		}
 	}
 
 	private handleStartRecording(recordingSessionConfig: RecordingSessionConfigType) {
 		AudioEngine.startRecording(recordingSessionConfig)
-		this.setState({ randomResetKey: getRandomString() })
 		this.props.dispatch(startRecording(recordingSessionConfig.startTime))
 	}
 
@@ -90,98 +115,93 @@ export class InteractiveComponent extends React.Component<InteractiveComponentPr
 			isMockRecording,
 			startTime,
 			segment: this.props.activeSegment,
-			playMetronome: this.state.playMetronome,
-			playNotes: this.state.playNotes
+			playMetronome: defaultUserConfig.recordConfig.playMetronome,
+			playNotes: defaultUserConfig.recordConfig.playNotes
 		}
 	}
 
-	private renderStartButton(): JSX.Element {
-		return <button onClick={() => this.handleStartRecording(this.getRecordingSessionConfig(false))}>RECORD</button>
-	}
+	renderNewSegmentIcon(): JSX.Element {
+		const { isRecording, segmentLoading } = this.props
 
-	private renderMockRecordingButton(): JSX.Element {
-		return (
-			<button onClick={() => this.handleStartRecording(this.getRecordingSessionConfig(true))}>
-				Play Through
-			</button>
+		return isRecording ? (
+			<NewIcon className="reimagine-unclickable" />
+		) : (
+			<NewIcon
+				className={segmentLoading ? 'reimagine-spin reimagine-unclickable' : ''}
+				onClick={() => {
+					this.setState({ randomResetKey: getRandomString() })
+					this.props.dispatch(getSegmentFromGraphql())
+				}}
+			/>
 		)
 	}
 
-	private renderPossibleBlobs(): JSX.Element {
-		const { recordingLinks } = this.state
-		return recordingLinks && recordingLinks.length ? (
-			<div>
-				{recordingLinks.map(link => (
-					<a href={link} key={link}>
-						{link}
-					</a>
-				))}
-			</div>
-		) : null
-	}
-
-	private renderMetronomeCheckbox(): JSX.Element {
-		return (
-			<div>
-				<input
-					type="checkbox"
-					checked={this.state.playMetronome}
-					onChange={() => this.setState({ playMetronome: !this.state.playMetronome })}
-				/>
-				Play Metronome
-			</div>
+	renderRecordButton(): JSX.Element {
+		return this.props.isRecording ? (
+			<RecordIcon className="reimagine-unclickable" />
+		) : (
+			<RecordIcon onClick={() => this.handleStartRecording(this.getRecordingSessionConfig(false))} />
 		)
 	}
 
-	private handleNewSegment(): void {
-		this.setState({
-			reactResetKey: Math.random()
-				.toString(36)
-				.substring(7)
-		})
-		this.props.dispatch(getSegmentFromGraphql())
+	renderPlayIcon(): JSX.Element {
+		return this.props.isRecording ? (
+			<PlayIcon className="reimagine-unclickable" />
+		) : (
+			<PlayIcon onClick={() => this.handleStartRecording(this.getRecordingSessionConfig(true))} />
+		)
 	}
 
-	private renderPlayNotesCheckbox(): JSX.Element {
+	renderStopIcon(): JSX.Element {
+		return this.props.isRecording ? (
+			<StopIcon onClick={this.handleStop.bind(this)} />
+		) : (
+			<StopIcon className="reimagine-unclickable" />
+		)
+	}
+
+	renderUploadIcon(): JSX.Element {
+		if (!this.props.latestRecording) return <div />
+		const { isUploading, id } = this.props.latestRecording
+		const uploadClickHandler =
+			isUploading || id ? null : () => this.props.dispatch(uploadRecording(this.props.latestRecording))
+		const icon = isUploading ? (
+			<SpinnerIcon className="reimagine-spin" />
+		) : (
+			<UploadIcon
+				className={id || this.props.isRecording ? 'reimagine-unclickable' : ''}
+				onClick={uploadClickHandler}
+			/>
+		)
+		return <div>{icon}</div>
+	}
+
+	renderOverlay(): JSX.Element {
 		return (
-			<div>
-				<input
-					type="checkbox"
-					checked={this.state.playNotes}
-					onChange={() => this.setState({ playNotes: !this.state.playNotes })}
-				/>
-				Play Notes
+			<div className="reimagine-interactive-overlay">
+				<div>{this.renderNewSegmentIcon()}</div>
+				<div>
+					{this.renderPlayIcon()}
+					{this.renderStopIcon()}
+					{this.renderRecordButton()}
+				</div>
+				{this.renderUploadIcon()}
 			</div>
 		)
 	}
 
 	render() {
-		const { activeSegment, isRecording, segmentLoading } = this.props
-		if (segmentLoading) return <div>LOADING!!</div>
-		if (!activeSegment) return null
-		const startStopButton = isRecording ? this.renderStopButton() : this.renderStartButton()
-		const mockRecordButton = isRecording ? null : this.renderMockRecordingButton()
-
 		return (
-			<div className="reimagine-interactiveComponent">
-				<div>
-					<button onClick={this.handleNewSegment.bind(this)}>Fetch Segment</button>
-					<Recordings />
-
-					{this.renderPossibleBlobs()}
-					{this.renderMetronomeCheckbox()}
-					{this.renderPlayNotesCheckbox()}
-					{mockRecordButton}
-					{startStopButton}
-					{this.renderMidiVisualizer(activeSegment.midiJson.tracks[0].notes)}
-					{this.props.isRecording ? 'recording for real...' : null}
-				</div>
+			<div className="reimagine-interactive" ref={this.handleSetMidiVisualizerDims.bind(this)}>
+				{this.renderOverlay()}
+				<div className="reimagine-interactive-midiVisualizer">{this.renderMidiVisualizer()}</div>
 			</div>
 		)
 	}
 }
 
-const mapStateToProps = (store: StoreType, ownProp?: any): InteractiveComponentProps => ({
+const mapStateToProps = (store: StoreType, ownProp?: any): InteractiveProps => ({
+	latestRecording: store.recording.recordings[store.recording.recordings.length - 1],
 	dispatch: ownProp.dispatch,
 	startTime: store.audio.startTime,
 	isRecording: !!store.audio.startTime,
@@ -189,4 +209,4 @@ const mapStateToProps = (store: StoreType, ownProp?: any): InteractiveComponentP
 	segmentLoading: store.segment.segmentLoading
 })
 
-export default withSiteData(connect(mapStateToProps)(InteractiveComponent))
+export default withSiteData(connect(mapStateToProps)(Interactive))
