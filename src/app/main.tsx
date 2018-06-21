@@ -36,7 +36,7 @@ export class Main extends React.Component<MainProps, null> {
 		return (
 			<div className="reimagine">
 				<Navigation />
-				{this.renderMainArea()}
+				<div className="reimagine-mainArea">{this.renderMainArea()}</div>
 			</div>
 		)
 	}

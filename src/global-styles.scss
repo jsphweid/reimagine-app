@@ -1,0 +1,54 @@
+%reimagine-default-icon {
+	height: 32px;
+	width: 32px;
+	margin: 24px;
+	cursor: pointer;
+}
+
+.prevent-selection {
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+button {
+	@extend .prevent-selection;
+}
+
+.pointer {
+	cursor: pointer;
+}
+
+.reimagine-spin {
+	-webkit-animation: reimagine-spin 2s infinite linear;
+	animation: reimagine-spin 2s infinite linear;
+}
+
+@-webkit-keyframes reimagine-spin {
+	0% {
+		-webkit-transform: rotate(0deg);
+		transform: rotate(0deg);
+	}
+	100% {
+		-webkit-transform: rotate(359deg);
+		transform: rotate(359deg);
+	}
+}
+@keyframes reimagine-spin {
+	0% {
+		-webkit-transform: rotate(0deg);
+		transform: rotate(0deg);
+	}
+	100% {
+		-webkit-transform: rotate(359deg);
+		transform: rotate(359deg);
+	}
+}
+
+.reimagine-unclickable {
+	color: $grey;
+	opacity: 0.7;
+	cursor: default;
+}

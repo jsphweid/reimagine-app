@@ -1,5 +1,31 @@
 .reimagine-navigation {
 	width: 100%;
 	height: 64px;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 400;
 	background: lightblue;
+
+	.reimagine-navigation-title {
+		position: absolute;
+		left: 0;
+		top: 0;
+		font-size: 34px;
+		font-weight: bold;
+		padding: 12px 8px;
+		width: 160px;
+	}
+
+	.reimagine-navigation-mainIcons {
+		position: absolute;
+		right: 0;
+		top: 0;
+	}
+
+	svg {
+		@extend %reimagine-default-icon;
+		margin: 16px;
+	}
 }

@@ -5,20 +5,12 @@
 .reimagine {
 	max-width: 1280px;
 	width: 100%;
-	// margin: 0 auto;
-	// overflow: auto;
 	height: 100%;
+}
 
-	// & > div:first-child {
-	// 	float: left;
-	// 	width: 250px;
-	// 	height: calc(100% - 2px);
-	// }
-	// & > div:last-child {
-	// 	float: right;
-	// 	width: calc(100% - 252px);
-	// 	height: 100%;
-	// }
+.reimagine-mainArea {
+	padding-top: 64px;
+	height: calc(100% - 64px);
 }
 
 body {
@@ -47,60 +39,4 @@ p {
 
 .jlw {
 	font-family: Montserrat, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-}
-
-hr {
-	margin: 40px auto;
-	padding: 0;
-	max-width: 250px;
-	border: 0;
-	border-top: solid 5px;
-	text-align: center;
-}
-
-.prevent-selection {
-	-moz-user-select: none;
-	-khtml-user-select: none;
-	-webkit-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-}
-
-button {
-	@extend .prevent-selection;
-}
-
-.pointer {
-	cursor: pointer;
-}
-
-.reimagine-spin {
-	-webkit-animation: reimagine-spin 2s infinite linear;
-	animation: reimagine-spin 2s infinite linear;
-}
-@-webkit-keyframes reimagine-spin {
-	0% {
-		-webkit-transform: rotate(0deg);
-		transform: rotate(0deg);
-	}
-	100% {
-		-webkit-transform: rotate(359deg);
-		transform: rotate(359deg);
-	}
-}
-@keyframes reimagine-spin {
-	0% {
-		-webkit-transform: rotate(0deg);
-		transform: rotate(0deg);
-	}
-	100% {
-		-webkit-transform: rotate(359deg);
-		transform: rotate(359deg);
-	}
-}
-
-.reimagine-unclickable {
-	color: $grey;
-	opacity: 0.7;
-	cursor: default;
 }

@@ -1,5 +1,5 @@
 .reimagine-interactive {
-	height: calc(100% - 64px);
+	height: 100%;
 }
 
 .reimagine-interactive-midiVisualizer {
@@ -27,10 +27,7 @@
 	}
 
 	svg {
-		height: 32px;
-		width: 32px;
-		margin: 24px;
-		cursor: pointer;
+		@extend %reimagine-default-icon;
 	}
 }
 
