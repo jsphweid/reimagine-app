@@ -10,6 +10,7 @@
 	position: absolute;
 	width: 100%;
 	display: inline-flex;
+	margin-top: 8px;
 
 	& > div {
 		flex: 1;
@@ -34,7 +35,7 @@
 @media (max-width: 584px) {
 	.reimagine-interactive-overlay {
 		svg {
-			margin: 8px;
+			margin: 12px;
 		}
 	}
 }
