@@ -1,7 +1,7 @@
 export enum MainSection {
 	Interactive,
 	Upload,
-	Account,
+	Settings,
 	Admin,
 	About
 }

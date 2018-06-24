@@ -6,6 +6,7 @@ import Interactive from './interactive/interactive'
 import { StoreType } from '../connectors/redux/reducers'
 import { MainSection } from '../common/constants'
 import Navigation from './navigation/navigation'
+import Settings from './settings/settings'
 
 export interface MainProps {
 	dispatch: any
@@ -26,9 +27,10 @@ export class Main extends React.Component<MainProps, null> {
 	private renderMainArea(): JSX.Element {
 		switch (this.props.activeMainSection) {
 			default:
-			case MainSection.Interactive: {
+			case MainSection.Interactive:
 				return <Interactive />
-			}
+			case MainSection.Settings:
+				return <Settings />
 		}
 	}
 
@@ -46,7 +48,7 @@ const mapStateToProps = (store: StoreType, ownProp?: any): MainProps => ({
 	dispatch: ownProp.dispatch,
 	activeSegment: store.segment.activeSegment,
 	segmentLoading: store.segment.segmentLoading,
-	activeMainSection: store.general.activeMainSection
+	activeMainSection: store.navigation.activeMainSection
 })
 
 export default withSiteData(connect(mapStateToProps)(Main))
