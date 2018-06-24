@@ -15,6 +15,7 @@
 
 body {
 	margin: 0;
+	color: $charcoal;
 }
 
 html,
@@ -22,19 +23,6 @@ body,
 #root,
 .reimagine {
 	height: 100%;
-}
-.jlw-headerOffset {
-	padding-top: 80px;
-}
-
-@media screen and (max-width: 700px) {
-	.jlw-headerOffset {
-		padding-top: 50px;
-	}
-}
-
-p {
-	font-size: 20px;
 }
 
 .jlw {

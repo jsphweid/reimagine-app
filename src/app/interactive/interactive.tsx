@@ -179,7 +179,7 @@ export class Interactive extends React.Component<InteractiveProps, InteractiveSt
 
 	renderOverlay(): JSX.Element {
 		return (
-			<div className="reimagine-interactive-overlay">
+			<div className="reimagine-interactive-buttons">
 				<div>{this.renderNewSegmentIcon()}</div>
 				<div>
 					{this.renderPlayIcon()}

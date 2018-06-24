@@ -1,9 +1,28 @@
-$red: #ff3b3f;
-$pale-red: #ff9d9f;
-$grey: #a9a9a9;
-$off-white-dark: #caebf2;
-$off-white-light: #efefef;
-$black: #021a40;
+$pale-gold: #c1b185;
+$silk: #ded1c2;
+$paper: #f5f5f5;
+$paper-text: #ababab;
+$charcoal: #383838;
+
+.reimagine-colorProfile1 {
+	background-color: $pale-gold;
+	color: $paper;
+}
+
+.reimagine-colorProfile2 {
+	background-color: $silk;
+	color: $paper;
+}
+
+.reimagine-colorProfile3 {
+	background-color: $paper;
+	color: $paper-text;
+}
+
+.reimagine-colorProfile4 {
+	background-color: $charcoal;
+	color: $paper;
+}
 
 $something: #229e85;
 $hidden: #18bc9c;

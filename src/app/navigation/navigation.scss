@@ -6,7 +6,7 @@
 	left: 0;
 	right: 0;
 	z-index: 400;
-	background: lightblue;
+	@extend .reimagine-colorProfile2;
 
 	.reimagine-navigation-title {
 		position: absolute;
@@ -22,6 +22,39 @@
 		position: absolute;
 		right: 0;
 		top: 0;
+	}
+
+	.reimagine-navigation-overlay {
+		position: fixed;
+		top: 64px;
+		height: calc(100% - 64px);
+		width: 100%;
+		@extend .reimagine-colorProfile1;
+		box-shadow: inset 0 11px 8px -10px $charcoal;
+
+		ul {
+			margin: 0;
+			padding: 0;
+			li {
+				position: relative;
+				padding: 25px 0 25px 14px;
+				border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+				list-style-type: none;
+				display: inline-block;
+				width: 100%;
+				cursor: pointer;
+
+				svg {
+					position: absolute;
+					margin: 18px;
+					top: 0;
+					right: 24px;
+				}
+			}
+			li:hover {
+				@extend .reimagine-colorProfile2;
+			}
+		}
 	}
 
 	svg {

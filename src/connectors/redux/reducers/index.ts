@@ -4,12 +4,14 @@ import segment, { SegmentStoreStateType, getSegmentDefaultState } from './segmen
 import recording, { getRecordingDefaultState, RecordingStoreStateType } from './recording'
 import general, { GeneralStoreStateType, getGeneralDefaultState } from './general'
 import audio, { getAudioDefaultState, AudioStoreStateType } from './audio'
+import navigation, { getNavigationDefaultState, NavigationStoreStateType } from './navigation'
 
 const reducer = combineReducers({
 	segment,
 	recording,
 	general,
-	audio
+	audio,
+	navigation
 })
 
 export const getSimpleDefaultStore = () => {
@@ -17,7 +19,8 @@ export const getSimpleDefaultStore = () => {
 		segment: getSegmentDefaultState(),
 		recording: getRecordingDefaultState(),
 		general: getGeneralDefaultState(),
-		audio: getAudioDefaultState()
+		audio: getAudioDefaultState(),
+		navigation: getNavigationDefaultState()
 	}
 }
 
@@ -26,6 +29,7 @@ export interface StoreType {
 	recording: RecordingStoreStateType
 	general: GeneralStoreStateType
 	audio: AudioStoreStateType
+	navigation: NavigationStoreStateType
 }
 
 export default reducer
