@@ -7,14 +7,14 @@ import { uploadRecording } from '../../connectors/redux/actions/recording'
 import AudioEngine from '../../audio-engine'
 import { timeSince, base64ToBlob } from '../../common/helpers'
 
-export interface RecordingsProps {
+export interface RecentRecordingsProps {
 	dispatch: any
 	recordings: RecordingType[]
 	isPlaying: boolean
 }
 
-export class Recordings extends React.Component<RecordingsProps> {
-	constructor(props: RecordingsProps) {
+export class RecentRecordings extends React.Component<RecentRecordingsProps> {
+	constructor(props: RecentRecordingsProps) {
 		super(props)
 	}
 
@@ -83,10 +83,10 @@ export class Recordings extends React.Component<RecordingsProps> {
 	}
 }
 
-const mapStateToProps = (store: StoreType, ownProp?: any): RecordingsProps => ({
+const mapStateToProps = (store: StoreType, ownProp?: any): RecentRecordingsProps => ({
 	dispatch: ownProp.dispatch,
 	recordings: store.recording.recordings,
 	isPlaying: store.general.isPlaying
 })
 
-export default withSiteData(connect(mapStateToProps)(Recordings))
+export default withSiteData(connect(mapStateToProps)(RecentRecordings))

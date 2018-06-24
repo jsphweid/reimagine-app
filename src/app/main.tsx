@@ -7,6 +7,9 @@ import { StoreType } from '../connectors/redux/reducers'
 import { MainSection } from '../common/constants'
 import Navigation from './navigation/navigation'
 import Settings from './settings/settings'
+import About from './about/about'
+import Listen from './listen/listen'
+import RecentRecordings from './recent-recordings/recent-recordings'
 
 export interface MainProps {
 	dispatch: any
@@ -31,6 +34,12 @@ export class Main extends React.Component<MainProps, null> {
 				return <Interactive />
 			case MainSection.Settings:
 				return <Settings />
+			case MainSection.RecentRecordings:
+				return <RecentRecordings />
+			case MainSection.About:
+				return <About />
+			case MainSection.Listen:
+				return <Listen />
 		}
 	}
 

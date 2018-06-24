@@ -1,7 +1,7 @@
 export enum MainSection {
 	Interactive,
-	Upload,
+	RecentRecordings,
+	Listen,
 	Settings,
-	Admin,
 	About
 }

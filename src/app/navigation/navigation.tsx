@@ -6,18 +6,19 @@ import { StoreType } from '../../connectors/redux/reducers'
 import BarsIcon from 'react-icons/lib/fa/bars'
 import CloseIcon from 'react-icons/lib/fa/close'
 import RecordingIcon from 'react-icons/lib/io/ios-recording'
-import BeerIcon from 'react-icons/lib/fa/beer'
 import CogIcon from 'react-icons/lib/fa/cog'
+import InfoIcon from 'react-icons/lib/fa/info-circle'
 import HeadphonesIcon from 'react-icons/lib/fa/headphones'
 import MicrophoneIcon from 'react-icons/lib/fa/microphone'
 import { MainSection } from '../../common/constants'
-import { activateSettings } from '../../connectors/redux/actions/navigation'
-
 import {
 	contractHeader,
 	expandHeader,
 	activateSettings,
-	activateInteractive
+	activateInteractive,
+	activateRecentRecordings,
+	activateListen,
+	activateAbout
 } from '../../connectors/redux/actions/navigation'
 
 export interface NavigationProps {
@@ -62,10 +63,10 @@ export class Navigation extends React.Component<NavigationProps, any> {
 			<div className="reimagine-navigation-overlay">
 				<ul>
 					{this.renderMenuItem('Main', <MicrophoneIcon />, activateInteractive)}
-					{this.renderMenuItem('Recent Recordings', <RecordingIcon />, () => this.props.dispatch())}
-					{this.renderMenuItem('Listen', <HeadphonesIcon />, () => this.props.dispatch())}
-					{this.renderMenuItem('Admin', <BeerIcon />, () => this.props.dispatch())}
+					{this.renderMenuItem('Recent Recordings', <RecordingIcon />, activateRecentRecordings)}
+					{this.renderMenuItem('Listen', <HeadphonesIcon />, activateListen)}
 					{this.renderMenuItem('Settings', <CogIcon />, activateSettings)}
+					{this.renderMenuItem('About', <InfoIcon />, activateAbout)}
 				</ul>
 			</div>
 		) : null

@@ -13,7 +13,7 @@ export class Settings extends React.Component<SettingsProps> {
 	}
 
 	public render() {
-		return <div>hi</div>
+		return <div>settings</div>
 	}
 }
 
