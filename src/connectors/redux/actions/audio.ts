@@ -1,18 +1,25 @@
-import { START_RECORDING, STOP_RECORDING, START_MOCK_RECORDING, STOP_MOCK_RECORDING } from '../constants'
-import { SegmentType } from '../../../common/types'
+import {
+	SET_ACTIVE_AUDIO_CONFIG,
+	REMOVE_ACTIVE_AUDIO_CONFIG,
+	SET_AUDIO_ELEMENT,
+	STOP_PLAYING_AUDIO_ELEMENT
+} from '../constants'
+import { AudioSessionConfigType } from '../../../common/types'
 
-export const startRecording = (startTime: number) => ({
-	startTime,
-	type: START_RECORDING
+export const setActiveAudioConfig = (config: AudioSessionConfigType) => ({
+	config,
+	type: SET_ACTIVE_AUDIO_CONFIG
 })
 
-export const startMockRecording = (segment: SegmentType, playMetronome: boolean, playNotes: boolean) => ({
-	segment,
-	playMetronome,
-	playNotes,
-	type: START_MOCK_RECORDING
+export const removeActiveAudioConfig = () => ({
+	type: REMOVE_ACTIVE_AUDIO_CONFIG
 })
 
-export const stopRecording = () => ({
-	type: STOP_RECORDING
+export const setAudioElement = (element: HTMLAudioElement) => ({
+	element,
+	type: SET_AUDIO_ELEMENT
+})
+
+export const stopPlayingAudioElement = () => ({
+	type: STOP_PLAYING_AUDIO_ELEMENT
 })

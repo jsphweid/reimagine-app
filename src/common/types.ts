@@ -12,16 +12,41 @@ export interface SegmentType {
 export interface RecordingType {
 	segment: SegmentType
 	base64blob: string
-	id?: string
 	recordingDate: string
-	isUploading?: boolean
+	uploadState: UploadState
 	startTime: number
 }
 
-export interface RecordingSessionConfigType {
+export enum AudioEventType {
+	Playing,
+	Recording
+}
+
+export interface AudioSessionConfigType {
 	segment: SegmentType
 	playMetronome: boolean
 	playNotes: boolean
 	startTime: number
-	isMockRecording: boolean
+	type: AudioEventType
+	recordingDate?: string
+}
+
+export interface RecordingSessionConfigType extends AudioSessionConfigType {
+	type: AudioEventType.Recording
+}
+
+export interface PlaySessionConfigType extends AudioSessionConfigType {
+	recordingDate: string
+	type: AudioEventType.Playing
+}
+
+export enum UploadState {
+	Uploading,
+	Uploaded,
+	CanUpload
+}
+
+export interface PlayRecordConfigType {
+	playNotes: boolean
+	playMetronome: boolean
 }

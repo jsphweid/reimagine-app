@@ -75,7 +75,7 @@ export class Navigation extends React.Component<NavigationProps, any> {
 	public render() {
 		return (
 			<div className="reimagine-navigation">
-				<div className="reimagine-navigation-title">re:imagine</div>
+				<h1 className="reimagine-navigation-title">re:imagine</h1>
 				<div className="reimagine-navigation-mainIcons">
 					{this.renderQuickSwap()}
 					{this.renderBarsOrClose()}

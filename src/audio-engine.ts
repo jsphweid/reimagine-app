@@ -1,7 +1,7 @@
 import { getSecondsPerBeat, midiToFreq } from './common/helpers'
 import { Note } from 'midiconvert'
 import WavEncoder from './encoders/wav-encoder'
-import { RecordingSessionConfigType } from './common/types'
+import { RecordingSessionConfigType, PlaySessionConfigType, AudioSessionConfigType } from './common/types'
 
 class AudioEngine {
 	public static instance: AudioEngine
@@ -44,18 +44,25 @@ class AudioEngine {
 		})
 	}
 
-	public startRecording(config: RecordingSessionConfigType): void {
-		const { isMockRecording, playMetronome, playNotes, segment, startTime } = config
-		if (!isMockRecording) this.connectRecordingNodes()
+	private scheduleSynthNotes(config: AudioSessionConfigType) {
+		const { playMetronome, playNotes, segment, startTime } = config
 		if (playMetronome) this.scheduleMetronomeClicks(config.startTime, segment.midiJson.header.bpm)
 		if (playNotes) this.scheduleNotes(startTime, segment.midiJson.tracks[0].notes)
+	}
+
+	public startPlaying(config: PlaySessionConfigType): void {
+		this.scheduleSynthNotes(config)
+	}
+
+	public startRecording(config: RecordingSessionConfigType): void {
+		this.connectRecordingNodes()
+		this.scheduleSynthNotes(config)
 	}
 
 	private connectRecordingNodes(): void {
 		this.wavEncoder = new WavEncoder(44100, 1)
 		navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
 			this.source = this.audioContext.createMediaStreamSource(stream)
-			console.log('---------', this.source)
 			this.processor = this.audioContext.createScriptProcessor(1024, 1, 1)
 			this.processor.onaudioprocess = (event: AudioProcessingEvent) => {
 				this.wavEncoder.encode([event.inputBuffer.getChannelData(0)])
@@ -65,31 +72,15 @@ class AudioEngine {
 		})
 	}
 
-	public playBlob(blobUrl: string): void {
-		new Audio(blobUrl).play()
-
-		// const audioBufferNode: AudioBufferSourceNode = this.audioContext.createBufferSource()
-		// const gainNode = this.audioContext.createGain()
-		// audioBufferNode.buffer = buffer
-		// audioBufferNode.start(0)
-		// gainNode.gain.value = 0.5
-		// audioBufferNode.connect(gainNode)
-		// gainNode.connect(this.audioContext.destination)
-	}
-
-	private shutOffOscillators() {
+	private shutOffOscillatorsAndDisconnectRecordingNodes() {
 		this.oscillators.forEach(osc => osc.disconnect())
 		this.oscillators = []
-	}
-
-	private disconnectRecordingNodes() {
 		if (this.source) this.source.disconnect()
 		if (this.processor) this.processor.disconnect()
 	}
 
-	public stopRecording(getBlob: boolean): Blob {
-		this.shutOffOscillators()
-		this.disconnectRecordingNodes()
+	public stopRecording(getBlob: boolean = false): Blob {
+		this.shutOffOscillatorsAndDisconnectRecordingNodes()
 		if (getBlob && this.wavEncoder) {
 			const blob: Blob = this.wavEncoder.finish()
 			this.wavEncoder = null

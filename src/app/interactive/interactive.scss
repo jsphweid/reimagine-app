@@ -9,24 +9,17 @@
 .reimagine-interactive-buttons {
 	position: absolute;
 	width: 100%;
-	display: inline-flex;
 	margin-top: 8px;
 	@extend .reimagine-colorProfile1;
 	background-color: #c1b18544;
 
-	& > div {
-		flex: 1;
-	}
-
-	div:nth-child(2) {
-		text-align: center;
-		flex: 4;
+	div:first-child {
 	}
 
 	div:last-child {
-		svg {
-			float: right;
-		}
+		position: absolute;
+		top: 0;
+		right: 0;
 	}
 
 	svg {

@@ -3,9 +3,11 @@ import { withSiteData } from 'react-static'
 import { connect } from 'react-redux'
 import { StoreType } from '../../connectors/redux/reducers'
 import { RecordingType } from '../../common/types'
-import { uploadRecording } from '../../connectors/redux/actions/recording'
-import AudioEngine from '../../audio-engine'
-import { timeSince, base64ToBlob } from '../../common/helpers'
+import { timeSince } from '../../common/helpers'
+
+import StopIcon from 'react-icons/lib/fa/stop'
+import UploadIconWrapper from '../small-components/upload-icon'
+import PlayIconWrapper from '../small-components/play-icon'
 
 export interface RecentRecordingsProps {
 	dispatch: any
@@ -18,68 +20,32 @@ export class RecentRecordings extends React.Component<RecentRecordingsProps> {
 		super(props)
 	}
 
-	private renderRecordings(): JSX.Element {
-		const { dispatch, isPlaying } = this.props
-
-		const content = this.props.recordings.map((recording: RecordingType) => {
-			const additionalClass = recording.id ? 'reimagine-recordings-recording--uploaded' : ''
-
-			const cantUpload = recording.id || recording.isUploading
-			let hoverDivText = ''
-
-			switch (true) {
-				case recording.id && !recording.isUploading:
-					hoverDivText = 'Already Uploaded'
-					break
-				case recording.isUploading:
-					hoverDivText = 'Uploading'
-					break
-				default:
-					hoverDivText = 'Click To Upload'
-			}
-			const timeSinceText = timeSince(new Date(recording.recordingDate).getTime())
-			const mainText = recording.isUploading
-				? 'Uploading Spinner'
-				: `Recording of ${recording.segment.humanHash} recorded ${timeSinceText} (${hoverDivText})`
-
-			const uploadOnClick = cantUpload ? null : () => dispatch(uploadRecording(recording))
-			const playOnClick = isPlaying ? null : () => this.handlePlayRecording(recording)
-
-			const playingText = isPlaying ? 'Playing...' : 'Click to Play'
-
-			return (
-				<div
-					className={`reimagine-recordings-recording ${additionalClass}`}
-					key={recording.recordingDate.toString()}
-				>
-					{mainText}
-					<div className="reimagine-recordings-recording-hoverDiv">
-						<div className={`${uploadOnClick ? '' : 'pointer'}`} onClick={uploadOnClick}>
-							{hoverDivText}
-						</div>
-						<div className={`${playOnClick ? '' : 'pointer'}`} onClick={playOnClick}>
-							{playingText}
-						</div>
-					</div>
+	private renderRecordingItem(recording: RecordingType): JSX.Element {
+		const name = recording.segment.humanHash || '[Untitled]'
+		const date = new Date(recording.recordingDate).getTime()
+		return (
+			<li key={recording.recordingDate}>
+				<div className="reimagine-recentRecordings-item-text">
+					{name}
+					<br />
+					{timeSince(date)}
 				</div>
-			)
-		})
-
-		return <div>{content}</div>
-	}
-
-	private handlePlayRecording(recording: RecordingType): void {
-		base64ToBlob(recording.base64blob).then((blob: Blob) => {
-			const blobUrl = URL.createObjectURL(blob)
-			AudioEngine.playBlob(blobUrl)
-		})
-		// dispatch some action
+				<div className="reimagine-recentRecordings-item-icons">
+					<PlayIconWrapper recording={recording} />
+					<UploadIconWrapper recording={recording} />
+				</div>
+			</li>
+		)
 	}
 
 	public render() {
-		return this.props.recordings.length ? (
-			<div className="reimagine-recordings">{this.renderRecordings()}</div>
-		) : null
+		const recordings = this.props.recordings.map(recording => this.renderRecordingItem(recording)).reverse()
+		return (
+			<div className="reimagine-recentRecordings">
+				<div>Recent Recordings</div>
+				<ul>{recordings}</ul>
+			</div>
+		)
 	}
 }
 

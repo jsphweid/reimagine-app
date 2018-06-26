@@ -1,8 +1,17 @@
 import { cloneDeep } from '../../../common/helpers'
+import { PlayRecordConfigType } from '../../../common/types'
 
-export interface SettingsStoreStateType {}
+export interface SettingsStoreStateType {
+	playSegmentConfig: PlayRecordConfigType
+	playRecordingConfig: PlayRecordConfigType
+	recordConfig: PlayRecordConfigType
+}
 
-const settingsDefaultState: SettingsStoreStateType = {}
+const settingsDefaultState: SettingsStoreStateType = {
+	playSegmentConfig: { playMetronome: true, playNotes: true },
+	playRecordingConfig: { playMetronome: false, playNotes: false },
+	recordConfig: { playMetronome: false, playNotes: false }
+}
 
 export const getSettingsDefaultState = () => cloneDeep(settingsDefaultState)
 

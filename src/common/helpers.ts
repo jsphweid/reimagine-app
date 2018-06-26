@@ -1,3 +1,4 @@
+import { SegmentType } from './types'
 export function cloneDeep<T>(simpleObj: T): T {
 	return JSON.parse(JSON.stringify(simpleObj)) as T
 }

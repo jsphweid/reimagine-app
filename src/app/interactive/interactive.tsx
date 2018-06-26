@@ -1,54 +1,57 @@
 import * as React from 'react'
 import MidiVisualizer from 'react-midi-visualizer'
-import { SegmentType, RecordingSessionConfigType, RecordingType } from '../../common/types'
+import {
+	SegmentType,
+	RecordingSessionConfigType,
+	RecordingType,
+	UploadState,
+	PlaySessionConfigType,
+	AudioSessionConfigType,
+	AudioEventType
+} from '../../common/types'
 import { connect } from 'react-redux'
 import { withSiteData } from 'react-static'
 import { StoreType } from '../../connectors/redux/reducers'
 import AudioEngine from '../../audio-engine'
-import { startRecording, stopRecording } from '../../connectors/redux/actions/audio'
+import { setActiveAudioConfig, removeActiveAudioConfig } from '../../connectors/redux/actions/audio'
 import { addRecordingToStore } from '../../connectors/redux/actions/recording'
 import { getRandomString, blobToBase64, cloneDeep } from '../../common/helpers'
 import { getSegmentFromGraphql } from '../../connectors/redux/actions/segment'
-import { uploadRecording } from '../../connectors/redux/actions/recording'
+import { SettingsStoreStateType } from '../../connectors/redux/reducers/settings'
 
-import PlayIcon from 'react-icons/lib/fa/play'
-import StopIcon from 'react-icons/lib/fa/stop'
 import RecordIcon from 'react-icons/lib/fa/circle'
 import NewIcon from 'react-icons/lib/fa/refresh'
-import UploadIcon from 'react-icons/lib/fa/upload'
-import SpinnerIcon from 'react-icons/lib/fa/spinner'
+import EarIcon from 'react-icons/lib/md/hearing'
+import CloseIcon from 'react-icons/lib/fa/close'
+import UploadIconWrapper from '../small-components/upload-icon'
 
-const defaultUserConfig = {
-	playConfig: {
-		playMetronome: true,
-		playNotes: true
-	},
-	recordConfig: {
-		playMetronome: false,
-		playNotes: false
-	}
-}
+const { Playing, Recording } = AudioEventType
 
 export interface InteractiveProps {
 	dispatch: any
 	startTime: number
-	isRecording: boolean
+	activeAudio: AudioSessionConfigType
 	activeSegment: SegmentType
 	segmentLoading: boolean
 	latestRecording: RecordingType
+	settings: SettingsStoreStateType
 }
 
 export interface InteractiveState {
 	randomResetKey: string
 	midiVisualizerDims: { height: number; width: number }
+	lastRecordingWasComplete: boolean
 }
 
 export class Interactive extends React.Component<InteractiveProps, InteractiveState> {
+	private static recordStopper: NodeJS.Timer
+
 	constructor(props: InteractiveProps) {
 		super(props)
 		this.state = {
 			randomResetKey: 'default',
-			midiVisualizerDims: null
+			midiVisualizerDims: null,
+			lastRecordingWasComplete: false
 		}
 	}
 
@@ -88,46 +91,65 @@ export class Interactive extends React.Component<InteractiveProps, InteractiveSt
 		) : null
 	}
 
-	private handleStop(): void {
-		this.props.dispatch(stopRecording())
-		const blob = AudioEngine.stopRecording(this.props.isRecording)
-		const startTime = this.props.startTime
+	private basicStopAudioEngine(): void {
+		if (Interactive.recordStopper) {
+			clearTimeout(Interactive.recordStopper)
+			Interactive.recordStopper = null
+		}
+		this.props.dispatch(removeActiveAudioConfig())
+		this.setState({ lastRecordingWasComplete: false })
+		AudioEngine.stopRecording(!!this.props.activeAudio)
+	}
 
+	private stopAudioEngineAndSave(): void {
+		const blob = AudioEngine.stopRecording(!!this.props.activeAudio)
+		const startTime = this.props.startTime
+		this.props.dispatch(removeActiveAudioConfig())
 		if (blob) {
+			this.setState({ lastRecordingWasComplete: true })
 			blobToBase64(blob).then((base64blob: string) => {
 				this.props.dispatch(
 					addRecordingToStore({
 						base64blob,
 						startTime,
 						segment: this.props.activeSegment,
-						recordingDate: new Date().toString()
+						recordingDate: new Date().toString(),
+						uploadState: UploadState.CanUpload
 					})
 				)
 			})
 		}
 	}
 
-	private handleStartRecording(recordingSessionConfig: RecordingSessionConfigType) {
-		AudioEngine.startRecording(recordingSessionConfig)
-		this.props.dispatch(startRecording(recordingSessionConfig.startTime))
+	private handleStartRecording(recordingSessionConfig: Partial<RecordingSessionConfigType>) {
+		const fullConfig = {
+			...recordingSessionConfig,
+			startTime: AudioEngine.audioContext.currentTime
+		} as RecordingSessionConfigType
+
+		const recordingLength = (fullConfig.segment.midiJson.duration + 0.5) * 1000
+		Interactive.recordStopper = setTimeout(() => {
+			this.stopAudioEngineAndSave()
+		}, recordingLength)
+
+		AudioEngine.startRecording(fullConfig)
+		this.props.dispatch(setActiveAudioConfig(fullConfig))
 	}
 
-	private getRecordingSessionConfig(isMockRecording: boolean): RecordingSessionConfigType {
-		const startTime = AudioEngine.audioContext.currentTime
-		const configProfile = isMockRecording ? 'playConfig' : 'recordConfig'
-		return {
-			isMockRecording,
-			startTime,
-			segment: this.props.activeSegment,
-			playMetronome: defaultUserConfig[configProfile].playMetronome,
-			playNotes: defaultUserConfig[configProfile].playNotes
-		}
+	private handleStartPlaying(recordingSessionConfig: Partial<PlaySessionConfigType>) {
+		const fullConfig = {
+			...recordingSessionConfig,
+			startTime: AudioEngine.audioContext.currentTime
+		} as PlaySessionConfigType
+
+		AudioEngine.startPlaying(fullConfig)
+		this.props.dispatch(setActiveAudioConfig(fullConfig))
 	}
 
 	renderNewSegmentIcon(): JSX.Element {
-		const { isRecording, segmentLoading } = this.props
+		const { activeAudio, segmentLoading } = this.props
 
-		return isRecording ? (
+		return activeAudio ? (
 			<NewIcon className="reimagine-unclickable" />
 		) : (
 			<NewIcon
@@ -138,55 +160,57 @@ export class Interactive extends React.Component<InteractiveProps, InteractiveSt
 	}
 
 	renderRecordButton(): JSX.Element {
-		return this.props.isRecording ? (
-			<RecordIcon className="reimagine-unclickable" />
-		) : (
-			<RecordIcon onClick={() => this.handleStartRecording(this.getRecordingSessionConfig(false))} />
-		)
+		const { activeSegment, settings, activeAudio } = this.props
+
+		switch (true) {
+			case !activeSegment:
+			case activeAudio && activeAudio.type === Playing:
+				return <RecordIcon className="reimagine-unclickable" />
+			case activeAudio && activeAudio.type === Recording:
+				return <CloseIcon onClick={this.basicStopAudioEngine.bind(this)} />
+			default:
+				const config: Partial<RecordingSessionConfigType> = {
+					segment: activeSegment,
+					playMetronome: settings.recordConfig.playMetronome,
+					playNotes: settings.recordConfig.playNotes,
+					type: Recording
+				}
+
+				return <RecordIcon onClick={() => this.handleStartRecording(config)} />
+		}
 	}
 
-	renderPlayIcon(): JSX.Element {
-		return this.props.isRecording ? (
-			<PlayIcon className="reimagine-unclickable" />
-		) : (
-			<PlayIcon onClick={() => this.handleStartRecording(this.getRecordingSessionConfig(true))} />
-		)
-	}
+	renderEarIcon(): JSX.Element {
+		const { settings, activeSegment, activeAudio } = this.props
 
-	renderStopIcon(): JSX.Element {
-		return this.props.isRecording ? (
-			<StopIcon onClick={this.handleStop.bind(this)} />
-		) : (
-			<StopIcon className="reimagine-unclickable" />
-		)
-	}
-
-	renderUploadIcon(): JSX.Element {
-		if (!this.props.latestRecording) return <div />
-		const { isUploading, id } = this.props.latestRecording
-		const uploadClickHandler =
-			isUploading || id ? null : () => this.props.dispatch(uploadRecording(this.props.latestRecording))
-		const icon = isUploading ? (
-			<SpinnerIcon className="reimagine-spin" />
-		) : (
-			<UploadIcon
-				className={id || this.props.isRecording ? 'reimagine-unclickable' : ''}
-				onClick={uploadClickHandler}
-			/>
-		)
-		return <div>{icon}</div>
+		switch (true) {
+			case !activeSegment:
+			case activeAudio && activeAudio.type === Recording:
+				return <EarIcon className="reimagine-unclickable" />
+			case activeAudio && activeAudio.type === Playing:
+				return <CloseIcon onClick={this.basicStopAudioEngine.bind(this)} />
+			default:
+				const config: Partial<PlaySessionConfigType> = {
+					segment: activeSegment,
+					playMetronome: settings.playSegmentConfig.playMetronome,
+					playNotes: settings.playSegmentConfig.playNotes,
+					type: Playing
+				}
+				return <EarIcon onClick={() => this.handleStartPlaying(config)} />
+		}
 	}
 
 	renderOverlay(): JSX.Element {
 		return (
 			<div className="reimagine-interactive-buttons">
-				<div>{this.renderNewSegmentIcon()}</div>
 				<div>
-					{this.renderPlayIcon()}
-					{this.renderStopIcon()}
-					{this.renderRecordButton()}
+					{this.renderNewSegmentIcon()}
+					{this.renderEarIcon()}
 				</div>
-				{this.renderUploadIcon()}
+				<div>
+					{this.renderRecordButton()}
+					<UploadIconWrapper recording={this.state.lastRecordingWasComplete && this.props.latestRecording} />
+				</div>
 			</div>
 		)
 	}
@@ -204,10 +228,11 @@ export class Interactive extends React.Component<InteractiveProps, InteractiveSt
 const mapStateToProps = (store: StoreType, ownProp?: any): InteractiveProps => ({
 	latestRecording: store.recording.recordings[store.recording.recordings.length - 1],
 	dispatch: ownProp.dispatch,
-	startTime: store.audio.startTime,
-	isRecording: !!store.audio.startTime,
+	startTime: store.audio.activeAudioConfig && store.audio.activeAudioConfig.startTime,
+	activeAudio: store.audio.activeAudioConfig,
 	activeSegment: store.segment.activeSegment,
-	segmentLoading: store.segment.segmentLoading
+	segmentLoading: store.segment.segmentLoading,
+	settings: store.settings
 })
 
 export default withSiteData(connect(mapStateToProps)(Interactive))

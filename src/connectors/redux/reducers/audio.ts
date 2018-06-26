@@ -1,30 +1,35 @@
 import { cloneDeep } from '../../../common/helpers'
-import { START_RECORDING, STOP_RECORDING } from '../constants'
-import { SegmentType } from '../../../common/types'
+import {
+	SET_ACTIVE_AUDIO_CONFIG,
+	REMOVE_ACTIVE_AUDIO_CONFIG,
+	SET_AUDIO_ELEMENT,
+	STOP_PLAYING_AUDIO_ELEMENT
+} from '../constants'
+import { AudioSessionConfigType } from '../../../common/types'
 
 // mixes state and stateless paradigms
 export interface AudioStoreStateType {
-	audioContextOccupied: boolean
-	startTime: number
-	segmentBeingRecorded: SegmentType
+	activeAudioConfig: AudioSessionConfigType
+	activeAudioElement: HTMLAudioElement
 }
 
 const audioDefaultState: AudioStoreStateType = {
-	audioContextOccupied: false,
-	startTime: null,
-	segmentBeingRecorded: null
+	activeAudioConfig: null,
+	activeAudioElement: null
 }
 
 export const getAudioDefaultState = (): AudioStoreStateType => cloneDeep(audioDefaultState)
 
 export default (state: AudioStoreStateType = getAudioDefaultState(), action: any = {}): AudioStoreStateType => {
 	switch (action.type) {
-		case START_RECORDING: {
-			return { ...state, startTime: action.startTime }
-		}
-		case STOP_RECORDING: {
-			return { ...state, startTime: null }
-		}
+		case SET_ACTIVE_AUDIO_CONFIG:
+			return { ...state, activeAudioConfig: action.config }
+		case REMOVE_ACTIVE_AUDIO_CONFIG:
+			return { ...state, activeAudioConfig: null }
+		case SET_AUDIO_ELEMENT:
+			return { ...state, activeAudioElement: action.element }
+		case STOP_PLAYING_AUDIO_ELEMENT:
+			return { ...state, activeAudioElement: null }
 		default:
 			return state
 	}
