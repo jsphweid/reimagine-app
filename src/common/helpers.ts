@@ -1,4 +1,5 @@
-import { SegmentType } from './types'
+import 'cross-fetch/polyfill'
+
 export function cloneDeep<T>(simpleObj: T): T {
 	return JSON.parse(JSON.stringify(simpleObj)) as T
 }

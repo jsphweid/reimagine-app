@@ -5,7 +5,7 @@ import { RecordingSessionConfigType, PlaySessionConfigType, AudioSessionConfigTy
 
 class AudioEngine {
 	public static instance: AudioEngine
-	public audioContext: AudioContext
+	public audioContext: AudioEngine
 	private oscillators: OscillatorNode[] = []
 	private source: MediaStreamAudioSourceNode
 	private processor: ScriptProcessorNode
@@ -14,7 +14,9 @@ class AudioEngine {
 	constructor() {
 		if (!AudioEngine.instance) {
 			AudioEngine.instance = this
-			this.audioContext = new AudioContext()
+			if (typeof window !== 'undefined') {
+				this.audioContext = new ((<any>window).AudioContext || (<any>window).webkitAudioContext)()
+			}
 		}
 
 		return AudioEngine.instance
