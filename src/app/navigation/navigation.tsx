@@ -34,7 +34,7 @@ export class Navigation extends React.Component<NavigationProps, any> {
 
 	private renderQuickSwap() {
 		return this.props.activeMainSection === MainSection.Interactive ? (
-			<CogIcon onClick={() => this.props.dispatch(activateSettings())} />
+			<RecordingIcon onClick={() => this.props.dispatch(activateRecentRecordings())} />
 		) : (
 			<MicrophoneIcon onClick={() => this.props.dispatch(activateInteractive())} />
 		)

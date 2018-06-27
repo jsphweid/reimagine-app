@@ -112,6 +112,7 @@ export class Interactive extends React.Component<InteractiveProps, InteractiveSt
 					addRecordingToStore({
 						base64blob,
 						startTime,
+						samplingRate: AudioEngine.audioContext.sampleRate,
 						segment: this.props.activeSegment,
 						recordingDate: new Date().toString(),
 						uploadState: UploadState.CanUpload

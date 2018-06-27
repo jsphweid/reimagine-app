@@ -15,6 +15,7 @@ export interface RecordingType {
 	recordingDate: string
 	uploadState: UploadState
 	startTime: number
+	samplingRate: number
 }
 
 export enum AudioEventType {

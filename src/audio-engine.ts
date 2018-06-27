@@ -62,7 +62,7 @@ class AudioEngine {
 	}
 
 	private connectRecordingNodes(): void {
-		this.wavEncoder = new WavEncoder(44100, 1)
+		this.wavEncoder = new WavEncoder(this.audioContext.sampleRate, 1)
 		navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
 			this.source = this.audioContext.createMediaStreamSource(stream)
 			this.processor = this.audioContext.createScriptProcessor(1024, 1, 1)

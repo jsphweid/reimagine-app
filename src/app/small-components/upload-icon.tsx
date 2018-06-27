@@ -38,7 +38,7 @@ export class UploadIconWrapper extends React.Component<UploadIconWrapperProps> {
 
 const mapStateToProps = (store: StoreType, ownProp?: any): UploadIconWrapperProps => ({
 	dispatch: ownProp.dispatch,
-	isRecording: !!store.audio.activeRecordingConfig,
+	isRecording: !!store.audio.activeAudioConfig,
 	recording: ownProp.recording
 })
 

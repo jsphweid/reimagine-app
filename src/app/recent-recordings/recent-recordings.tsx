@@ -5,7 +5,6 @@ import { StoreType } from '../../connectors/redux/reducers'
 import { RecordingType } from '../../common/types'
 import { timeSince } from '../../common/helpers'
 
-import StopIcon from 'react-icons/lib/fa/stop'
 import UploadIconWrapper from '../small-components/upload-icon'
 import PlayIconWrapper from '../small-components/play-icon'
 
