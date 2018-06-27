@@ -6,9 +6,10 @@ import ExtractTextPlugin from 'extract-text-webpack-plugin'
 const typescriptWebpackPaths = require('./webpack.config.js')
 
 export default {
+	siteRoot: '.',
 	entry: path.join(__dirname, 'src', 'index.tsx'),
 	getSiteProps: () => ({
-		title: 'Joseph Weidinger'
+		title: 're:imagine'
 	}),
 	webpack: (config, { defaultLoaders, stage }) => {
 		// Add .ts and .tsx extension to resolver
