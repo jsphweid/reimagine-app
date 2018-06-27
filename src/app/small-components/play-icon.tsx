@@ -24,6 +24,7 @@ export interface PlayIconWrapperProps {
 }
 
 export class PlayIconWrapper extends React.Component<PlayIconWrapperProps> {
+	private static playStopper: NodeJS.Timer
 	constructor(props: PlayIconWrapperProps) {
 		super(props)
 	}
@@ -46,6 +47,11 @@ export class PlayIconWrapper extends React.Component<PlayIconWrapperProps> {
 		if (activeAudioElement) {
 			activeAudioElement.pause()
 		}
+
+		if (PlayIconWrapper.playStopper) {
+			clearTimeout(PlayIconWrapper.playStopper)
+			PlayIconWrapper.playStopper = null
+		}
 	}
 
 	private handlePlayButtonClicked() {
@@ -60,11 +66,15 @@ export class PlayIconWrapper extends React.Component<PlayIconWrapperProps> {
 				playMetronome: settings.playRecordingConfig.playMetronome,
 				playNotes: settings.playRecordingConfig.playNotes
 			}
-
 			const blobUrl = URL.createObjectURL(blob)
 			const audioElement = new Audio(blobUrl)
-			audioElement.play()
 			AudioEngine.startPlaying(config)
+			audioElement.play()
+			const duration = (config.segment.midiJson.duration + 0.5) * 1000
+			PlayIconWrapper.playStopper = setTimeout(() => {
+				this.handleStopButtonClicked()
+			}, duration)
+
 			dispatch(setAudioElement(audioElement))
 			dispatch(setActiveAudioConfig(config))
 		})

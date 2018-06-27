@@ -5,7 +5,7 @@ import { RecordingSessionConfigType, PlaySessionConfigType, AudioSessionConfigTy
 
 class AudioEngine {
 	public static instance: AudioEngine
-	public audioContext: AudioEngine
+	public audioContext: AudioContext
 	private oscillators: OscillatorNode[] = []
 	private source: MediaStreamAudioSourceNode
 	private processor: ScriptProcessorNode
