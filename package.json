@@ -28,7 +28,7 @@
 		"react-dom": "^16.0.0",
 		"react-hot-loader": "^4.0.0-beta.21",
 		"react-icons": "^2.2.7",
-		"react-midi-visualizer": "0.0.4",
+		"react-midi-visualizer": "0.0.5",
 		"react-redux": "^5.0.7",
 		"react-router": "^4.2.0",
 		"react-static": "5.7.4",
