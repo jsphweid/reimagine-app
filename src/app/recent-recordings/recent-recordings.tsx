@@ -38,11 +38,16 @@ export class RecentRecordings extends React.Component<RecentRecordingsProps> {
 	}
 
 	public render() {
-		const recordings = this.props.recordings.map(recording => this.renderRecordingItem(recording)).reverse()
+		const { recordings } = this.props
+		const noRecordingsSection = recordings.length ? null : <p>You haven't made any recordings yet.</p>
+		const recordingItems = recordings.map(recording => this.renderRecordingItem(recording)).reverse()
 		return (
 			<div className="reimagine-recentRecordings">
-				<div>Recent Recordings</div>
-				<ul>{recordings}</ul>
+				<div>
+					<h2>Recent Recordings</h2>
+					{noRecordingsSection}
+				</div>
+				<ul>{recordingItems}</ul>
 			</div>
 		)
 	}

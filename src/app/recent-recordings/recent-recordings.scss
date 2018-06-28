@@ -1,4 +1,19 @@
 .reimagine-recentRecordings {
+	h2 {
+		padding: 20px 0;
+		border-bottom: 3px solid rgba(0, 0, 0, 0.1);
+	}
+	h2,
+	p {
+		text-align: center;
+		width: 100%;
+		@extend .reimagine-colorProfile3;
+		margin: 0;
+	}
+	p {
+		padding: 24px 0;
+		border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+	}
 	ul {
 		margin: 0;
 		padding: 0;
