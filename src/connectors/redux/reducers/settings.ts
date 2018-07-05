@@ -1,23 +1,26 @@
 import { cloneDeep } from '../../../common/helpers'
-import { PlayRecordConfigType } from '../../../common/types'
+import { PlayRecordConfigsType } from '../../../common/types'
+import { defaultPlayRecordConfigs } from '../../../common/constants'
+import { GET_USER_SETTINGS_SUCCESS } from '../constants'
 
 export interface SettingsStoreStateType {
-	playSegmentConfig: PlayRecordConfigType
-	playRecordingConfig: PlayRecordConfigType
-	recordConfig: PlayRecordConfigType
+  playRecordConfigs: PlayRecordConfigsType
 }
 
 const settingsDefaultState: SettingsStoreStateType = {
-	playSegmentConfig: { playMetronome: true, playNotes: true },
-	playRecordingConfig: { playMetronome: false, playNotes: false },
-	recordConfig: { playMetronome: false, playNotes: false }
+  playRecordConfigs: defaultPlayRecordConfigs
 }
 
 export const getSettingsDefaultState = () => cloneDeep(settingsDefaultState)
 
-export default (state: SettingsStoreStateType = getSettingsDefaultState(), action: any = {}) => {
-	switch (action.type) {
-		default:
-			return state
-	}
+export default (
+  state: SettingsStoreStateType = getSettingsDefaultState(),
+  action: any = {}
+) => {
+  switch (action.type) {
+    case GET_USER_SETTINGS_SUCCESS:
+      return { ...state, ...action.userSettings }
+    default:
+      return state
+  }
 }

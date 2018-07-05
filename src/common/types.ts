@@ -23,6 +23,12 @@ export enum AudioEventType {
 	Recording
 }
 
+export enum IdentityType {
+	Anonymous = 'Anonymous',
+	Google = 'Google',
+	Nothing = 'Error'
+}
+
 export interface AudioSessionConfigType {
 	segment: SegmentType
 	playMetronome: boolean
@@ -50,4 +56,10 @@ export enum UploadState {
 export interface PlayRecordConfigType {
 	playNotes: boolean
 	playMetronome: boolean
+}
+
+export interface PlayRecordConfigsType {
+	playSegmentConfig: PlayRecordConfigType
+	playRecordingConfig: PlayRecordConfigType
+	recordConfig: PlayRecordConfigType
 }
