@@ -12,6 +12,7 @@ export default (
       mutation updateUserSettings($input: UserSettingsInput!) {
         updateUserSettings(id: "${id}", input: $input) {
           ${wholePlayRecordConfigsObj}
+          nickname
         }
       }
     `,

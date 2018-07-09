@@ -8,6 +8,7 @@ export default (id: string): Promise<any> =>
       {
         getUserSettings(id: "${id}") {
           ${wholePlayRecordConfigsObj}
+          nickname
         }
       }
     `,

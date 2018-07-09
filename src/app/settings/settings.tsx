@@ -56,6 +56,7 @@ export class Settings extends React.Component<SettingsProps, SettingsState> {
 				JSON.stringify(nextProps.settings) &&
 			!justStartedUpdate
 		) {
+			console.log('updating', nextProps.settings)
 			this.setState({
 				possiblyEditedSettings: nextProps.settings
 			})
@@ -90,9 +91,22 @@ export class Settings extends React.Component<SettingsProps, SettingsState> {
 	}
 
 	renderNicknameSection() {
+		const handleNicknameChange = (e: any) => {
+			const newSettings = cloneDeep(this.state.possiblyEditedSettings)
+			newSettings.nickname = e.target.value
+			this.setState({ possiblyEditedSettings: newSettings })
+		}
+
 		return (
 			<div>
-				<input type="text" />
+				<span>
+					Nickname:
+					<input
+						value={this.state.possiblyEditedSettings.nickname}
+						onChange={handleNicknameChange}
+						type="text"
+					/>
+				</span>
 			</div>
 		)
 	}
