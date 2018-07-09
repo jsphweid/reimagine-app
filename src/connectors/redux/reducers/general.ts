@@ -7,13 +7,13 @@ export interface GeneralStoreStateType {
 	identityType: IdentityType
 }
 
-const recordingDefaultState: GeneralStoreStateType = {
+const generalDefaultState: GeneralStoreStateType = {
 	isPlaying: false,
 	identityType: IdentityType.Nothing
 }
 
 export const getGeneralDefaultState = (): GeneralStoreStateType =>
-	cloneDeep(recordingDefaultState)
+	cloneDeep(generalDefaultState)
 
 export default (
 	state: GeneralStoreStateType = getGeneralDefaultState(),
