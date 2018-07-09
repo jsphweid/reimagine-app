@@ -1,6 +1,9 @@
 import { cloneDeep } from '../../../common/helpers'
 import { PlayRecordConfigsType } from '../../../common/types'
-import { defaultPlayRecordConfigs } from '../../../common/constants'
+import {
+	defaultPlayRecordConfigs,
+	defaultNickname
+} from '../../../common/constants'
 import {
 	LOAD_USER_SETTINGS_SUCCESS,
 	UPDATE_USER_SETTINGS_SUCCESS,
@@ -10,11 +13,13 @@ import {
 export interface SettingsStoreStateType {
 	playRecordConfigs: PlayRecordConfigsType
 	updating: boolean
+	nickname: string
 }
 
 const settingsDefaultState: SettingsStoreStateType = {
 	playRecordConfigs: defaultPlayRecordConfigs,
-	updating: false
+	updating: false,
+	nickname: defaultNickname
 }
 
 export const getSettingsDefaultState = () => cloneDeep(settingsDefaultState)

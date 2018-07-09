@@ -13,12 +13,12 @@ import { withFederated } from 'aws-amplify-react'
 import Amplify from 'aws-amplify'
 
 import { amplifyConfig, signOut } from '../../connectors/amplify'
-import { PlayRecordConfigsType } from '../../common/types'
 import { cloneDeep } from '../../common/helpers'
 import {
 	saveUserSettings,
 	loadUserSettings
 } from '../../connectors/redux/actions/settings'
+import { SettingsStoreStateType } from '../../connectors/redux/reducers/settings'
 
 Amplify.configure(amplifyConfig)
 
@@ -32,12 +32,11 @@ const federated = {
 export interface SettingsProps {
 	dispatch: any
 	identity: any
-	updating: boolean
-	playRecordConfigs: PlayRecordConfigsType
+	settings: SettingsStoreStateType
 }
 
 export interface SettingsState {
-	possiblyEditedPlayRecordConfigs: PlayRecordConfigsType
+	possiblyEditedSettings: SettingsStoreStateType
 }
 
 export class Settings extends React.Component<SettingsProps, SettingsState> {
@@ -45,20 +44,20 @@ export class Settings extends React.Component<SettingsProps, SettingsState> {
 		super(props)
 
 		this.state = {
-			possiblyEditedPlayRecordConfigs: props.playRecordConfigs
+			possiblyEditedSettings: props.settings
 		}
 	}
 
 	componentWillReceiveProps(nextProps: SettingsProps) {
-		const { updating, playRecordConfigs } = this.props
-
+		const justStartedUpdate =
+			!this.props.settings.updating && nextProps.settings.updating
 		if (
-			JSON.stringify(nextProps.playRecordConfigs) !==
-				JSON.stringify(playRecordConfigs) ||
-			(updating && !nextProps.updating)
+			JSON.stringify(this.props.settings) !==
+				JSON.stringify(nextProps.settings) &&
+			!justStartedUpdate
 		) {
 			this.setState({
-				possiblyEditedPlayRecordConfigs: nextProps.playRecordConfigs
+				possiblyEditedSettings: nextProps.settings
 			})
 		}
 	}
@@ -73,20 +72,24 @@ export class Settings extends React.Component<SettingsProps, SettingsState> {
 		item: 'playMetronome' | 'playNotes'
 	) {
 		const toggleConfigsItem = () => {
-			const newConfig = cloneDeep(this.state.possiblyEditedPlayRecordConfigs)
-			newConfig[bin][item] = !newConfig[bin][item]
-			this.setState({ possiblyEditedPlayRecordConfigs: newConfig })
+			const newSettings = cloneDeep(this.state.possiblyEditedSettings)
+			newSettings.playRecordConfigs[bin][item] = !newSettings.playRecordConfigs[
+				bin
+			][item]
+			this.setState({ possiblyEditedSettings: newSettings })
 		}
 
 		return (
 			<Checkbox
 				onClick={toggleConfigsItem}
-				isChecked={this.state.possiblyEditedPlayRecordConfigs[bin][item]}
+				isChecked={
+					this.state.possiblyEditedSettings.playRecordConfigs[bin][item]
+				}
 			/>
 		)
 	}
 
-	renderNickNameSection() {
+	renderNicknameSection() {
 		return (
 			<div>
 				<input type="text" />
@@ -97,7 +100,7 @@ export class Settings extends React.Component<SettingsProps, SettingsState> {
 	renderConfigs() {
 		return (
 			<div className="reimagine-settings-playRecordConfigs">
-				{this.renderNickNameSection()}
+				{this.renderNicknameSection()}
 				Customize what you want to hear when interacting.
 				<table>
 					<thead>
@@ -135,12 +138,12 @@ export class Settings extends React.Component<SettingsProps, SettingsState> {
 	}
 
 	renderSavePlayRecordConfigsButton() {
-		const { playRecordConfigs, updating } = this.props
-		const { possiblyEditedPlayRecordConfigs } = this.state
+		const { updating } = this.props.settings
+		this.state.possiblyEditedSettings
 
 		const unsavedChanges =
-			JSON.stringify(playRecordConfigs) !==
-			JSON.stringify(possiblyEditedPlayRecordConfigs)
+			JSON.stringify(this.props.settings) !==
+			JSON.stringify(this.state.possiblyEditedSettings)
 		return (
 			<button
 				className="reimagine-button"
@@ -148,7 +151,7 @@ export class Settings extends React.Component<SettingsProps, SettingsState> {
 				onClick={() =>
 					this.props.dispatch(
 						saveUserSettings({
-							playRecordConfigs: possiblyEditedPlayRecordConfigs
+							...this.state.possiblyEditedSettings
 						})
 					)
 				}
@@ -197,8 +200,7 @@ export class Settings extends React.Component<SettingsProps, SettingsState> {
 const mapStateToProps = (store: StoreType, ownProp?: any): SettingsProps => ({
 	dispatch: ownProp.dispatch,
 	identity: store.general.identityType,
-	playRecordConfigs: store.settings.playRecordConfigs,
-	updating: store.settings.updating
+	settings: store.settings
 })
 
 export default withSiteData(connect(mapStateToProps)(Settings))

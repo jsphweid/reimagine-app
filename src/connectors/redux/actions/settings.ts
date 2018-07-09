@@ -59,6 +59,7 @@ export function saveUserSettings(updates: Partial<SettingsStoreStateType>) {
 	return async (dispatch: any) => {
 		const creds = await getCurrentCredentials()
 		dispatch(updateUserSettingsStart())
+		delete updates.updating
 		const updateResponse = await updateUserSettings(
 			creds.params.IdentityId,
 			updates
