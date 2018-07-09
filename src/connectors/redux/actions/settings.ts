@@ -39,7 +39,6 @@ export function loadUserSettings() {
 		const userSettingsResponse = await getUserSettings(creds.params.IdentityId)
 
 		if (!userSettingsResponse) throw 'could not make user settings call'
-		console.log('------saidjfoi', userSettingsResponse)
 
 		let userSettings = userSettingsResponse.data.getUserSettings
 

@@ -56,7 +56,6 @@ export class Settings extends React.Component<SettingsProps, SettingsState> {
 				JSON.stringify(nextProps.settings) &&
 			!justStartedUpdate
 		) {
-			console.log('updating', nextProps.settings)
 			this.setState({
 				possiblyEditedSettings: nextProps.settings
 			})
