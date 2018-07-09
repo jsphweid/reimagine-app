@@ -1,6 +1,8 @@
 import { TOGGLE_IS_PLAYING, SET_IDENTITY_TYPE } from '../constants'
 import { getCurrentCredentials } from '../../amplify'
 import { IdentityType } from '../../../common/types'
+import { loadUserSettings } from './settings'
+import AppSyncClient from '../../../connectors/appsync'
 
 export const setIdentityType = (idType: IdentityType) => ({
 	idType,
@@ -12,13 +14,11 @@ export const toggleIsPlaying = (isPlaying: boolean) => ({
 	type: TOGGLE_IS_PLAYING
 })
 
-export function syncStoreWithCurrentIdentity() {
+export function syncStoreWithCurrentIdentity(creds: any) {
 	return async (dispatch: any) => {
-		const creds = await getCurrentCredentials()
 		if (!creds) throw 'could not fetch creds'
-
+		// await AppSyncClient.resetStore()
 		const hasId = !!creds.data.IdentityId
-
 		switch (true) {
 			case creds.authenticated && hasId:
 				return dispatch(setIdentityType(IdentityType.Google))

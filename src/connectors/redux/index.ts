@@ -7,6 +7,13 @@ if (typeof window === 'undefined') {
 	;(<any>global).window = {}
 }
 
-const store = createStore(reducer, applyMiddleware(thunk))
+let win: any = window
+
+const composeEnhancers = win.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+
+const store: any = createStore(
+	reducer,
+	composeEnhancers(applyMiddleware(thunk))
+)
 
 export default store

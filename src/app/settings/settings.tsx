@@ -11,10 +11,14 @@ import AnonymousIcon from 'react-icons/lib/fa/question'
 import { withFederated } from 'aws-amplify-react'
 
 import Amplify from 'aws-amplify'
-import { syncStoreWithCurrentIdentity } from '../../connectors/redux/actions/general'
 
 import { amplifyConfig, signOut } from '../../connectors/amplify'
-import { IdentityType } from '../../common/types'
+import { PlayRecordConfigsType } from '../../common/types'
+import { cloneDeep } from '../../common/helpers'
+import {
+	saveUserSettings,
+	loadUserSettings
+} from '../../connectors/redux/actions/settings'
 
 Amplify.configure(amplifyConfig)
 
@@ -28,16 +32,130 @@ const federated = {
 export interface SettingsProps {
 	dispatch: any
 	identity: any
+	updating: boolean
+	playRecordConfigs: PlayRecordConfigsType
 }
 
-export class Settings extends React.Component<SettingsProps> {
+export interface SettingsState {
+	possiblyEditedPlayRecordConfigs: PlayRecordConfigsType
+}
+
+export class Settings extends React.Component<SettingsProps, SettingsState> {
 	constructor(props: SettingsProps) {
 		super(props)
+
+		this.state = {
+			possiblyEditedPlayRecordConfigs: props.playRecordConfigs
+		}
+	}
+
+	componentWillReceiveProps(nextProps: SettingsProps) {
+		const { updating, playRecordConfigs } = this.props
+
+		if (
+			JSON.stringify(nextProps.playRecordConfigs) !==
+				JSON.stringify(playRecordConfigs) ||
+			(updating && !nextProps.updating)
+		) {
+			this.setState({
+				possiblyEditedPlayRecordConfigs: nextProps.playRecordConfigs
+			})
+		}
 	}
 
 	async handleSignOut() {
 		await signOut()
-		this.props.dispatch(syncStoreWithCurrentIdentity())
+		this.props.dispatch(loadUserSettings())
+	}
+
+	renderCheckbox(
+		bin: 'playSegmentConfig' | 'playRecordingConfig' | 'recordConfig',
+		item: 'playMetronome' | 'playNotes'
+	) {
+		const toggleConfigsItem = () => {
+			const newConfig = cloneDeep(this.state.possiblyEditedPlayRecordConfigs)
+			newConfig[bin][item] = !newConfig[bin][item]
+			this.setState({ possiblyEditedPlayRecordConfigs: newConfig })
+		}
+
+		return (
+			<Checkbox
+				onClick={toggleConfigsItem}
+				isChecked={this.state.possiblyEditedPlayRecordConfigs[bin][item]}
+			/>
+		)
+	}
+
+	renderNickNameSection() {
+		return (
+			<div>
+				<input type="text" />
+			</div>
+		)
+	}
+
+	renderConfigs() {
+		return (
+			<div className="reimagine-settings-playRecordConfigs">
+				{this.renderNickNameSection()}
+				Customize what you want to hear when interacting.
+				<table>
+					<thead>
+						<tr>
+							<td />
+							<td>Metronome</td>
+							<td>Notes</td>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>Play Segment</td>
+							<td>
+								{this.renderCheckbox('playSegmentConfig', 'playMetronome')}
+							</td>
+							<td>{this.renderCheckbox('playSegmentConfig', 'playNotes')}</td>
+						</tr>
+						<tr>
+							<td>Record Segment</td>
+							<td>{this.renderCheckbox('recordConfig', 'playMetronome')}</td>
+							<td>{this.renderCheckbox('recordConfig', 'playNotes')}</td>
+						</tr>
+						<tr>
+							<td>Play Recording</td>
+							<td>
+								{this.renderCheckbox('playRecordingConfig', 'playMetronome')}
+							</td>
+							<td>{this.renderCheckbox('playRecordingConfig', 'playNotes')}</td>
+						</tr>
+					</tbody>
+				</table>
+				{this.renderSavePlayRecordConfigsButton()}
+			</div>
+		)
+	}
+
+	renderSavePlayRecordConfigsButton() {
+		const { playRecordConfigs, updating } = this.props
+		const { possiblyEditedPlayRecordConfigs } = this.state
+
+		const unsavedChanges =
+			JSON.stringify(playRecordConfigs) !==
+			JSON.stringify(possiblyEditedPlayRecordConfigs)
+		return (
+			<button
+				className="reimagine-button"
+				disabled={!unsavedChanges || updating}
+				onClick={() =>
+					this.props.dispatch(
+						saveUserSettings({
+							playRecordConfigs: possiblyEditedPlayRecordConfigs
+						})
+					)
+				}
+			>
+				{updating ? 'Updating...' : unsavedChanges ? 'Save' : 'Saved'}
+			</button>
+		)
 	}
 
 	renderAuthenticator() {
@@ -54,7 +172,7 @@ export class Settings extends React.Component<SettingsProps> {
 				federated={federated}
 				onStateChange={(data: any) => {
 					if (data === 'signedIn') {
-						this.props.dispatch(syncStoreWithCurrentIdentity())
+						this.props.dispatch(loadUserSettings())
 					}
 				}}
 			/>
@@ -64,14 +182,12 @@ export class Settings extends React.Component<SettingsProps> {
 	public render() {
 		return (
 			<Section className="reimagine-settings" title="Settings">
-				<div className="reimagine-settings-main">
-					<Checkbox onClick={() => null} isChecked={true} />
-				</div>
+				{this.renderConfigs()}
 				<div className="reimagine-settings-identity">
 					<div>
-						Identity: <strong>{this.props.identity}</strong>
+						Current Identity: <strong>{this.props.identity}</strong>
 					</div>
-					<div>{this.renderAuthenticator()}</div>
+					<div>Switch Identities: {this.renderAuthenticator()}</div>
 				</div>
 			</Section>
 		)
@@ -80,7 +196,9 @@ export class Settings extends React.Component<SettingsProps> {
 
 const mapStateToProps = (store: StoreType, ownProp?: any): SettingsProps => ({
 	dispatch: ownProp.dispatch,
-	identity: store.general.identityType
+	identity: store.general.identityType,
+	playRecordConfigs: store.settings.playRecordConfigs,
+	updating: store.settings.updating
 })
 
 export default withSiteData(connect(mapStateToProps)(Settings))
