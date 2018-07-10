@@ -16,14 +16,18 @@ const segmentDefaultState: SegmentStoreStateType = {
 
 export const getSegmentDefaultState = () => cloneDeep(segmentDefaultState)
 
-export default (state: SegmentStoreStateType = getSegmentDefaultState(), action: any = {}) => {
+export default (
+	state: SegmentStoreStateType = getSegmentDefaultState(),
+	action: any = {}
+) => {
 	switch (action.type) {
 		case GET_SEGMENT_SUCCESS:
-			const { segment } = action.data
+			console.log('action', action)
+			const { getSegment } = action.data
 			const segments = state.segments.slice()
 			const newSegment = {
-				...segment,
-				midiJson: JSON.parse(segment.midiJson)
+				...getSegment,
+				midiJson: JSON.parse(getSegment.midiJson)
 			}
 			segments.push(newSegment)
 			return {
