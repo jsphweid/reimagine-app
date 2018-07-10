@@ -1,8 +1,5 @@
 import { TOGGLE_IS_PLAYING, SET_IDENTITY_TYPE } from '../constants'
-import { getCurrentCredentials } from '../../amplify'
 import { IdentityType } from '../../../common/types'
-import { loadUserSettings } from './settings'
-import AppSyncClient from '../../../connectors/appsync'
 
 export const setIdentityType = (idType: IdentityType) => ({
 	idType,
