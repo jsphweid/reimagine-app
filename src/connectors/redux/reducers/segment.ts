@@ -22,7 +22,6 @@ export default (
 ) => {
 	switch (action.type) {
 		case GET_SEGMENT_SUCCESS:
-			console.log('action', action)
 			const { getSegment } = action.data
 			const segments = state.segments.slice()
 			const newSegment = {
