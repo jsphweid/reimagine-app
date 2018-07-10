@@ -123,10 +123,10 @@ export class Interactive extends React.Component<
     this.props.dispatch(removeActiveAudioConfig())
     if (blob) {
       this.setState({ lastRecordingWasComplete: true })
-      blobToBase64(blob).then((base64blob: string) => {
+      blobToBase64(blob).then((base64Blob: string) => {
         this.props.dispatch(
           addRecordingToStore({
-            base64blob,
+            base64Blob,
             startTime,
             samplingRate: AudioEngine.audioContext.sampleRate,
             segment: this.props.activeSegment,

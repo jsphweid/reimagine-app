@@ -11,7 +11,7 @@ export interface SegmentType {
 
 export interface RecordingType {
 	segment: SegmentType
-	base64blob: string
+	base64Blob: string
 	recordingDate: string
 	uploadState: UploadState
 	startTime: number

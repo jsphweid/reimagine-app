@@ -4,8 +4,7 @@ import {
 	UPLOAD_RECORDING_STARTED,
 	UPLOAD_RECORDING_SUCCESS
 } from '../constants'
-import gql from 'graphql-tag'
-import client from '../../apollo'
+import postRecording from '../../../queries/postRecording'
 
 export const addRecordingToStore = (recording: RecordingType) => ({
 	recording,
@@ -23,24 +22,9 @@ export const uploadRecordingSuccess = (recording: RecordingType) => ({
 export function uploadRecording(recording: RecordingType) {
 	return (dispatch: any) => {
 		dispatch(uploadRecordingStarted(recording))
-
-		return client
-			.mutate({
-				mutation: gql`
-					mutation {
-						postRecording(base64Blob: "${recording.base64blob}", startTime: ${
-					recording.startTime
-				}, segmentId: "${recording.segment.id}", samplingRate: ${
-					recording.samplingRate
-				}) {
-							id
-						}
-					}
-				`
-			})
-			.then(() => {
-				dispatch(uploadRecordingSuccess({ ...recording }))
-			})
+		const { base64Blob, segment, samplingRate } = recording
+		return postRecording(base64Blob, segment.id, samplingRate)
+			.then(() => dispatch(uploadRecordingSuccess({ ...recording })))
 			.catch((error: any) => console.error(error))
 	}
 }

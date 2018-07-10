@@ -1,4 +1,9 @@
-import { RecordingType, PlaySessionConfigType, AudioEventType, AudioSessionConfigType } from '../../common/types'
+import {
+	RecordingType,
+	PlaySessionConfigType,
+	AudioEventType,
+	AudioSessionConfigType
+} from '../../common/types'
 import PlayIcon from 'react-icons/lib/fa/play'
 import StopIcon from 'react-icons/lib/fa/stop'
 import AudioEngine from '../../audio-engine'
@@ -57,14 +62,18 @@ export class PlayIconWrapper extends React.Component<PlayIconWrapperProps> {
 	private handlePlayButtonClicked() {
 		const { settings, dispatch, recording } = this.props
 
-		base64ToBlob(recording.base64blob).then((blob: Blob) => {
+		base64ToBlob(recording.base64Blob).then((blob: Blob) => {
+			const {
+				playNotes,
+				playMetronome
+			} = settings.playRecordConfigs.playRecordingConfig
 			const config: PlaySessionConfigType = {
+				playNotes,
+				playMetronome,
 				type: AudioEventType.Playing,
 				recordingDate: recording.recordingDate,
 				startTime: AudioEngine.audioContext.currentTime,
-				segment: recording.segment,
-				playMetronome: settings.playRecordingConfig.playMetronome,
-				playNotes: settings.playRecordingConfig.playNotes
+				segment: recording.segment
 			}
 			const blobUrl = URL.createObjectURL(blob)
 			const audioElement = new Audio(blobUrl)
@@ -89,7 +98,10 @@ export class PlayIconWrapper extends React.Component<PlayIconWrapperProps> {
 	}
 }
 
-function determineIfIsPlaying(activeAudioConfig: AudioSessionConfigType, recording: RecordingType): boolean {
+function determineIfIsPlaying(
+	activeAudioConfig: AudioSessionConfigType,
+	recording: RecordingType
+): boolean {
 	return (
 		activeAudioConfig &&
 		recording &&
@@ -98,9 +110,15 @@ function determineIfIsPlaying(activeAudioConfig: AudioSessionConfigType, recordi
 	)
 }
 
-const mapStateToProps = (store: StoreType, ownProp?: any): PlayIconWrapperProps => ({
+const mapStateToProps = (
+	store: StoreType,
+	ownProp?: any
+): PlayIconWrapperProps => ({
 	dispatch: ownProp.dispatch,
-	isPlaying: determineIfIsPlaying(store.audio.activeAudioConfig, ownProp.recording),
+	isPlaying: determineIfIsPlaying(
+		store.audio.activeAudioConfig,
+		ownProp.recording
+	),
 	recording: ownProp.recording,
 	settings: store.settings,
 	activeAudioElement: store.audio.activeAudioElement
