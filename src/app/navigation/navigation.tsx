@@ -10,6 +10,8 @@ import CogIcon from 'react-icons/lib/fa/cog'
 import InfoIcon from 'react-icons/lib/fa/info-circle'
 import HeadphonesIcon from 'react-icons/lib/fa/headphones'
 import MicrophoneIcon from 'react-icons/lib/fa/microphone'
+import ComputerIcon from 'react-icons/lib/fa/desktop'
+
 import { MainSection } from '../../common/constants'
 import {
 	contractHeader,
@@ -18,13 +20,15 @@ import {
 	activateInteractive,
 	activateRecentRecordings,
 	activateListen,
-	activateAbout
+	activateAbout,
+	activateAdmin
 } from '../../connectors/redux/actions/navigation'
 
 export interface NavigationProps {
 	dispatch: any
 	activeMainSection: MainSection
 	headerExpanded: boolean
+	id: string
 }
 
 export class Navigation extends React.Component<NavigationProps, any> {
@@ -34,9 +38,13 @@ export class Navigation extends React.Component<NavigationProps, any> {
 
 	private renderQuickSwap() {
 		return this.props.activeMainSection === MainSection.Interactive ? (
-			<RecordingIcon onClick={() => this.props.dispatch(activateRecentRecordings())} />
+			<RecordingIcon
+				onClick={() => this.props.dispatch(activateRecentRecordings())}
+			/>
 		) : (
-			<MicrophoneIcon onClick={() => this.props.dispatch(activateInteractive())} />
+			<MicrophoneIcon
+				onClick={() => this.props.dispatch(activateInteractive())}
+			/>
 		)
 	}
 
@@ -49,7 +57,11 @@ export class Navigation extends React.Component<NavigationProps, any> {
 		)
 	}
 
-	private renderMenuItem(text: string, icon: JSX.Element, action: Function): JSX.Element {
+	private renderMenuItem(
+		text: string,
+		icon: JSX.Element,
+		action: Function
+	): JSX.Element {
 		return (
 			<li onClick={() => this.props.dispatch(action())}>
 				<div>{text}</div>
@@ -58,15 +70,27 @@ export class Navigation extends React.Component<NavigationProps, any> {
 		)
 	}
 
+	private renderPossibleAdminSection(): JSX.Element {
+		console.log('this.props.id', this.props.id)
+		return this.props.id === 'us-east-1:4c19032d-8f02-4129-a1af-32403becb60e'
+			? this.renderMenuItem('Admin', <ComputerIcon />, activateAdmin)
+			: null
+	}
+
 	private renderPossibleOverlay(): JSX.Element {
 		return this.props.headerExpanded ? (
 			<div className="reimagine-navigation-overlay">
 				<ul>
 					{this.renderMenuItem('Main', <MicrophoneIcon />, activateInteractive)}
-					{this.renderMenuItem('Recent Recordings', <RecordingIcon />, activateRecentRecordings)}
+					{this.renderMenuItem(
+						'Recent Recordings',
+						<RecordingIcon />,
+						activateRecentRecordings
+					)}
 					{this.renderMenuItem('Listen', <HeadphonesIcon />, activateListen)}
 					{this.renderMenuItem('Settings', <CogIcon />, activateSettings)}
 					{this.renderMenuItem('About', <InfoIcon />, activateAbout)}
+					{this.renderPossibleAdminSection()}
 				</ul>
 			</div>
 		) : null
@@ -89,7 +113,8 @@ export class Navigation extends React.Component<NavigationProps, any> {
 const mapStateToProps = (store: StoreType, ownProp?: any): NavigationProps => ({
 	dispatch: ownProp.dispatch,
 	headerExpanded: store.navigation.headerExpanded,
-	activeMainSection: store.navigation.activeMainSection
+	activeMainSection: store.navigation.activeMainSection,
+	id: store.general.id
 })
 
 export default withSiteData(connect(mapStateToProps)(Navigation))

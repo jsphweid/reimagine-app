@@ -4,7 +4,8 @@ export enum MainSection {
 	RecentRecordings,
 	Listen,
 	Settings,
-	About
+	About,
+	Admin
 }
 
 export const defaultPlayRecordConfigs: PlayRecordConfigsType = {

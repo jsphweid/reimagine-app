@@ -6,7 +6,8 @@ import {
 	ACTIVATE_INTERACTIVE_SCREEN,
 	ACTIVATE_RECENT_RECORDINGS,
 	ACTIVATE_ABOUT,
-	ACTIVATE_LISTEN
+	ACTIVATE_LISTEN,
+	ACTIVATE_ADMIN
 } from '../constants'
 import { MainSection } from '../../../common/constants'
 
@@ -20,7 +21,8 @@ const navigationDefaultState: NavigationStoreStateType = {
 	activeMainSection: MainSection.Interactive
 }
 
-export const getNavigationDefaultState = (): NavigationStoreStateType => cloneDeep(navigationDefaultState)
+export const getNavigationDefaultState = (): NavigationStoreStateType =>
+	cloneDeep(navigationDefaultState)
 
 export default (
 	state: NavigationStoreStateType = getNavigationDefaultState(),
@@ -36,7 +38,12 @@ export default (
 		case ACTIVATE_RECENT_RECORDINGS:
 		case ACTIVATE_ABOUT:
 		case ACTIVATE_LISTEN:
-			return { ...state, headerExpanded: false, activeMainSection: action.section }
+		case ACTIVATE_ADMIN:
+			return {
+				...state,
+				headerExpanded: false,
+				activeMainSection: action.section
+			}
 		default:
 			return state
 	}

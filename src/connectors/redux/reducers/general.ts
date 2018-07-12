@@ -1,15 +1,17 @@
-import { TOGGLE_IS_PLAYING, SET_IDENTITY_TYPE } from '../constants'
+import { TOGGLE_IS_PLAYING, SET_IDENTITY } from '../constants'
 import { cloneDeep } from '../../../common/helpers'
 import { IdentityType } from '../../../common/types'
 
 export interface GeneralStoreStateType {
 	isPlaying: boolean
 	identityType: IdentityType
+	id: string
 }
 
 const generalDefaultState: GeneralStoreStateType = {
 	isPlaying: false,
-	identityType: IdentityType.Nothing
+	identityType: IdentityType.Nothing,
+	id: null
 }
 
 export const getGeneralDefaultState = (): GeneralStoreStateType =>
@@ -27,10 +29,11 @@ export default (
 				isPlaying
 			}
 		}
-		case SET_IDENTITY_TYPE:
+		case SET_IDENTITY:
 			return {
 				...state,
-				identityType: action.idType
+				identityType: action.idType,
+				id: action.id
 			}
 		default:
 			return state

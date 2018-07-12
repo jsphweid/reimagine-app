@@ -1,9 +1,10 @@
-import { TOGGLE_IS_PLAYING, SET_IDENTITY_TYPE } from '../constants'
+import { TOGGLE_IS_PLAYING, SET_IDENTITY } from '../constants'
 import { IdentityType } from '../../../common/types'
 
-export const setIdentityType = (idType: IdentityType) => ({
+export const setIdentity = (idType: IdentityType, id: string) => ({
 	idType,
-	type: SET_IDENTITY_TYPE
+	id,
+	type: SET_IDENTITY
 })
 
 export const toggleIsPlaying = (isPlaying: boolean) => ({
@@ -14,15 +15,16 @@ export const toggleIsPlaying = (isPlaying: boolean) => ({
 export function syncStoreWithCurrentIdentity(creds: any) {
 	return async (dispatch: any) => {
 		if (!creds) throw 'could not fetch creds'
-		// await AppSyncClient.resetStore()
-		const hasId = !!creds.data.IdentityId
+
+		const id = creds.data.IdentityId
+
 		switch (true) {
-			case creds.authenticated && hasId:
-				return dispatch(setIdentityType(IdentityType.Google))
-			case !creds.authenticated && hasId:
-				return dispatch(setIdentityType(IdentityType.Anonymous))
+			case creds.authenticated && !!id:
+				return dispatch(setIdentity(IdentityType.Google, id))
+			case !creds.authenticated && !!id:
+				return dispatch(setIdentity(IdentityType.Anonymous, id))
 			default:
-				return dispatch(setIdentityType(IdentityType.Nothing))
+				return dispatch(setIdentity(IdentityType.Nothing, null))
 		}
 	}
 }

@@ -1,11 +1,27 @@
 import { combineReducers } from 'redux'
 
-import segment, { SegmentStoreStateType, getSegmentDefaultState } from './segment'
-import recording, { getRecordingDefaultState, RecordingStoreStateType } from './recording'
-import general, { GeneralStoreStateType, getGeneralDefaultState } from './general'
+import segment, {
+	SegmentStoreStateType,
+	getSegmentDefaultState
+} from './segment'
+import recording, {
+	getRecordingDefaultState,
+	RecordingStoreStateType
+} from './recording'
+import general, {
+	GeneralStoreStateType,
+	getGeneralDefaultState
+} from './general'
 import audio, { getAudioDefaultState, AudioStoreStateType } from './audio'
-import navigation, { getNavigationDefaultState, NavigationStoreStateType } from './navigation'
-import settings, { getSettingsDefaultState, SettingsStoreStateType } from './settings'
+import navigation, {
+	getNavigationDefaultState,
+	NavigationStoreStateType
+} from './navigation'
+import settings, {
+	getSettingsDefaultState,
+	SettingsStoreStateType
+} from './settings'
+import admin, { getAdminDefaultState, AdminStoreStateType } from './admin'
 
 const reducer = combineReducers({
 	segment,
@@ -13,7 +29,8 @@ const reducer = combineReducers({
 	general,
 	audio,
 	navigation,
-	settings
+	settings,
+	admin
 })
 
 export const getSimpleDefaultStore = () => {
@@ -23,7 +40,8 @@ export const getSimpleDefaultStore = () => {
 		general: getGeneralDefaultState(),
 		audio: getAudioDefaultState(),
 		navigation: getNavigationDefaultState(),
-		settings: getSettingsDefaultState()
+		settings: getSettingsDefaultState(),
+		admin: getAdminDefaultState()
 	}
 }
 
@@ -34,6 +52,7 @@ export interface StoreType {
 	audio: AudioStoreStateType
 	navigation: NavigationStoreStateType
 	settings: SettingsStoreStateType
+	admin: AdminStoreStateType
 }
 
 export default reducer
