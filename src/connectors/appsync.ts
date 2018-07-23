@@ -4,9 +4,9 @@ import { amplifyConfig } from './amplify'
 
 Amplify.configure(amplifyConfig)
 
-const client = new AWSAppSyncClient({
+export default new AWSAppSyncClient({
 	url:
-		'https://s4fwikhnwbg4xofd5ant6377ky.appsync-api.us-east-1.amazonaws.com/graphql',
+		'https://75lfetemxvfwfdhf74movp42oq.appsync-api.us-east-1.amazonaws.com/graphql',
 	region: 'us-east-1',
 	auth: {
 		type: AUTH_TYPE.AWS_IAM,
@@ -15,5 +15,3 @@ const client = new AWSAppSyncClient({
 	disableOffline: true,
 	cacheOptions: { addTypename: false }
 } as any)
-
-export default client
