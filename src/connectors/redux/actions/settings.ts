@@ -46,7 +46,11 @@ export function loadUserSettings() {
 			return dispatch(loadUserSettingsSuccess(userSettings))
 		}
 
-		userSettings = await createUserSettings(getSettingsDefaultState())
+		const allDefaultSettings = getSettingsDefaultState()
+		userSettings = await createUserSettings({
+			playRecordConfigs: allDefaultSettings.playRecordConfigs,
+			nickname: allDefaultSettings.nickname
+		})
 
 		if (!userSettings) throw 'could not create user settings in db'
 

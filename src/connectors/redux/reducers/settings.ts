@@ -22,7 +22,8 @@ const settingsDefaultState: SettingsStoreStateType = {
 	nickname: defaultNickname
 }
 
-export const getSettingsDefaultState = () => cloneDeep(settingsDefaultState)
+export const getSettingsDefaultState = (): SettingsStoreStateType =>
+	cloneDeep(settingsDefaultState)
 
 export default (
 	state: SettingsStoreStateType = getSettingsDefaultState(),

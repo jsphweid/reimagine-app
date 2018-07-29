@@ -3,7 +3,7 @@ import AppSyncClient from '../connectors/appsync'
 import { SettingsStoreStateType } from '../connectors/redux/reducers/settings'
 import { wholePlayRecordConfigsObj } from './stringFragments'
 
-export default (input: SettingsStoreStateType): Promise<any> =>
+export default (input: Partial<SettingsStoreStateType>): Promise<any> =>
 	AppSyncClient.mutate({
 		mutation: gql`
       mutation createUserSettings($input: UserSettingsInput!) {
