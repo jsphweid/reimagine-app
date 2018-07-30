@@ -1,4 +1,8 @@
-import { ADD_RECORDING_TO_STORE, UPLOAD_RECORDING_SUCCESS, UPLOAD_RECORDING_STARTED } from '../constants'
+import {
+	ADD_RECORDING_TO_STORE,
+	UPLOAD_RECORDING_SUCCESS,
+	UPLOAD_RECORDING_STARTED
+} from '../constants'
 import { cloneDeep } from '../../../common/helpers'
 import { RecordingType, UploadState } from '../../../common/types'
 
@@ -10,7 +14,8 @@ const recordingDefaultState: RecordingStoreStateType = {
 	recordings: []
 }
 
-export const getRecordingDefaultState = (): RecordingStoreStateType => cloneDeep(recordingDefaultState)
+export const getRecordingDefaultState = (): RecordingStoreStateType =>
+	cloneDeep(recordingDefaultState)
 
 export default (
 	state: RecordingStoreStateType = getRecordingDefaultState(),
@@ -27,7 +32,9 @@ export default (
 		}
 		case UPLOAD_RECORDING_STARTED: {
 			const recordings = cloneDeep(state.recordings)
-			const index = recordings.findIndex(recording => recording.recordingDate === action.recording.recordingDate)
+			const index = recordings.findIndex(
+				recording => recording.recordingDate === action.recording.recordingDate
+			)
 			recordings[index].uploadState = UploadState.Uploading
 			return {
 				...state,
@@ -36,7 +43,9 @@ export default (
 		}
 		case UPLOAD_RECORDING_SUCCESS: {
 			const recordings = cloneDeep(state.recordings)
-			const index = recordings.findIndex(recording => recording.recordingDate === action.recording.recordingDate)
+			const index = recordings.findIndex(
+				recording => recording.recordingDate === action.recording.recordingDate
+			)
 			recordings[index].uploadState = UploadState.Uploaded
 			return {
 				...state,

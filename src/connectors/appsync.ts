@@ -12,6 +12,5 @@ export default new AWSAppSyncClient({
 		type: AUTH_TYPE.AWS_IAM,
 		credentials: () => Auth.currentCredentials()
 	},
-	disableOffline: true,
-	cacheOptions: { addTypename: false }
+	disableOffline: true
 } as any)

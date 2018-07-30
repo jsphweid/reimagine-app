@@ -18,9 +18,13 @@ const audioDefaultState: AudioStoreStateType = {
 	activeAudioElement: null
 }
 
-export const getAudioDefaultState = (): AudioStoreStateType => cloneDeep(audioDefaultState)
+export const getAudioDefaultState = (): AudioStoreStateType =>
+	cloneDeep(audioDefaultState)
 
-export default (state: AudioStoreStateType = getAudioDefaultState(), action: any = {}): AudioStoreStateType => {
+export default (
+	state: AudioStoreStateType = getAudioDefaultState(),
+	action: any = {}
+): AudioStoreStateType => {
 	switch (action.type) {
 		case SET_ACTIVE_AUDIO_CONFIG:
 			return { ...state, activeAudioConfig: action.config }

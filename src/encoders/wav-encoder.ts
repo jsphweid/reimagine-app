@@ -26,7 +26,11 @@ export default class WavEncoder {
 		for (let i = 0; i < len; ++i) {
 			for (let ch = 0; ch < this.numChannels; ++ch) {
 				const x = buffers[ch][i] * 0x7fff
-				view.setInt16(offset, x < 0 ? Math.max(x, -0x8000) : Math.min(x, 0x7fff), true)
+				view.setInt16(
+					offset,
+					x < 0 ? Math.max(x, -0x8000) : Math.min(x, 0x7fff),
+					true
+				)
 				offset += 2
 			}
 		}

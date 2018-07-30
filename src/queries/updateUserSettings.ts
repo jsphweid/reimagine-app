@@ -1,20 +1,14 @@
 import gql from 'graphql-tag'
-import AppSyncClient from '../connectors/appsync'
-import { SettingsStoreStateType } from '../connectors/redux/reducers/settings'
-import { wholePlayRecordConfigsObj } from './stringFragments'
+import { WholePlayRecordConfigsObj } from './fragments'
 
-export default (
-	id: string,
-	input: Partial<SettingsStoreStateType>
-): Promise<any> =>
-	AppSyncClient.mutate({
-		mutation: gql`
-      mutation updateUserSettings($input: UserSettingsInput!) {
-        updateUserSettings(id: "${id}", input: $input) {
-          ${wholePlayRecordConfigsObj}
-          nickname
-        }
-      }
-    `,
-		variables: { input }
-	})
+export default gql`
+	mutation updateUserSettings($id: String!, $input: UserSettingsInput!) {
+		updateUserSettings(id: $id, input: $input) {
+			playRecordConfigs {
+				...allPlayRecordConfigs
+			}
+			nickname
+		}
+	}
+	${WholePlayRecordConfigsObj}
+`

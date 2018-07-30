@@ -4,7 +4,8 @@ import {
 	UPLOAD_RECORDING_STARTED,
 	UPLOAD_RECORDING_SUCCESS
 } from '../constants'
-import postRecording from '../../../queries/postRecording'
+import postRecordingMutation from '../../../queries/postRecording'
+import AppSyncClient from '../../appsync'
 
 export const addRecordingToStore = (recording: RecordingType) => ({
 	recording,
@@ -23,7 +24,10 @@ export function uploadRecording(recording: RecordingType) {
 	return (dispatch: any) => {
 		dispatch(uploadRecordingStarted(recording))
 		const { base64Blob, segment, samplingRate } = recording
-		return postRecording(base64Blob, segment.id, samplingRate)
+		return AppSyncClient.mutate({
+			mutation: postRecordingMutation,
+			variables: { base64Blob, segmentId: segment.id, samplingRate }
+		})
 			.then(() => dispatch(uploadRecordingSuccess({ ...recording })))
 			.catch((error: any) => console.error(error))
 	}

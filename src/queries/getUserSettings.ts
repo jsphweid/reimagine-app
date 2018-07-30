@@ -1,16 +1,14 @@
 import gql from 'graphql-tag'
-import AppSyncClient from '../connectors/appsync'
-import { wholePlayRecordConfigsObj } from './stringFragments'
+import { WholePlayRecordConfigsObj } from './fragments'
 
-export default (id: string): Promise<any> =>
-	AppSyncClient.query({
-		query: gql`
-      {
-        getUserSettings(id: "${id}") {
-          ${wholePlayRecordConfigsObj}
-          nickname
-        }
-      }
-    `,
-		fetchPolicy: 'network-only'
-	})
+export default gql`
+	query GetUserSettings($id: String!) {
+		getUserSettings(id: $id) {
+			playRecordConfigs {
+				...allPlayRecordConfigs
+			}
+			nickname
+		}
+	}
+	${WholePlayRecordConfigsObj}
+`

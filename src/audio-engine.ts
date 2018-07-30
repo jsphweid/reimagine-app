@@ -1,7 +1,11 @@
 import { getSecondsPerBeat, midiToFreq } from './common/helpers'
 import { Note } from 'midiconvert'
 import WavEncoder from './encoders/wav-encoder'
-import { RecordingSessionConfigType, PlaySessionConfigType, AudioSessionConfigType } from './common/types'
+import {
+	RecordingSessionConfigType,
+	PlaySessionConfigType,
+	AudioSessionConfigType
+} from './common/types'
 
 class AudioEngine {
 	public static instance: AudioEngine
@@ -15,14 +19,20 @@ class AudioEngine {
 		if (!AudioEngine.instance) {
 			AudioEngine.instance = this
 			if (typeof window !== 'undefined') {
-				this.audioContext = new ((<any>window).AudioContext || (<any>window).webkitAudioContext)()
+				this.audioContext = new ((<any>window).AudioContext ||
+					(<any>window).webkitAudioContext)()
 			}
 		}
 
 		return AudioEngine.instance
 	}
 
-	private scheduleSoundEvent(offset: number, time: number, duration: number, frequency: number): void {
+	private scheduleSoundEvent(
+		offset: number,
+		time: number,
+		duration: number,
+		frequency: number
+	): void {
 		const osc = this.audioContext.createOscillator()
 		osc.connect(this.audioContext.destination)
 		osc.frequency.value = frequency
@@ -42,14 +52,24 @@ class AudioEngine {
 
 	private scheduleNotes(startTime: number, notes: Note[]): void {
 		notes.forEach(note => {
-			this.scheduleSoundEvent(startTime, note.time, note.duration, midiToFreq(note.midi))
+			this.scheduleSoundEvent(
+				startTime,
+				note.time,
+				note.duration,
+				midiToFreq(note.midi)
+			)
 		})
 	}
 
 	private scheduleSynthNotes(config: AudioSessionConfigType) {
 		const { playMetronome, playNotes, segment, startTime } = config
-		if (playMetronome) this.scheduleMetronomeClicks(config.startTime, segment.midiJson.header.bpm)
-		if (playNotes) this.scheduleNotes(startTime, segment.midiJson.tracks[0].notes)
+		if (playMetronome)
+			this.scheduleMetronomeClicks(
+				config.startTime,
+				segment.midiJson.header.bpm
+			)
+		if (playNotes)
+			this.scheduleNotes(startTime, segment.midiJson.tracks[0].notes)
 	}
 
 	public startPlaying(config: PlaySessionConfigType): void {

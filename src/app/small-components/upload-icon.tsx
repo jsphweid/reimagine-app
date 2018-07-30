@@ -26,17 +26,26 @@ export class UploadIconWrapper extends React.Component<UploadIconWrapperProps> {
 		if (!recording) return <Upload className="reimagine-unclickable" />
 
 		const { uploadState } = recording
-		const clickHandler = uploadState === CanUpload ? () => dispatch(uploadRecording(recording)) : null
+		const clickHandler =
+			uploadState === CanUpload
+				? () => dispatch(uploadRecording(recording))
+				: null
 		const isBusy = uploadState === Uploaded || isRecording
 		return uploadState === Uploading ? (
 			<SpinnerIcon className="reimagine-spin" />
 		) : (
-			<Upload className={isBusy ? 'reimagine-unclickable' : ''} onClick={clickHandler} />
+			<Upload
+				className={isBusy ? 'reimagine-unclickable' : ''}
+				onClick={clickHandler}
+			/>
 		)
 	}
 }
 
-const mapStateToProps = (store: StoreType, ownProp?: any): UploadIconWrapperProps => ({
+const mapStateToProps = (
+	store: StoreType,
+	ownProp?: any
+): UploadIconWrapperProps => ({
 	dispatch: ownProp.dispatch,
 	isRecording: !!store.audio.activeAudioConfig,
 	recording: ownProp.recording

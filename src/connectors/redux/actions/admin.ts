@@ -4,7 +4,8 @@ import {
 	UPLOAD_MIDI_SUCCESS,
 	UPLOAD_MIDI_FAILURE
 } from '../constants'
-import postMidi from '../../../queries/postMidi'
+import postMidiMutation from '../../../queries/postMidi'
+import AppSyncClient from '../../appsync'
 
 const uploadMidiStarted = () => ({ type: UPLOAD_MIDI_STARTED })
 const uploadMidiSuccess = (ids: string[]) => ({
@@ -27,7 +28,10 @@ export function postMidiFiles(files: File[]) {
 		)
 
 		try {
-			const response = await postMidi(fileBuffers)
+			const response = await AppSyncClient.mutate({
+				mutation: postMidiMutation,
+				variables: { fileBuffers }
+			})
 			dispatch(uploadMidiSuccess(response.data.postMidi.ids))
 		} catch (e) {
 			dispatch(uploadMidiFailure(JSON.stringify(e)))
