@@ -14,7 +14,7 @@ export class About extends React.Component<AboutProps> {
 
 	public render() {
 		return (
-			<div>
+			<div className="reimagine-about">
 				re:imagine is a webapp that explores a new type of music composition:
 				one that leverages the power of the internet.
 			</div>
