@@ -6,8 +6,12 @@
 	font-family: 'fontello';
 	src: url('./font/fontello.eot?37191581');
 	src: url('./font/fontello.eot?37191581#iefix') format('embedded-opentype'),
-		url('./font/fontello.woff?37191581') format('woff'), url('./font/fontello.ttf?37191581') format('truetype'),
+		url('./font/fontello.woff?37191581') format('woff'),
+		url('./font/fontello.ttf?37191581') format('truetype'),
 		url('./font/fontello.svg?37191581#fontello') format('svg');
 	font-weight: normal;
 	font-style: normal;
+}
+* {
+	font-family: Tahoma, sans-serif;
 }

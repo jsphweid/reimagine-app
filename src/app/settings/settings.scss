@@ -1,16 +1,42 @@
 .reimagine-settings {
 	& > div {
 		border-bottom: 1px solid $charcoal;
+		padding: 16px;
 	}
 }
 
-.reimagine-settings-playRecordConfigs {
+.remagine-settings-form {
+	& > div {
+		padding: 16px 0;
+	}
+
+	.reimagine-settings-form-nickname {
+		input {
+			font-size: 18px;
+			margin-left: 8px;
+		}
+	}
+
+	.reimagine-button {
+		margin-top: 16px;
+		width: 100%;
+	}
+
+	td {
+		text-align: center;
+	}
+}
+
+.reimagine-settings-form-playRecordConfigs {
 	table {
 		width: 100%;
 	}
 }
 
 .reimagine-settings-identity {
+	& > div {
+		padding: 8px 0;
+	}
 }
 
 .reimagine-settings-identity-buttons {

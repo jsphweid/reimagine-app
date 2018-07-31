@@ -97,7 +97,7 @@ export class Settings extends React.Component<SettingsProps, SettingsState> {
 		}
 
 		return (
-			<div>
+			<div className="reimagine-settings-form-nickname">
 				<span>
 					Nickname:
 					<input
@@ -112,8 +112,7 @@ export class Settings extends React.Component<SettingsProps, SettingsState> {
 
 	renderConfigs() {
 		return (
-			<div className="reimagine-settings-playRecordConfigs">
-				{this.renderNicknameSection()}
+			<div className="reimagine-settings-form-playRecordConfigs">
 				Customize what you want to hear when interacting.
 				<table>
 					<thead>
@@ -145,7 +144,6 @@ export class Settings extends React.Component<SettingsProps, SettingsState> {
 						</tr>
 					</tbody>
 				</table>
-				{this.renderSavePlayRecordConfigsButton()}
 			</div>
 		)
 	}
@@ -198,12 +196,19 @@ export class Settings extends React.Component<SettingsProps, SettingsState> {
 	public render() {
 		return (
 			<Section className="reimagine-settings" title="Settings">
-				{this.renderConfigs()}
+				<div className="remagine-settings-form">
+					{this.renderNicknameSection()}
+					{this.renderConfigs()}
+					{this.renderSavePlayRecordConfigsButton()}
+				</div>
 				<div className="reimagine-settings-identity">
 					<div>
 						Current Identity: <strong>{this.props.identity}</strong>
 					</div>
-					<div>Switch Identities: {this.renderAuthenticator()}</div>
+					<div>
+						<div>Switch Identities:</div>
+						<div>{this.renderAuthenticator()}</div>
+					</div>
 				</div>
 			</Section>
 		)
