@@ -7,7 +7,7 @@
 		"start": "react-static start",
 		"build": "npm run clean && react-static build",
 		"clean": "rm -rf dist/",
-		"prettier": "prettier --config .prettierrc --write 'src/**/*.{js,jsx,ts,tsx}'",
+		"prettier": "prettier --config .prettierrc --write 'src/**/*.{js,jsx,ts,tsx,scss}'",
 		"deploy": "npm run build && ./deploy.sh",
 		"serve": "serve dist -p 3000"
 	},
