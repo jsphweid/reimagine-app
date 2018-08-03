@@ -87,7 +87,7 @@ export class Navigation extends React.Component<NavigationProps, any> {
 						<RecordingIcon />,
 						activateRecentRecordings
 					)}
-					{this.renderMenuItem('Listen', <HeadphonesIcon />, activateListen)}
+					{/* {this.renderMenuItem('Listen', <HeadphonesIcon />, activateListen)} */}
 					{this.renderMenuItem('Settings', <CogIcon />, activateSettings)}
 					{this.renderMenuItem('About', <InfoIcon />, activateAbout)}
 					{this.renderPossibleAdminSection()}
