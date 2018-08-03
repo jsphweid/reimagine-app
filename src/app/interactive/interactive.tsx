@@ -51,6 +51,7 @@ export class Interactive extends React.Component<
 	InteractiveState
 > {
 	private static recordStopper: NodeJS.Timer
+	private static playStopper: NodeJS.Timer
 
 	constructor(props: InteractiveProps) {
 		super(props)
@@ -108,9 +109,14 @@ export class Interactive extends React.Component<
 	}
 
 	private basicStopAudioEngine(): void {
+		console.log('stopping')
 		if (Interactive.recordStopper) {
 			clearTimeout(Interactive.recordStopper)
 			Interactive.recordStopper = null
+		}
+		if (Interactive.playStopper) {
+			clearTimeout(Interactive.playStopper)
+			Interactive.playStopper = null
 		}
 		this.props.dispatch(removeActiveAudioConfig())
 		this.setState({ lastRecordingWasComplete: false })
@@ -162,6 +168,10 @@ export class Interactive extends React.Component<
 			...recordingSessionConfig,
 			startTime: AudioEngine.audioContext.currentTime
 		} as PlaySessionConfigType
+		const recordingLength = (fullConfig.segment.midiJson.duration + 0.5) * 1000
+		Interactive.playStopper = setTimeout(() => {
+			this.stopAudioEngineAndSave()
+		}, recordingLength)
 
 		AudioEngine.startPlaying(fullConfig)
 		this.props.dispatch(setActiveAudioConfig(fullConfig))
