@@ -28,24 +28,26 @@ export class Main extends React.Component<MainProps, null> {
 
 	componentDidMount() {
 		document.title = 're:Imagine'
-		this.props.dispatch(loadUserSettings())
+		// this.props.dispatch(loadUserSettings()) // inactive
 	}
 
 	private renderMainArea(): JSX.Element {
 		switch (this.props.activeMainSection) {
 			default:
-			case MainSection.Interactive:
-				return <Interactive />
-			case MainSection.Settings:
-				return <Settings />
-			case MainSection.RecentRecordings:
-				return <RecentRecordings />
-			case MainSection.About:
-				return <About />
-			case MainSection.Listen:
-				return <Listen />
-			case MainSection.Admin:
-				return <Admin />
+				return <div>Project is currently inactive as of 2019-01-23.</div>
+			// inactie
+			// case MainSection.Interactive:
+			// 	return <Interactive />
+			// case MainSection.Settings:
+			// 	return <Settings />
+			// case MainSection.RecentRecordings:
+			// 	return <RecentRecordings />
+			// case MainSection.About:
+			// 	return <About />
+			// case MainSection.Listen:
+			// 	return <Listen />
+			// case MainSection.Admin:
+			// 	return <Admin />
 		}
 	}
 
