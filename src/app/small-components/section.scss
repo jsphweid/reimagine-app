@@ -1,12 +1,12 @@
 .reimagine-section {
-	h2 {
-		padding: 20px 0;
-		border-bottom: 3px solid rgba(0, 0, 0, 0.1);
-	}
-	h2 {
-		text-align: center;
-		width: 100%;
-		@extend .reimagine-colorProfile3;
-		margin: 0;
-	}
+  h2 {
+    padding: 20px 0;
+    border-bottom: 3px solid rgba(0, 0, 0, 0.1);
+  }
+  h2 {
+    text-align: center;
+    width: 100%;
+    @extend .reimagine-colorProfile3;
+    margin: 0;
+  }
 }

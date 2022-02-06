@@ -1,117 +1,121 @@
-import { getSecondsPerBeat, midiToFreq } from './common/helpers'
-import { Note } from 'midiconvert'
-import WavEncoder from './encoders/wav-encoder'
+import { Note } from "midiconvert";
+
+import { getSecondsPerBeat, midiToFreq } from "./common/helpers";
+import WavEncoder from "./encoders/wav-encoder";
 import {
-	RecordingSessionConfigType,
-	PlaySessionConfigType,
-	AudioSessionConfigType
-} from './common/types'
+  RecordingSessionConfig,
+  PlaySessionConfig,
+  AudioSessionConfig,
+} from "./common/types";
 
 class AudioEngine {
-	public static instance: AudioEngine
-	public audioContext: AudioContext
-	private oscillators: OscillatorNode[] = []
-	private source: MediaStreamAudioSourceNode
-	private processor: ScriptProcessorNode
-	private wavEncoder: WavEncoder
+  public static instance: AudioEngine;
+  public audioContext: AudioContext;
+  private oscillators: OscillatorNode[] = [];
+  private source?: MediaStreamAudioSourceNode;
+  private processor?: ScriptProcessorNode;
+  private wavEncoder: WavEncoder | null = null;
 
-	constructor() {
-		if (!AudioEngine.instance) {
-			AudioEngine.instance = this
-			if (typeof window !== 'undefined') {
-				this.audioContext = new ((<any>window).AudioContext ||
-					(<any>window).webkitAudioContext)()
-			}
-		}
+  constructor() {
+    if (!AudioEngine.instance) {
+      AudioEngine.instance = this;
+    }
 
-		return AudioEngine.instance
-	}
+    this.audioContext = new ((<any>window).AudioContext ||
+      (<any>window).webkitAudioContext)();
 
-	private scheduleSoundEvent(
-		offset: number,
-		time: number,
-		duration: number,
-		frequency: number
-	): void {
-		const osc = this.audioContext.createOscillator()
-		osc.connect(this.audioContext.destination)
-		osc.frequency.value = frequency
-		const adjustedTime = time + offset
-		osc.start(adjustedTime)
-		osc.stop(adjustedTime + duration - 0.05)
-		this.oscillators.push(osc)
-	}
+    return AudioEngine.instance;
+  }
 
-	private scheduleMetronomeClicks(startTime: number, bpm: number): void {
-		const numberOfMetronomeBeats = 40
-		const secondsPerBeat = getSecondsPerBeat(bpm)
-		for (let i = 0; i < numberOfMetronomeBeats; i++) {
-			this.scheduleSoundEvent(startTime, i * secondsPerBeat, 0.15, 440)
-		}
-	}
+  private scheduleSoundEvent(
+    offset: number,
+    time: number,
+    duration: number,
+    frequency: number
+  ): void {
+    const osc = this.audioContext.createOscillator();
+    osc.connect(this.audioContext.destination);
+    osc.frequency.value = frequency;
+    const adjustedTime = time + offset;
+    osc.start(adjustedTime);
+    osc.stop(adjustedTime + duration - 0.05);
+    this.oscillators.push(osc);
+  }
 
-	private scheduleNotes(startTime: number, notes: Note[]): void {
-		notes.forEach(note => {
-			this.scheduleSoundEvent(
-				startTime,
-				note.time,
-				note.duration,
-				midiToFreq(note.midi)
-			)
-		})
-	}
+  private scheduleMetronomeClicks(startTime: number, bpm: number): void {
+    const numberOfMetronomeBeats = 40;
+    const secondsPerBeat = getSecondsPerBeat(bpm);
+    for (let i = 0; i < numberOfMetronomeBeats; i++) {
+      this.scheduleSoundEvent(startTime, i * secondsPerBeat, 0.15, 440);
+    }
+  }
 
-	private scheduleSynthNotes(config: AudioSessionConfigType) {
-		const { playMetronome, playNotes, segment, startTime } = config
-		if (playMetronome)
-			this.scheduleMetronomeClicks(
-				config.startTime,
-				segment.midiJson.header.bpm
-			)
-		if (playNotes)
-			this.scheduleNotes(startTime, segment.midiJson.tracks[0].notes)
-	}
+  private scheduleNotes(startTime: number, notes: Note[]): void {
+    notes.forEach((note) => {
+      this.scheduleSoundEvent(
+        startTime,
+        note.time,
+        note.duration,
+        midiToFreq(note.midi)
+      );
+    });
+  }
 
-	public startPlaying(config: PlaySessionConfigType): void {
-		this.scheduleSynthNotes(config)
-	}
+  private scheduleSynthNotes(config: AudioSessionConfig) {
+    const { playMetronome, playNotes, segment, startTime } = config;
+    if (playMetronome)
+      this.scheduleMetronomeClicks(
+        config.startTime,
+        segment.midiJson.header.bpm
+      );
+    if (playNotes)
+      this.scheduleNotes(startTime, segment.midiJson.tracks[0].notes);
+  }
 
-	public startRecording(config: RecordingSessionConfigType): void {
-		this.connectRecordingNodes()
-		this.scheduleSynthNotes(config)
-	}
+  public startPlaying(config: PlaySessionConfig): void {
+    this.scheduleSynthNotes(config);
+  }
 
-	private connectRecordingNodes(): void {
-		this.wavEncoder = new WavEncoder(this.audioContext.sampleRate, 1)
-		navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-			this.source = this.audioContext.createMediaStreamSource(stream)
-			this.processor = this.audioContext.createScriptProcessor(1024, 1, 1)
-			this.processor.onaudioprocess = (event: AudioProcessingEvent) => {
-				this.wavEncoder.encode([event.inputBuffer.getChannelData(0)])
-			}
-			this.source.connect(this.processor)
-			this.processor.connect(this.audioContext.destination)
-		})
-	}
+  public startRecording(config: RecordingSessionConfig): void {
+    this.connectRecordingNodes();
+    this.scheduleSynthNotes(config);
+  }
 
-	private shutOffOscillatorsAndDisconnectRecordingNodes() {
-		this.oscillators.forEach(osc => osc.disconnect())
-		this.oscillators = []
-		if (this.source) this.source.disconnect()
-		if (this.processor) this.processor.disconnect()
-	}
+  private connectRecordingNodes(): void {
+    this.wavEncoder = new WavEncoder(this.audioContext.sampleRate, 1);
+    navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+      this.source = this.audioContext.createMediaStreamSource(stream);
+      this.processor = this.audioContext.createScriptProcessor(1024, 1, 1);
+      this.processor.onaudioprocess = (event: AudioProcessingEvent) => {
+        if (this.wavEncoder) {
+          this.wavEncoder.encode([event.inputBuffer.getChannelData(0)]);
+        } else {
+          console.error("wavEncoder instance doesn't exist on AudioEngine");
+        }
+      };
+      this.source.connect(this.processor);
+      this.processor.connect(this.audioContext.destination);
+    });
+  }
 
-	public stopRecording(getBlob: boolean = false): Blob {
-		this.shutOffOscillatorsAndDisconnectRecordingNodes()
-		if (getBlob && this.wavEncoder) {
-			const blob: Blob = this.wavEncoder.finish()
-			this.wavEncoder = null
-			return blob
-		}
-		return null
-	}
+  private shutOffOscillatorsAndDisconnectRecordingNodes() {
+    this.oscillators.forEach((osc) => osc.disconnect());
+    this.oscillators = [];
+    if (this.source) this.source.disconnect();
+    if (this.processor) this.processor.disconnect();
+  }
+
+  public stopRecording(getBlob: boolean = false): Blob | null {
+    this.shutOffOscillatorsAndDisconnectRecordingNodes();
+    if (getBlob && this.wavEncoder) {
+      const blob: Blob = this.wavEncoder.finish();
+      this.wavEncoder = null;
+      return blob;
+    }
+    return null;
+  }
 }
 
-const instance: AudioEngine = new AudioEngine()
+const instance: AudioEngine = new AudioEngine();
 
-export default instance
+export default instance;

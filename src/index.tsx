@@ -1,27 +1,23 @@
-import * as React from 'react'
-import ReactDOM from 'react-dom'
-import { AppContainer } from 'react-hot-loader'
+import React from "react";
+import ReactDOM from "react-dom";
+import { BrowserRouter } from "react-router-dom";
 
-import App from './App'
+import { App } from "./app";
+import { Auth0ProviderWithHistory } from "./auth0-provider-with-history";
+import { EnvProvider } from "./context/env.context";
+import { StoreProvider } from "./store";
 
-if (typeof document !== 'undefined') {
-	const renderMethod = module.hot ? ReactDOM.render : ReactDOM.hydrate
-	const render = (Comp: React.ComponentType) => {
-		renderMethod(
-			<AppContainer>
-				<Comp />
-			</AppContainer>,
-			document.getElementById('root')
-		)
-	}
-
-	render(App)
-
-	if (module.hot) {
-		module.hot.accept('./App', () => {
-			render(require('./App').default)
-		})
-	}
-}
-
-export default App
+ReactDOM.render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <StoreProvider>
+        <EnvProvider>
+          <Auth0ProviderWithHistory>
+            <App />
+          </Auth0ProviderWithHistory>
+        </EnvProvider>
+      </StoreProvider>
+    </BrowserRouter>
+  </React.StrictMode>,
+  document.getElementById("root")
+);

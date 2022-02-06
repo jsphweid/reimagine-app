@@ -1,29 +1,12 @@
-import * as React from 'react'
-import { withSiteData } from 'react-static'
-import { connect } from 'react-redux'
-import { StoreType } from '../../connectors/redux/reducers'
+import React from "react";
 
-export interface AboutProps {
-	dispatch: any
+function About() {
+  return (
+    <div className="reimagine-about">
+      re:imagine is a webapp that explores a new type of music: one that
+      leverages the power of the internet.
+    </div>
+  );
 }
 
-export class About extends React.Component<AboutProps> {
-	constructor(props: AboutProps) {
-		super(props)
-	}
-
-	public render() {
-		return (
-			<div className="reimagine-about">
-				re:imagine is a webapp that explores a new type of music: one that
-				leverages the power of the internet.
-			</div>
-		)
-	}
-}
-
-const mapStateToProps = (store: StoreType, ownProp?: any): AboutProps => ({
-	dispatch: ownProp.dispatch
-})
-
-export default withSiteData(connect(mapStateToProps)(About))
+export default About;

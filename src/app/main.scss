@@ -1,42 +1,42 @@
-@import 'recent-recordings/recent-recordings';
-@import 'navigation/navigation';
-@import 'interactive/interactive';
-@import 'settings/settings';
-@import 'listen/listen';
-@import 'about/about';
+@import "recent-recordings/recent-recordings";
+@import "navigation/navigation";
+@import "interactive/interactive";
+@import "settings/settings";
+@import "listen/listen";
+@import "about/about";
 
-@import 'small-components/checkbox';
-@import 'small-components/section';
+@import "small-components/checkbox";
+@import "small-components/section";
 
 .reimagine {
-	max-width: 1280px;
-	width: 100%;
-	height: 100%;
+  max-width: 1280px;
+  width: 100%;
+  height: 100%;
 }
 
 .reimagine-mainArea {
-	padding-top: 64px;
-	height: calc(100% - 64px);
+  padding-top: 64px;
+  height: calc(100% - 64px);
 }
 
 body {
-	margin: 0;
-	color: $charcoal;
+  margin: 0;
+  color: $charcoal;
 }
 
 html,
 body,
 #root,
 .reimagine {
-	height: 100%;
+  height: 100%;
 }
 
 .reimagine-button {
-	font-size: 16px;
-	line-height: 19px;
-	min-width: 16px;
-	height: 48px;
-	padding: 15px 16px 14px 16px;
-	border: 1px solid $charcoal;
-	border-radius: 8px;
+  font-size: 16px;
+  line-height: 19px;
+  min-width: 16px;
+  height: 48px;
+  padding: 15px 16px 14px 16px;
+  border: 1px solid $charcoal;
+  border-radius: 8px;
 }

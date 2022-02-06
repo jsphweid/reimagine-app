@@ -1,54 +1,37 @@
-import { UploadState, RecordingType } from '../../common/types'
-import SpinnerIcon from 'react-icons/lib/fa/spinner'
-import Upload from 'react-icons/lib/fa/upload'
+import React from "react";
+import {
+  FaSpinner as SpinnerIcon,
+  FaUpload as UploadIcon,
+} from "react-icons/fa";
 
-const { Uploading, CanUpload, Uploaded } = UploadState
-
-import * as React from 'react'
-import { withSiteData } from 'react-static'
-import { connect } from 'react-redux'
-import { StoreType } from '../../connectors/redux/reducers'
-import { uploadRecording } from '../../connectors/redux/actions/recording'
+import { Recording } from "../../common/types";
 
 export interface UploadIconWrapperProps {
-	dispatch: any
-	recording: RecordingType
-	isRecording: boolean
+  recording: Recording | null;
+  isRecording?: boolean;
 }
 
-export class UploadIconWrapper extends React.Component<UploadIconWrapperProps> {
-	constructor(props: UploadIconWrapperProps) {
-		super(props)
-	}
+function UploadIconWrapper(props: UploadIconWrapperProps) {
+  if (!props.recording) {
+    return <UploadIcon className="reimagine-unclickable" />;
+  }
 
-	public render() {
-		const { isRecording, recording, dispatch } = this.props
-		if (!recording) return <Upload className="reimagine-unclickable" />
+  return <SpinnerIcon className="reimagine-unclickable" />;
 
-		const { uploadState } = recording
-		const clickHandler =
-			uploadState === CanUpload
-				? () => dispatch(uploadRecording(recording))
-				: null
-		const isBusy = uploadState === Uploaded || isRecording
-		return uploadState === Uploading ? (
-			<SpinnerIcon className="reimagine-spin" />
-		) : (
-			<Upload
-				className={isBusy ? 'reimagine-unclickable' : ''}
-				onClick={clickHandler}
-			/>
-		)
-	}
+  // const { uploadState } = recording;
+  // const clickHandler =
+  //   uploadState === CanUpload
+  //     ? () => null // TODO: fix
+  //     : undefined;
+  // const isBusy = uploadState === Uploaded || isRecording;
+  // return uploadState === Uploading ? (
+  //   <SpinnerIcon className="reimagine-spin" />
+  // ) : (
+  //   <UploadIcon
+  //     className={isBusy ? "reimagine-unclickable" : ""}
+  //     onClick={clickHandler}
+  //   />
+  // );
 }
 
-const mapStateToProps = (
-	store: StoreType,
-	ownProp?: any
-): UploadIconWrapperProps => ({
-	dispatch: ownProp.dispatch,
-	isRecording: !!store.audio.activeAudioConfig,
-	recording: ownProp.recording
-})
-
-export default withSiteData(connect(mapStateToProps)(UploadIconWrapper))
+export default UploadIconWrapper;

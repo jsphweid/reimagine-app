@@ -1,14 +1,20 @@
-import * as React from 'react'
-import Main from './app/main'
-import './app.scss'
+import { useAuth0 } from "@auth0/auth0-react";
+import React from "react";
 
-import { Provider as ReduxProvider } from 'react-redux'
-import store from './connectors/redux'
+import { Loader } from "./components/loader";
+import Main from "./app/main";
+import "./app.scss";
 
-const app = () => (
-	<ReduxProvider store={store}>
-		<Main />
-	</ReduxProvider>
-)
+export const App: React.FC = () => {
+  const { isLoading } = useAuth0();
 
-export default app
+  if (isLoading) {
+    return (
+      <div className="page-layout">
+        <Loader />
+      </div>
+    );
+  }
+
+  return <Main />;
+};
