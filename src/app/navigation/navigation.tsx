@@ -12,6 +12,7 @@ import {
 
 import { Section } from "../../common/constants";
 import { useStore } from "../../store";
+import { useAuth0 } from "@auth0/auth0-react";
 
 interface NavigationProps {
   id?: string;
@@ -20,6 +21,7 @@ interface NavigationProps {
 export function Navigation(props: NavigationProps) {
   const { store, setStore } = useStore();
   const [headerExpanded, setHeaderExpanded] = React.useState(false);
+  const { isAuthenticated, logout, loginWithRedirect } = useAuth0();
 
   function genActivate(section: Section) {
     return () => {
@@ -53,6 +55,19 @@ export function Navigation(props: NavigationProps) {
     );
   }
 
+  function renderLoginLogout() {
+    const handleLogout = () =>
+      logout({
+        returnTo: window.location.origin,
+      });
+
+    return (
+      <li onClick={isAuthenticated ? handleLogout : loginWithRedirect}>
+        <div>{isAuthenticated ? "Logout" : "Login"}</div>
+      </li>
+    );
+  }
+
   function renderPossibleAdminSection() {
     // TODO: change to only if admin permission on token
     return renderMenuItem("Admin", <ComputerIcon />, Section.Admin);
@@ -72,6 +87,7 @@ export function Navigation(props: NavigationProps) {
           {renderMenuItem("Settings", <CogIcon />, Section.Settings)}
           {renderMenuItem("About", <InfoIcon />, Section.About)}
           {renderPossibleAdminSection()}
+          {renderLoginLogout()}
         </ul>
       </div>
     ) : null;
