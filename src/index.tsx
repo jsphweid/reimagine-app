@@ -6,6 +6,7 @@ import { App } from "./app";
 import { Auth0ProviderWithHistory } from "./auth0-provider-with-history";
 import { EnvProvider } from "./context/env.context";
 import { StoreProvider } from "./store";
+import AuthorizedApolloProvider from "./apollo-provider";
 
 ReactDOM.render(
   <React.StrictMode>
@@ -13,7 +14,9 @@ ReactDOM.render(
       <StoreProvider>
         <EnvProvider>
           <Auth0ProviderWithHistory>
-            <App />
+            <AuthorizedApolloProvider>
+              <App />
+            </AuthorizedApolloProvider>
           </Auth0ProviderWithHistory>
         </EnvProvider>
       </StoreProvider>

@@ -7,6 +7,7 @@ import {
 export interface CheckboxProps {
   isChecked: boolean;
   onClick: () => void;
+  disabled?: boolean;
 }
 
 function Checkbox(props: CheckboxProps) {

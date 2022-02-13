@@ -1,23 +1,65 @@
 import React from "react";
+import { useAuth0 } from "@auth0/auth0-react";
 
+import {
+  GetUserSettingsDocument,
+  useGetUserSettingsQuery,
+  UserSettings,
+  useUpdateUserSettingsMutation,
+} from "../../generated";
 import Checkbox from "../small-components/checkbox";
 import Section from "../small-components/section";
-import { PlayRecordFlags, useStore } from "../../store";
+import { removeTypename } from "../../utils";
 
 function Settings() {
-  const { store, setStore } = useStore();
+  const { user } = useAuth0();
 
-  function handleFlagUpdated(flag: keyof PlayRecordFlags, val: boolean) {
-    setStore({ [flag]: val });
-    // TODO: update remote silently
+  const userId = user?.sub as string;
+
+  const { data, loading: isLoading } = useGetUserSettingsQuery({
+    variables: { userId: userId },
+  });
+  const [update, { data: updatedSettings }] = useUpdateUserSettingsMutation();
+
+  const userSettings =
+    updatedSettings?.updateUserSettings ||
+    data?.getUserSettingsByUserId ||
+    null;
+
+  if (!userSettings || isLoading) {
+    return <>loading</>;
   }
 
-  function renderCheckbox(flag: keyof PlayRecordFlags) {
-    const newValue = !store[flag];
+  function handleFlagUpdated(flag: keyof UserSettings) {
+    const newVal = !userSettings![flag];
+    const input = { ...removeTypename(userSettings!), [flag]: newVal };
+    update({
+      variables: {
+        userId,
+        input,
+      },
+      optimisticResponse: {
+        __typename: "Mutation",
+        updateUserSettings: { ...input, __typename: "UserSettings" },
+      },
+      update: (store, { data }) => {
+        store.writeQuery({
+          query: GetUserSettingsDocument,
+          variables: { userId },
+          data: {
+            __typename: "Mutation",
+            getUserSettingsByUserId: data?.updateUserSettings,
+          },
+        });
+      },
+    });
+  }
+
+  function renderCheckbox(flag: keyof UserSettings) {
     return (
       <Checkbox
-        onClick={() => handleFlagUpdated(flag, newValue)}
-        isChecked={!!store[flag]}
+        onClick={() => handleFlagUpdated(flag)}
+        isChecked={userSettings ? userSettings[flag] === true : false}
       />
     );
   }
