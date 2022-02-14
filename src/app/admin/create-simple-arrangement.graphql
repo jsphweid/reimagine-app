@@ -1,0 +1,7 @@
+mutation CreateSimpleArrangement($pieceId: String!, $base64Blob: String!) {
+  createSimpleArrangement(pieceId: $pieceId, base64Blob: $base64Blob) {
+    id
+    pieceId
+    dateCreated
+  }
+}

@@ -1,0 +1,3 @@
+mutation DeleteArrangement($arrangementId: String!) {
+  deleteArrangement(arrangementId: $arrangementId)
+}
