@@ -8,7 +8,10 @@ import { MdHearing as EarIcon } from "react-icons/md";
 
 import MidiVisualizer from "react-midi-visualizer";
 
-import AudioEngine, { AudioSessionConfig } from "../../audio-engine";
+import {
+  getAudioEngine as _getAudioEngine,
+  AudioSessionConfig,
+} from "../../audio-engine";
 import { blobToBase64, loadMidiFromJson } from "../../common/helpers";
 import UploadIconWrapper from "../small-components/upload-icon";
 import {
@@ -16,7 +19,6 @@ import {
   useGetUserSettingsQuery,
 } from "../../generated";
 import { useAuth0 } from "@auth0/auth0-react";
-import { useAudioEngine } from "../../hooks/use-audio-engine";
 
 let recordStopper: NodeJS.Timer | null = null;
 let playStopper: NodeJS.Timer | null = null;
@@ -30,7 +32,6 @@ function Interactive() {
   const { user } = useAuth0();
   const userId = user?.sub as string;
 
-  const audioEngine = useAudioEngine();
   const [randomKey, setRandomKey] = useState("default");
   const [dims, setDims] = useState<Dimensions | null>(null);
   const [lastComplete, setLastComplete] = useState(false);
@@ -39,6 +40,7 @@ function Interactive() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [getSeg, getSegRes] = useGetNextSegmentLazyQuery();
+  const [audioCtx, setAudioCtx] = useState<AudioContext | null>(null);
   const ref = useRef(null);
 
   const settingsRes = useGetUserSettingsQuery({ variables: { userId } });
@@ -46,6 +48,14 @@ function Interactive() {
 
   const segment = getSegRes.data?.getNextSegment || null;
   const hasActiveAudio = isPlaying || isRecording;
+
+  const getAudioEngine = () =>
+    _getAudioEngine().then((audioEngine) => {
+      if (!audioCtx) {
+        setAudioCtx(audioEngine.audioContext);
+      }
+      return audioEngine;
+    });
 
   const midi = useMemo(
     () => (segment ? loadMidiFromJson(segment.midiJson) : null),
@@ -77,10 +87,10 @@ function Interactive() {
     // TODO: figure out how everything is getting triggered and come up with a better design
     // must be lazy initialized
 
-    return notes ? (
+    return notes && audioCtx ? (
       <MidiVisualizer
         key={`visualizer-${randomKey}`}
-        audioContext={audioEngine.audioContext}
+        audioContext={audioCtx}
         height={height}
         width={width}
         startTime={startTime}
@@ -90,50 +100,56 @@ function Interactive() {
   }
 
   function basicStopAudioEngine(): void {
-    if (recordStopper) {
-      clearTimeout(recordStopper);
-      recordStopper = null;
-    }
-    if (playStopper) {
-      clearTimeout(playStopper);
-      playStopper = null;
-    }
-    setLastComplete(false);
-    audioEngine.stopRecording(hasActiveAudio);
+    getAudioEngine().then((audioEngine) => {
+      if (recordStopper) {
+        clearTimeout(recordStopper);
+        recordStopper = null;
+      }
+      if (playStopper) {
+        clearTimeout(playStopper);
+        playStopper = null;
+      }
+      setLastComplete(false);
+      audioEngine.stopRecording(hasActiveAudio);
+    });
   }
 
   function stopAudioEngineAndSave(): void {
-    const blob = audioEngine.stopRecording(hasActiveAudio);
-    // this.props.dispatch(removeActiveAudioConfig());
-    if (blob) {
-      setLastComplete(true);
-      blobToBase64(blob).then((base64Blob: string) => {
-        // this.props.dispatch(
-        //   addRecordingToStore({
-        //     base64Blob,
-        //     startTime,
-        //     samplingRate: audioEngine.audioContext.sampleRate,
-        //     segment: this.props.activeSegment,
-        //     recordingDate: new Date().toString(),
-        //     uploadState: UploadState.CanUpload,
-        //   })
-        // );
-      });
-    }
+    getAudioEngine().then((audioEngine) => {
+      const blob = audioEngine.stopRecording(hasActiveAudio);
+      // this.props.dispatch(removeActiveAudioConfig());
+      if (blob) {
+        setLastComplete(true);
+        blobToBase64(blob).then((base64Blob: string) => {
+          // this.props.dispatch(
+          //   addRecordingToStore({
+          //     base64Blob,
+          //     startTime,
+          //     samplingRate: audioEngine.audioContext.sampleRate,
+          //     segment: this.props.activeSegment,
+          //     recordingDate: new Date().toString(),
+          //     uploadState: UploadState.CanUpload,
+          //   })
+          // );
+        });
+      }
+    });
   }
 
   function handleStartRecording(
     recordingSessionConfig: Partial<AudioSessionConfig>
   ) {
     if (midi) {
-      const fullConfig = {
-        ...recordingSessionConfig,
-        startTime: audioEngine.audioContext.currentTime,
-      } as AudioSessionConfig;
+      getAudioEngine().then((audioEngine) => {
+        const fullConfig = {
+          ...recordingSessionConfig,
+          startTime: audioEngine.audioContext.currentTime,
+        } as AudioSessionConfig;
 
-      const recordingLength = (midi.duration + 0.5) * 1000;
-      recordStopper = setTimeout(stopAudioEngineAndSave, recordingLength);
-      audioEngine.startRecording(fullConfig);
+        const recordingLength = (midi.duration + 0.5) * 1000;
+        recordStopper = setTimeout(stopAudioEngineAndSave, recordingLength);
+        audioEngine.startRecording(fullConfig);
+      });
     }
 
     // this.props.dispatch(setActiveAudioConfig(fullConfig));
@@ -141,18 +157,21 @@ function Interactive() {
 
   function handleStartPlaying() {
     if (midi) {
-      const startTime = audioEngine.audioContext.currentTime;
-      setStartTime(startTime);
-      const fullConfig = {
-        midi,
-        startTime,
-        playMetronome: settings.metronomeOnSegmentPlay,
-        playNotes: settings.notesOnSegmentPlay,
-      } as AudioSessionConfig;
-      const recordingLength = (midi.duration + 0.5) * 1000;
-      playStopper = setTimeout(stopAudioEngineAndSave, recordingLength);
-      audioEngine.startPlaying(fullConfig);
-      // this.props.dispatch(setActiveAudioConfig(fullConfig));
+      getAudioEngine().then((audioEngine) => {
+        const startTime = audioEngine.audioContext.currentTime;
+        setStartTime(startTime);
+        console.log("startTime, startTime", startTime);
+        const fullConfig = {
+          midi,
+          startTime,
+          playMetronome: settings.metronomeOnSegmentPlay,
+          playNotes: settings.notesOnSegmentPlay,
+        } as AudioSessionConfig;
+        const recordingLength = (midi.duration + 0.5) * 1000;
+        playStopper = setTimeout(stopAudioEngineAndSave, recordingLength);
+        audioEngine.startPlaying(fullConfig);
+        // this.props.dispatch(setActiveAudioConfig(fullConfig));
+      });
     } else {
       // TODO: make UI so this is impossible
     }

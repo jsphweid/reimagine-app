@@ -3,6 +3,7 @@ import { Midi } from "@tonejs/midi";
 
 import { getSecondsPerBeat, midiToFreq } from "./common/helpers";
 import WavEncoder from "./encoders/wav-encoder";
+import { waitUntil } from "./utils";
 
 export interface AudioSessionConfig {
   playMetronome?: boolean;
@@ -133,4 +134,14 @@ class AudioEngine {
   }
 }
 
-export default AudioEngine;
+export const getAudioEngine = async () => {
+  const audioEngine = new AudioEngine();
+  if (audioEngine.audioContext.state !== "running") {
+    await audioEngine.audioContext.resume();
+  }
+
+  // Even after we resume the engine, we still need to
+  // wait for the currentTime to be a non-zero value
+  await waitUntil(() => !!audioEngine.audioContext.currentTime);
+  return audioEngine;
+};

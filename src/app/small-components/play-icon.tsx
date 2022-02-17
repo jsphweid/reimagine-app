@@ -1,7 +1,6 @@
 import React from "react";
 import { FaPlay as PlayIcon, FaStop as StopIcon } from "react-icons/fa";
 
-import AudioEngine from "../../audio-engine";
 import { base64ToBlob } from "../../common/helpers";
 import { AudioSessionConfig } from "../../audio-engine";
 import { Recording } from "../../generated";
