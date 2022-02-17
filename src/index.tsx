@@ -5,8 +5,9 @@ import { BrowserRouter } from "react-router-dom";
 import { App } from "./app";
 import { Auth0ProviderWithHistory } from "./auth0-provider-with-history";
 import { EnvProvider } from "./context/env.context";
-import { StoreProvider } from "./store";
-import AuthorizedApolloProvider from "./apollo-provider";
+import { StoreProvider } from "./providers/store";
+import AuthorizedApolloProvider from "./providers/apollo-provider";
+import { AudioEngineProvider } from "./providers/audio-engine-provider";
 
 ReactDOM.render(
   <React.StrictMode>
@@ -15,7 +16,9 @@ ReactDOM.render(
         <EnvProvider>
           <Auth0ProviderWithHistory>
             <AuthorizedApolloProvider>
-              <App />
+              <AudioEngineProvider>
+                <App />
+              </AudioEngineProvider>
             </AuthorizedApolloProvider>
           </Auth0ProviderWithHistory>
         </EnvProvider>

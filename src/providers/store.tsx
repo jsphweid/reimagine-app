@@ -1,33 +1,13 @@
 import React, { Reducer } from "react";
 
-import { Section } from "./common/constants";
-import { Recording } from "./common/types";
+import { Section } from "../common/constants";
 
-export interface PlayRecordFlags {
-  metronomeOnSegmentPlay: boolean;
-  notesOnSegmentPlay: boolean;
-  metronomeOnRecord: boolean;
-  notesOnRecord: boolean;
-  metronomeOnRecordingPlay: boolean;
-  notesOnRecordingPlay: boolean;
-}
-
-export interface StoreInterface extends PlayRecordFlags {
+export interface StoreInterface {
   activeSection: Section;
-  recordings: Recording[];
 }
 
 const storeDefaultValues: StoreInterface = {
   activeSection: Section.About,
-  recordings: [],
-
-  // settings
-  metronomeOnSegmentPlay: false,
-  notesOnSegmentPlay: true,
-  metronomeOnRecord: false,
-  notesOnRecord: false,
-  metronomeOnRecordingPlay: false,
-  notesOnRecordingPlay: false,
 };
 
 const StoreContext = React.createContext(storeDefaultValues);

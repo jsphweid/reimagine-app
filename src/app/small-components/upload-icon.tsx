@@ -1,10 +1,9 @@
 import React from "react";
+import { Recording } from "src/generated";
 import {
   FaSpinner as SpinnerIcon,
   FaUpload as UploadIcon,
 } from "react-icons/fa";
-
-import { Recording } from "../../common/types";
 
 export interface UploadIconWrapperProps {
   recording: Recording | null;

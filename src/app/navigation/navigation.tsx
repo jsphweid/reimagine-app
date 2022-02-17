@@ -11,7 +11,7 @@ import {
 } from "react-icons/fa";
 
 import { Section } from "../../common/constants";
-import { useStore } from "../../store";
+import { useStore } from "../../providers/store";
 import { useAuth0 } from "@auth0/auth0-react";
 
 interface NavigationProps {

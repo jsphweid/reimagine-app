@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo, useRef, useState } from "react";
 import {
   FaCircle as RecordIcon,
   FaCircle as NewIcon, // TODO: fix
@@ -8,18 +8,15 @@ import { MdHearing as EarIcon } from "react-icons/md";
 
 import MidiVisualizer from "react-midi-visualizer";
 
-import {
-  Segment,
-  RecordingSessionConfig,
-  Recording,
-  PlaySessionConfig,
-  AudioSessionConfig,
-  AudioEvent,
-} from "../../common/types";
-import { useStore } from "../../store";
-import AudioEngine from "../../audio-engine";
-import { getRandomString, blobToBase64, cloneDeep } from "../../common/helpers";
+import AudioEngine, { AudioSessionConfig } from "../../audio-engine";
+import { blobToBase64, loadMidiFromJson } from "../../common/helpers";
 import UploadIconWrapper from "../small-components/upload-icon";
+import {
+  useGetNextSegmentLazyQuery,
+  useGetUserSettingsQuery,
+} from "../../generated";
+import { useAuth0 } from "@auth0/auth0-react";
+import { useAudioEngine } from "../../hooks/use-audio-engine";
 
 let recordStopper: NodeJS.Timer | null = null;
 let playStopper: NodeJS.Timer | null = null;
@@ -30,42 +27,60 @@ interface Dimensions {
 }
 
 function Interactive() {
-  const { store } = useStore();
-  const [randomKey, setRandomKey] = React.useState("default");
-  const [dims, setDims] = React.useState<Dimensions | null>(null);
-  const [lastComplete, setLastComplete] = React.useState(false);
-  const [segment, setSegment] = React.useState<Segment | null>(null);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [startTime, setStartTime] = React.useState<number | null>(null);
-  const [isPlaying, setIsPlaying] = React.useState(false);
-  const [isRecording, setIsRecording] = React.useState(false);
+  const { user } = useAuth0();
+  const userId = user?.sub as string;
 
+  const audioEngine = useAudioEngine();
+  const [randomKey, setRandomKey] = useState("default");
+  const [dims, setDims] = useState<Dimensions | null>(null);
+  const [lastComplete, setLastComplete] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [getSeg, getSegRes] = useGetNextSegmentLazyQuery();
+  const ref = useRef(null);
+
+  const settingsRes = useGetUserSettingsQuery({ variables: { userId } });
+  const settings = settingsRes?.data?.getUserSettingsByUserId || {};
+
+  const segment = getSegRes.data?.getNextSegment || null;
   const hasActiveAudio = isPlaying || isRecording;
 
+  const midi = useMemo(
+    () => (segment ? loadMidiFromJson(segment.midiJson) : null),
+    [segment]
+  );
+
   React.useEffect(() => {
-    // TODO: load segment...
+    getSeg();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function handleDivLoad(event: any) {
-    // TODO: fix any?
-    // TODO: might still need ref...?
-    const { clientWidth: width, clientHeight: height } = event.target;
-    console.log("TODO: is this working?", { width, height });
-    setDims({ width, height });
-  }
+  React.useEffect(() => {
+    console.log("------ref", ref);
+    if (ref) {
+      const { clientWidth: width, clientHeight: height } = ref.current as any;
+      setDims({ width, height });
+    }
+  }, [ref]);
 
   // TODO: make new reset key when activeSegment changes?
 
   function renderMidiVisualizer() {
-    if (!segment || !dims || isLoading || !startTime) return null;
-
-    const { notes } = segment.midiJson.tracks[0];
+    console.log(midi, dims, isLoading, startTime);
+    if (!midi || !dims || isLoading || !startTime) return null;
+    const { notes } = midi.tracks[0];
     const { height, width } = dims;
+    console.log("rendering!");
+
+    // TODO: figure out how everything is getting triggered and come up with a better design
+    // must be lazy initialized
 
     return notes ? (
       <MidiVisualizer
         key={`visualizer-${randomKey}`}
-        audioContext={AudioEngine.audioContext}
+        audioContext={audioEngine.audioContext}
         height={height}
         width={width}
         startTime={startTime}
@@ -84,11 +99,11 @@ function Interactive() {
       playStopper = null;
     }
     setLastComplete(false);
-    AudioEngine.stopRecording(hasActiveAudio);
+    audioEngine.stopRecording(hasActiveAudio);
   }
 
   function stopAudioEngineAndSave(): void {
-    const blob = AudioEngine.stopRecording(hasActiveAudio);
+    const blob = audioEngine.stopRecording(hasActiveAudio);
     // this.props.dispatch(removeActiveAudioConfig());
     if (blob) {
       setLastComplete(true);
@@ -97,7 +112,7 @@ function Interactive() {
         //   addRecordingToStore({
         //     base64Blob,
         //     startTime,
-        //     samplingRate: AudioEngine.audioContext.sampleRate,
+        //     samplingRate: audioEngine.audioContext.sampleRate,
         //     segment: this.props.activeSegment,
         //     recordingDate: new Date().toString(),
         //     uploadState: UploadState.CanUpload,
@@ -108,31 +123,39 @@ function Interactive() {
   }
 
   function handleStartRecording(
-    recordingSessionConfig: Partial<RecordingSessionConfig>
+    recordingSessionConfig: Partial<AudioSessionConfig>
   ) {
-    const fullConfig = {
-      ...recordingSessionConfig,
-      startTime: AudioEngine.audioContext.currentTime,
-    } as RecordingSessionConfig;
+    if (midi) {
+      const fullConfig = {
+        ...recordingSessionConfig,
+        startTime: audioEngine.audioContext.currentTime,
+      } as AudioSessionConfig;
 
-    const recordingLength = (fullConfig.segment.midiJson.duration + 0.5) * 1000;
-    recordStopper = setTimeout(stopAudioEngineAndSave, recordingLength);
-    AudioEngine.startRecording(fullConfig);
+      const recordingLength = (midi.duration + 0.5) * 1000;
+      recordStopper = setTimeout(stopAudioEngineAndSave, recordingLength);
+      audioEngine.startRecording(fullConfig);
+    }
+
     // this.props.dispatch(setActiveAudioConfig(fullConfig));
   }
 
-  function handleStartPlaying(
-    recordingSessionConfig: Partial<PlaySessionConfig>
-  ) {
-    const fullConfig = {
-      ...recordingSessionConfig,
-      startTime: AudioEngine.audioContext.currentTime,
-    } as PlaySessionConfig;
-    const recordingLength = (fullConfig.segment.midiJson.duration + 0.5) * 1000;
-    playStopper = setTimeout(stopAudioEngineAndSave, recordingLength);
-
-    AudioEngine.startPlaying(fullConfig);
-    // this.props.dispatch(setActiveAudioConfig(fullConfig));
+  function handleStartPlaying() {
+    if (midi) {
+      const startTime = audioEngine.audioContext.currentTime;
+      setStartTime(startTime);
+      const fullConfig = {
+        midi,
+        startTime,
+        playMetronome: settings.metronomeOnSegmentPlay,
+        playNotes: settings.notesOnSegmentPlay,
+      } as AudioSessionConfig;
+      const recordingLength = (midi.duration + 0.5) * 1000;
+      playStopper = setTimeout(stopAudioEngineAndSave, recordingLength);
+      audioEngine.startPlaying(fullConfig);
+      // this.props.dispatch(setActiveAudioConfig(fullConfig));
+    } else {
+      // TODO: make UI so this is impossible
+    }
   }
 
   function renderNewSegmentIcon() {
@@ -147,16 +170,15 @@ function Interactive() {
   }
 
   function renderRecordButton() {
-    if (!segment || isPlaying) {
+    if (!midi || isPlaying) {
       return <RecordIcon className="reimagine-unclickable" />;
     } else if (isRecording) {
       return <CloseIcon onClick={basicStopAudioEngine} />;
     } else {
-      const config: Partial<RecordingSessionConfig> = {
-        segment,
+      const config: Partial<AudioSessionConfig> = {
+        midi,
         // playMetronome: settings.playRecordConfigs.recordConfig.playMetronome,
         // playNotes: settings.playRecordConfigs.recordConfig.playNotes,
-        type: AudioEvent.Recording,
       };
 
       return <RecordIcon onClick={() => handleStartRecording(config)} />;
@@ -165,27 +187,21 @@ function Interactive() {
 
   function renderEarIcon() {
     // TODO: this looks almost exactly like the fn above it...?
-    if (!segment || isRecording) {
+    if (!midi || isRecording) {
       return <EarIcon className="reimagine-unclickable" />;
     } else if (isPlaying) {
       return <CloseIcon onClick={basicStopAudioEngine} />;
     } else {
-      const config: Partial<PlaySessionConfig> = {
-        segment,
-        // playMetronome:
-        //   settings.playRecordConfigs.playSegmentConfig.playMetronome,
-        // playNotes: settings.playRecordConfigs.playSegmentConfig.playNotes,
-        type: AudioEvent.Playing,
-      };
-      return <EarIcon onClick={() => handleStartPlaying(config)} />;
+      return <EarIcon onClick={() => handleStartPlaying()} />;
     }
   }
 
   function renderOverlay() {
-    const lastRecording =
-      lastComplete && store.recordings.length
-        ? store.recordings[store.recordings.length - 1]
-        : null;
+    const lastRecording = null;
+    // const lastRecording =
+    //   lastComplete && store.recordings.length
+    //     ? store.recordings[store.recordings.length - 1]
+    //     : null;
     return (
       <div className="reimagine-interactive-buttons">
         <div>
@@ -201,9 +217,10 @@ function Interactive() {
   }
 
   return (
-    <div onLoad={handleDivLoad} className="reimagine-interactive">
+    <div ref={ref} className="reimagine-interactive">
       {renderOverlay()}
       <div className="reimagine-interactive-midiVisualizer">
+        hi
         {renderMidiVisualizer()}
       </div>
     </div>

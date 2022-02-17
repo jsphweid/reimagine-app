@@ -1,12 +1,16 @@
 import { Note } from "midiconvert";
+import { Midi } from "@tonejs/midi";
 
 import { getSecondsPerBeat, midiToFreq } from "./common/helpers";
 import WavEncoder from "./encoders/wav-encoder";
-import {
-  RecordingSessionConfig,
-  PlaySessionConfig,
-  AudioSessionConfig,
-} from "./common/types";
+
+export interface AudioSessionConfig {
+  playMetronome?: boolean;
+  playNotes?: boolean;
+  startTime: number;
+  midi?: Midi;
+  recordingDate?: string;
+}
 
 class AudioEngine {
   public static instance: AudioEngine;
@@ -17,6 +21,7 @@ class AudioEngine {
   private wavEncoder: WavEncoder | null = null;
 
   constructor() {
+    // enforce singleton
     if (!AudioEngine.instance) {
       AudioEngine.instance = this;
     }
@@ -62,21 +67,33 @@ class AudioEngine {
   }
 
   private scheduleSynthNotes(config: AudioSessionConfig) {
-    const { playMetronome, playNotes, segment, startTime } = config;
-    if (playMetronome)
-      this.scheduleMetronomeClicks(
-        config.startTime,
-        segment.midiJson.header.bpm
+    const { playMetronome, playNotes, startTime } = config;
+
+    // TODO: temporary
+    if (!config.midi) {
+      throw new Error(
+        "We are playing but expectedd synth notes... no midi on plays..."
       );
-    if (playNotes)
-      this.scheduleNotes(startTime, segment.midiJson.tracks[0].notes);
+    }
+
+    const notes = config.midi.tracks[0].notes;
+    // NOTE: for now we assume there is only 1 bpm for the project...
+    const bpm = config.midi.header.tempos[0].bpm;
+
+    if (playMetronome) {
+      this.scheduleMetronomeClicks(config.startTime, bpm);
+    }
+
+    if (playNotes) {
+      this.scheduleNotes(startTime, notes);
+    }
   }
 
-  public startPlaying(config: PlaySessionConfig): void {
+  public startPlaying(config: AudioSessionConfig): void {
     this.scheduleSynthNotes(config);
   }
 
-  public startRecording(config: RecordingSessionConfig): void {
+  public startRecording(config: AudioSessionConfig): void {
     this.connectRecordingNodes();
     this.scheduleSynthNotes(config);
   }
@@ -116,6 +133,4 @@ class AudioEngine {
   }
 }
 
-const instance: AudioEngine = new AudioEngine();
-
-export default instance;
+export default AudioEngine;

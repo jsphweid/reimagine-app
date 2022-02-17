@@ -1,19 +1,19 @@
 import React from "react";
+import { Recording } from "src/generated";
 
-import { Recording } from "../../common/types";
 import { timeSince } from "../../common/helpers";
 import UploadIconWrapper from "../small-components/upload-icon";
 import PlayIconWrapper from "../small-components/play-icon";
 import Section from "../small-components/section";
 
 function RecentRecordings() {
-  const recordings: any[] = []; // TODO: load from remote (obviously)
+  const recordings: Recording[] = []; // TODO: load from remote (obviously)
 
   function renderRecordingItem(recording: Recording) {
-    const name = recording.segment.humanHash || "[Untitled]";
-    const date = new Date(recording.recordingDate).getTime();
+    const name = "[Untitled]";
+    const date = new Date(recording.dateCreated).getTime();
     return (
-      <li key={recording.recordingDate}>
+      <li key={recording.dateCreated}>
         <div className="reimagine-recentRecordings-item-text">
           {name}
           <br />

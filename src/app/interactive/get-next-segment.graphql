@@ -1,0 +1,12 @@
+query GetNextSegment {
+  getNextSegment {
+    id
+    arrangementId
+    difficulty
+    midiJson
+    offset
+    highestNote
+    lowestNote
+    dateCreated
+  }
+}

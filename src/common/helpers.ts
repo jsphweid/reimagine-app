@@ -1,3 +1,11 @@
+import { Midi } from "@tonejs/midi";
+
+export function loadMidiFromJson(json: string): Midi {
+  const midi = new Midi();
+  midi.fromJSON(JSON.parse(json));
+  return midi;
+}
+
 export function cloneDeep<T>(simpleObj: T): T {
   return JSON.parse(JSON.stringify(simpleObj)) as T;
 }
