@@ -9,11 +9,13 @@ function Admin() {
     if (data && data.getAllPieces) {
       const name = data.getAllPieces[0]?.name;
       const pieceId = data.getAllPieces[0]?.id;
-      return (
+      return name ? (
         <>
           <div>Using piece {name}</div>
           <div>{pieceId ? <Arrangements pieceId={pieceId} /> : null}</div>
         </>
+      ) : (
+        <p>You need a piece first!</p>
       );
     }
 
