@@ -4,6 +4,7 @@ import { Midi } from "@tonejs/midi";
 import { getSecondsPerBeat, midiToFreq } from "./common/helpers";
 import WavEncoder from "./encoders/wav-encoder";
 import { waitUntil } from "./utils";
+import { click } from "./click";
 
 export interface AudioSessionConfig {
   playMetronome?: boolean;
@@ -16,7 +17,7 @@ export interface AudioSessionConfig {
 class AudioEngine {
   public static instance: AudioEngine;
   public audioContext: AudioContext;
-  private oscillators: OscillatorNode[] = [];
+  private bufferSources: AudioBufferSourceNode[] = [];
   private source?: MediaStreamAudioSourceNode;
   private processor?: ScriptProcessorNode;
   private wavEncoder: WavEncoder | null = null;
@@ -33,32 +34,83 @@ class AudioEngine {
     return AudioEngine.instance;
   }
 
-  private scheduleSoundEvent(
+  private scheduleBuffer(buffer: AudioBuffer, time: number) {
+    const source = this.audioContext.createBufferSource();
+    source.buffer = buffer;
+    source.connect(this.audioContext.destination);
+    source.start(time);
+    this.bufferSources.push(source);
+  }
+
+  private scheduleNote(
     offset: number,
     time: number,
     duration: number,
     frequency: number
   ): void {
-    const osc = this.audioContext.createOscillator();
-    osc.connect(this.audioContext.destination);
-    osc.frequency.value = frequency;
-    const adjustedTime = time + offset;
-    osc.start(adjustedTime);
-    osc.stop(adjustedTime + duration - 0.05);
-    this.oscillators.push(osc);
+    const buffer = this.createBuffer(duration, frequency);
+    this.scheduleBuffer(buffer, time + offset);
   }
 
   private scheduleMetronomeClicks(startTime: number, bpm: number): void {
+    // TODO: the number of beats should be known
     const numberOfMetronomeBeats = 40;
     const secondsPerBeat = getSecondsPerBeat(bpm);
     for (let i = 0; i < numberOfMetronomeBeats; i++) {
-      this.scheduleSoundEvent(startTime, i * secondsPerBeat, 0.15, 440);
+      const buffer = this.createMetronomeBuffer();
+      this.scheduleBuffer(buffer, startTime + i * secondsPerBeat);
     }
+  }
+
+  private createMetronomeBuffer(): AudioBuffer {
+    // NOTE: if different sample rate, for now it doesn't adjust
+    const buffer = this.audioContext.createBuffer(
+      1,
+      click.length,
+      this.audioContext.sampleRate
+    );
+
+    for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
+      const nowBuffering = buffer.getChannelData(channel);
+      for (let i = 0; i < buffer.length; i++) {
+        nowBuffering[i] = click[i];
+      }
+    }
+
+    return buffer;
+  }
+
+  private createBuffer(duration: number, frequency: number): AudioBuffer {
+    const sampleRate = this.audioContext.sampleRate;
+    const buffer = this.audioContext.createBuffer(
+      1,
+      duration * sampleRate,
+      sampleRate
+    );
+
+    const angularFrequency = frequency * 2 * Math.PI;
+
+    for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
+      const nowBuffering = buffer.getChannelData(channel);
+      for (let i = 0; i < buffer.length; i++) {
+        nowBuffering[i] = Math.sin((i / 44100) * angularFrequency);
+      }
+
+      // taper off end so no click
+      if (buffer.length > 1000) {
+        for (let i = 1000; i >= 0; i--) {
+          const j = buffer.length - i;
+          nowBuffering[j] = nowBuffering[j] * (i / 1000);
+        }
+      }
+    }
+
+    return buffer;
   }
 
   private scheduleNotes(startTime: number, notes: Note[]): void {
     notes.forEach((note) => {
-      this.scheduleSoundEvent(
+      this.scheduleNote(
         startTime,
         note.time,
         note.duration,
@@ -80,7 +132,6 @@ class AudioEngine {
     const notes = config.midi.tracks[0].notes;
     // NOTE: for now we assume there is only 1 bpm for the project...
     const bpm = config.midi.header.tempos[0].bpm;
-
     if (playMetronome) {
       this.scheduleMetronomeClicks(config.startTime, bpm);
     }
@@ -117,8 +168,8 @@ class AudioEngine {
   }
 
   private shutOffOscillatorsAndDisconnectRecordingNodes() {
-    this.oscillators.forEach((osc) => osc.disconnect());
-    this.oscillators = [];
+    this.bufferSources.forEach((source) => source.disconnect());
+    this.bufferSources = [];
     if (this.source) this.source.disconnect();
     if (this.processor) this.processor.disconnect();
   }

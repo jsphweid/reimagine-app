@@ -68,7 +68,6 @@ function Interactive() {
   }, []);
 
   React.useEffect(() => {
-    console.log("------ref", ref);
     if (ref) {
       const { clientWidth: width, clientHeight: height } = ref.current as any;
       setDims({ width, height });
@@ -78,11 +77,9 @@ function Interactive() {
   // TODO: make new reset key when activeSegment changes?
 
   function renderMidiVisualizer() {
-    console.log(midi, dims, isLoading, startTime);
     if (!midi || !dims || isLoading || !startTime) return null;
     const { notes } = midi.tracks[0];
     const { height, width } = dims;
-    console.log("rendering!");
 
     // TODO: figure out how everything is getting triggered and come up with a better design
     // must be lazy initialized
@@ -160,7 +157,6 @@ function Interactive() {
       getAudioEngine().then((audioEngine) => {
         const startTime = audioEngine.audioContext.currentTime;
         setStartTime(startTime);
-        console.log("startTime, startTime", startTime);
         const fullConfig = {
           midi,
           startTime,
