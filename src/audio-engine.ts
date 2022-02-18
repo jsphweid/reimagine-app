@@ -1,11 +1,10 @@
-import { Note } from "midiconvert";
 import { Midi } from "@tonejs/midi";
+import { Note } from "@tonejs/midi/dist/Note";
 
 import { getSecondsPerBeat, midiToFreq } from "./common/helpers";
 import WavEncoder from "./encoders/wav-encoder";
 import { waitUntil } from "./utils";
 import { click } from "./click";
-
 export interface AudioSessionConfig {
   playMetronome?: boolean;
   playNotes?: boolean;

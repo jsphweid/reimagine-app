@@ -1,7 +1,7 @@
 import React, { useMemo, useRef, useState } from "react";
 import {
   FaCircle as RecordIcon,
-  FaCircle as NewIcon, // TODO: fix
+  FaRecycle as NewIcon,
   FaTimes as CloseIcon,
 } from "react-icons/fa";
 import { MdHearing as EarIcon } from "react-icons/md";
@@ -57,10 +57,9 @@ function Interactive() {
       return audioEngine;
     });
 
-  const midi = useMemo(
-    () => (segment ? loadMidiFromJson(segment.midiJson) : null),
-    [segment]
-  );
+  const midi = useMemo(() => {
+    return segment ? loadMidiFromJson(segment.midiJson) : null;
+  }, [segment?.id]);
 
   React.useEffect(() => {
     getSeg();
@@ -74,15 +73,10 @@ function Interactive() {
     }
   }, [ref]);
 
-  // TODO: make new reset key when activeSegment changes?
-
   function renderMidiVisualizer() {
     if (!midi || !dims || isLoading || !startTime) return null;
     const { notes } = midi.tracks[0];
     const { height, width } = dims;
-
-    // TODO: figure out how everything is getting triggered and come up with a better design
-    // must be lazy initialized
 
     return notes && audioCtx ? (
       <MidiVisualizer
@@ -179,7 +173,7 @@ function Interactive() {
     ) : (
       <NewIcon
         className={isLoading ? "reimagine-spin reimagine-unclickable" : ""}
-        onClick={() => null} // this.props.dispatch(getSegmentFromGraphql())
+        onClick={() => getSeg()}
       />
     );
   }
@@ -235,7 +229,6 @@ function Interactive() {
     <div ref={ref} className="reimagine-interactive">
       {renderOverlay()}
       <div className="reimagine-interactive-midiVisualizer">
-        hi
         {renderMidiVisualizer()}
       </div>
     </div>
