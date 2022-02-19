@@ -1,14 +1,29 @@
+import { useAuth0 } from "@auth0/auth0-react";
+import { useApolloClient } from "@apollo/client";
+
 import { LocalRecording } from "../../types";
 import { UploadIcon } from "../../icon";
 import { blobToBase64 } from "../../common/helpers";
-import { useCreateRecordingMutation } from "../../generated";
+import {
+  GetRecordingsQuery,
+  GetRecordingsQueryVariables,
+} from "../../generated";
+import {
+  useCreateRecordingMutation,
+  GetRecordingsDocument,
+} from "../../generated";
+import { useStore } from "../../providers/store";
 
 export interface UploadIconWrapperProps {
   recording: LocalRecording;
 }
 
 function UploadIconWrapper(props: UploadIconWrapperProps) {
+  const { store, setStore } = useStore();
   const [createRec, createRecRes] = useCreateRecordingMutation();
+  const client = useApolloClient();
+  const { user } = useAuth0();
+  const userId = user?.sub as string;
 
   function handleUpload() {
     blobToBase64(props.recording.blob).then((str) => {
@@ -19,29 +34,33 @@ function UploadIconWrapper(props: UploadIconWrapperProps) {
           sampleRate: props.recording.sampleRate,
         },
       }).then((res) => {
-        if (res.data?.createRecording) {
-          console.log("success", res);
-          // delete from store and add to apollo cache?
+        const recording = res.data?.createRecording;
+        if (recording) {
+          // delete from store
+          setStore({
+            localRecordings: store.localRecordings.filter(
+              (r) => r.dateCreated !== props.recording.dateCreated
+            ),
+          });
+
+          // add to apollo cache for get query
+          client.cache.updateQuery<
+            GetRecordingsQuery,
+            GetRecordingsQueryVariables
+          >(
+            { query: GetRecordingsDocument, variables: { userId } },
+            (data) => ({
+              getRecordingsByUserId: [
+                ...(data?.getRecordingsByUserId || []),
+                recording,
+              ],
+            })
+          );
         }
       });
     });
   }
-  return <UploadIcon onClick={handleUpload} />;
-
-  // const { uploadState } = recording;
-  // const clickHandler =
-  //   uploadState === CanUpload
-  //     ? () => null // TODO: fix
-  //     : undefined;
-  // const isBusy = uploadState === Uploaded || isRecording;
-  // return uploadState === Uploading ? (
-  //   <SpinnerIcon className="reimagine-spin" />
-  // ) : (
-  //   <UploadIcon
-  //     className={isBusy ? "reimagine-unclickable" : ""}
-  //     onClick={clickHandler}
-  //   />
-  // );
+  return <UploadIcon onClick={handleUpload} isLoading={createRecRes.loading} />;
 }
 
 export default UploadIconWrapper;

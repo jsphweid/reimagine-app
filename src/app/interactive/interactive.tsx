@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useAuth0 } from "@auth0/auth0-react";
 
 import MidiVisualizer from "react-midi-visualizer";
 
@@ -8,8 +9,7 @@ import {
   useGetNextSegmentLazyQuery,
   useGetUserSettingsQuery,
 } from "../../generated";
-import { useAuth0 } from "@auth0/auth0-react";
-import { useStore } from "src/providers/store";
+import { useStore } from "../../providers/store";
 import { CloseIcon, EarIcon, NewIcon, RecordIcon } from "../../icon";
 
 let recordStopper: NodeJS.Timer | null = null;
