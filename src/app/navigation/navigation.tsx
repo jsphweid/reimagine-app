@@ -1,18 +1,18 @@
 import React from "react";
-import { IoIosRecording as RecordingIcon } from "react-icons/io";
-import {
-  FaBars as BarsIcon,
-  FaCog as CogIcon,
-  FaInfoCircle as InfoIcon,
-  FaMicrophone as MicrophoneIcon,
-  FaDesktop as ComputerIcon,
-  FaTimes as CloseIcon,
-  FaHeadphones as HeadphonesIcon,
-} from "react-icons/fa";
+import { useAuth0 } from "@auth0/auth0-react";
 
 import { Section } from "../../common/constants";
 import { useStore } from "../../providers/store";
-import { useAuth0 } from "@auth0/auth0-react";
+import {
+  BarsIcon,
+  CloseIcon,
+  CogIcon,
+  ComputerIcon,
+  HeadphonesIcon,
+  InfoIcon,
+  MicrophoneIcon,
+  RecordingIcon,
+} from "../../icon";
 
 interface NavigationProps {
   id?: string;

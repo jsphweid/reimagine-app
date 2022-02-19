@@ -1,22 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  FaCircle as RecordIcon,
-  FaRecycle as NewIcon,
-  FaTimes as CloseIcon,
-} from "react-icons/fa";
-import { MdHearing as EarIcon } from "react-icons/md";
 
 import MidiVisualizer from "react-midi-visualizer";
 
 import { getAudioEngine as _getAudioEngine } from "../../audio-engine";
 import { loadMidiFromJson } from "../../common/helpers";
-import UploadIconWrapper from "../small-components/upload-icon";
 import {
   useGetNextSegmentLazyQuery,
   useGetUserSettingsQuery,
 } from "../../generated";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useStore } from "src/providers/store";
+import { CloseIcon, EarIcon, NewIcon, RecordIcon } from "../../icon";
 
 let recordStopper: NodeJS.Timer | null = null;
 let playStopper: NodeJS.Timer | null = null;
@@ -167,19 +161,12 @@ function Interactive() {
   }
 
   function renderNewSegmentIcon() {
-    return hasActiveAudio ? (
-      <NewIcon className="reimagine-unclickable" />
-    ) : (
-      <NewIcon
-        className={isLoading ? "reimagine-spin reimagine-unclickable" : ""}
-        onClick={() => getSeg()}
-      />
-    );
+    return <NewIcon isDisabled={hasActiveAudio} onClick={() => getSeg()} />;
   }
 
   function renderRecordButton() {
     if (!midi || isPlaying) {
-      return <RecordIcon className="reimagine-unclickable" />;
+      return <RecordIcon isDisabled />;
     } else if (isRecording) {
       return <CloseIcon onClick={basicStopAudioEngine} />;
     } else {
@@ -190,7 +177,7 @@ function Interactive() {
   function renderEarIcon() {
     // TODO: this looks almost exactly like the fn above it...?
     if (!midi || isRecording) {
-      return <EarIcon className="reimagine-unclickable" />;
+      return <EarIcon isDisabled />;
     } else if (isPlaying) {
       return <CloseIcon onClick={basicStopAudioEngine} />;
     } else {

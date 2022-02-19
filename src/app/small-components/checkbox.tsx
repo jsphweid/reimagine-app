@@ -1,8 +1,4 @@
-import {
-  FaCheckSquare as CheckIcon,
-  FaSquareFull as EmptyIcon, // TODO: don't know if this icon is correct
-} from "react-icons/fa";
-
+import { CheckIcon, EmptyIcon } from "../../icon";
 export interface CheckboxProps {
   isChecked: boolean;
   onClick: () => void;

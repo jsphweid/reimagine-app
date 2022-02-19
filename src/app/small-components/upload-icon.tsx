@@ -1,9 +1,5 @@
-import {
-  FaSpinner as SpinnerIcon,
-  FaUpload as UploadIcon,
-} from "react-icons/fa";
-
 import { AnyRecording } from "../../types";
+import { SpinnerIcon, UploadIcon } from "../../icon";
 
 export interface UploadIconWrapperProps {
   recording: AnyRecording;
@@ -12,10 +8,10 @@ export interface UploadIconWrapperProps {
 
 function UploadIconWrapper(props: UploadIconWrapperProps) {
   if (!props.recording) {
-    return <UploadIcon className="reimagine-unclickable" />;
+    return <UploadIcon isDisabled />;
   }
 
-  return <SpinnerIcon className="reimagine-unclickable" />;
+  return <SpinnerIcon isDisabled />;
 
   // const { uploadState } = recording;
   // const clickHandler =
