@@ -10,6 +10,7 @@ mutation CreateRecording(
   ) {
     id
     objectKey
+    url
     segmentId
     dateCreated
   }

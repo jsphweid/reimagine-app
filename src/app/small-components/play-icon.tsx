@@ -11,10 +11,10 @@ export interface PlayIconWrapperProps {
 
 function PlayIconWrapper(props: PlayIconWrapperProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const { store, setStore } = useStore();
+  const [isPlaying, setIsPlaying] = useState(false);
 
   function handleAudioStoppedPlaying() {
-    setStore({ isPlaying: false });
+    setIsPlaying(false);
   }
 
   function handleStopClicked() {
@@ -31,11 +31,11 @@ function PlayIconWrapper(props: PlayIconWrapperProps) {
     getAudioEngine().then((e) => {
       e.startPlayingRecording(props.recording, handleAudioStoppedPlaying);
       setIsLoading(false);
-      setStore({ isPlaying: true });
+      setIsPlaying(true);
     });
   }
 
-  return store.isPlaying ? (
+  return isPlaying ? (
     <StopIcon onClick={handleStopClicked} isLoading={isLoading} />
   ) : (
     <PlayIcon onClick={handleStartClicked} isLoading={isLoading} />

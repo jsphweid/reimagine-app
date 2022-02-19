@@ -6,13 +6,11 @@ import { LocalRecording } from "../types";
 export interface StoreInterface {
   activeSection: Section;
   localRecordings: LocalRecording[];
-  isPlaying: boolean;
 }
 
 const storeDefaultValues: StoreInterface = {
   activeSection: Section.About,
   localRecordings: [],
-  isPlaying: false,
 };
 
 const StoreContext = createContext(storeDefaultValues);

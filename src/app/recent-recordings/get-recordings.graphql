@@ -3,6 +3,7 @@ query GetRecordings($userId: String!) {
     id
     segmentId
     objectKey
+    url
     dateCreated
   }
 }

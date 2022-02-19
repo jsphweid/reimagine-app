@@ -191,18 +191,17 @@ class AudioEngine {
     }
   }
 
-  public startPlayingRecording(recording: AnyRecording, onStop?: Function) {
-    if (isLocalRecording(recording)) {
-      const blobUrl = URL.createObjectURL(recording.blob);
-      this.activeAudioElement = new Audio(blobUrl);
-      this.activeAudioElement.play();
-
-      // NOTE: for now we only care about the basic fact it happened
-      this.activeAudioElement.onended = onStop as any;
-      return this.activeAudioElement;
-    } else {
-      throw new Error("Remote recording playing not implemented yet.");
-    }
+  public async startPlayingRecording(
+    recording: AnyRecording,
+    onStop?: Function
+  ) {
+    const url = isLocalRecording(recording)
+      ? URL.createObjectURL(recording.blob)
+      : recording.url;
+    this.activeAudioElement = new Audio(url);
+    this.activeAudioElement.play();
+    this.activeAudioElement.onended = onStop as any;
+    return this.activeAudioElement;
   }
 }
 
