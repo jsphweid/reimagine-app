@@ -5,6 +5,7 @@ import { getSecondsPerBeat, midiToFreq } from "./common/helpers";
 import WavEncoder from "./encoders/wav-encoder";
 import { waitUntil } from "./utils";
 import { click } from "./click";
+import { AnyRecording, isLocalRecording } from "./types";
 export interface AudioSessionConfig {
   playMetronome?: boolean;
   playNotes?: boolean;
@@ -19,7 +20,8 @@ class AudioEngine {
   private bufferSources: AudioBufferSourceNode[] = [];
   private source?: MediaStreamAudioSourceNode;
   private processor?: ScriptProcessorNode;
-  private wavEncoder: WavEncoder | null = null;
+  private wavEncoder: WavEncoder;
+  private activeAudioElement: HTMLAudioElement | null = null;
 
   constructor() {
     // enforce singleton
@@ -29,6 +31,8 @@ class AudioEngine {
 
     this.audioContext = new ((<any>window).AudioContext ||
       (<any>window).webkitAudioContext)();
+
+    this.wavEncoder = new WavEncoder(this.audioContext.sampleRate, 1);
 
     return AudioEngine.instance;
   }
@@ -140,7 +144,7 @@ class AudioEngine {
     }
   }
 
-  public startPlaying(config: AudioSessionConfig): void {
+  public startPlayingNotes(config: AudioSessionConfig): void {
     this.scheduleSynthNotes(config);
   }
 
@@ -173,14 +177,32 @@ class AudioEngine {
     if (this.processor) this.processor.disconnect();
   }
 
-  public stopRecording(getBlob: boolean = false): Blob | null {
+  public stopRecording(): Blob {
     this.shutOffOscillatorsAndDisconnectRecordingNodes();
-    if (getBlob && this.wavEncoder) {
-      const blob: Blob = this.wavEncoder.finish();
-      this.wavEncoder = null;
-      return blob;
+    const blob: Blob = this.wavEncoder.finish();
+    this.wavEncoder = new WavEncoder(this.audioContext.sampleRate, 1);
+    return blob;
+  }
+
+  public stopPlayingRecording() {
+    if (this.activeAudioElement) {
+      this.activeAudioElement.pause();
+      this.activeAudioElement = null;
     }
-    return null;
+  }
+
+  public startPlayingRecording(recording: AnyRecording, onStop?: Function) {
+    if (isLocalRecording(recording)) {
+      const blobUrl = URL.createObjectURL(recording.blob);
+      this.activeAudioElement = new Audio(blobUrl);
+      this.activeAudioElement.play();
+
+      // NOTE: for now we only care about the basic fact it happened
+      this.activeAudioElement.onended = onStop as any;
+      return this.activeAudioElement;
+    } else {
+      throw new Error("Remote recording playing not implemented yet.");
+    }
   }
 }
 

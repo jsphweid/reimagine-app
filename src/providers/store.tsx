@@ -1,13 +1,18 @@
 import React, { Reducer } from "react";
 
 import { Section } from "../common/constants";
+import { LocalRecording } from "../types";
 
 export interface StoreInterface {
   activeSection: Section;
+  localRecordings: LocalRecording[];
+  isPlaying: boolean;
 }
 
 const storeDefaultValues: StoreInterface = {
   activeSection: Section.About,
+  localRecordings: [],
+  isPlaying: false,
 };
 
 const StoreContext = React.createContext(storeDefaultValues);

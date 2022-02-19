@@ -8,17 +8,15 @@ import { MdHearing as EarIcon } from "react-icons/md";
 
 import MidiVisualizer from "react-midi-visualizer";
 
-import {
-  getAudioEngine as _getAudioEngine,
-  AudioSessionConfig,
-} from "../../audio-engine";
-import { blobToBase64, loadMidiFromJson } from "../../common/helpers";
+import { getAudioEngine as _getAudioEngine } from "../../audio-engine";
+import { loadMidiFromJson } from "../../common/helpers";
 import UploadIconWrapper from "../small-components/upload-icon";
 import {
   useGetNextSegmentLazyQuery,
   useGetUserSettingsQuery,
 } from "../../generated";
 import { useAuth0 } from "@auth0/auth0-react";
+import { useStore } from "src/providers/store";
 
 let recordStopper: NodeJS.Timer | null = null;
 let playStopper: NodeJS.Timer | null = null;
@@ -31,11 +29,9 @@ interface Dimensions {
 function Interactive() {
   const { user } = useAuth0();
   const userId = user?.sub as string;
-
-  const [randomKey, setRandomKey] = useState("default");
+  const { store, setStore } = useStore();
   const [dims, setDims] = useState<Dimensions | null>(null);
   const [lastComplete, setLastComplete] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -47,6 +43,7 @@ function Interactive() {
   const settings = settingsRes?.data?.getUserSettingsByUserId || {};
 
   const segment = getSegRes.data?.getNextSegment || null;
+  const isLoading = !!getSegRes.loading;
   const hasActiveAudio = isPlaying || isRecording;
 
   const getAudioEngine = () =>
@@ -59,6 +56,7 @@ function Interactive() {
 
   const midi = useMemo(() => {
     return segment ? loadMidiFromJson(segment.midiJson) : null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [segment?.id]);
 
   React.useEffect(() => {
@@ -73,6 +71,12 @@ function Interactive() {
     }
   }, [ref]);
 
+  function stopLocal() {
+    setIsPlaying(false);
+    setIsRecording(false);
+    setStartTime(null);
+  }
+
   function renderMidiVisualizer() {
     if (!midi || !dims || isLoading || !startTime) return null;
     const { notes } = midi.tracks[0];
@@ -80,7 +84,6 @@ function Interactive() {
 
     return notes && audioCtx ? (
       <MidiVisualizer
-        key={`visualizer-${randomKey}`}
         audioContext={audioCtx}
         height={height}
         width={width}
@@ -101,66 +104,62 @@ function Interactive() {
         playStopper = null;
       }
       setLastComplete(false);
-      audioEngine.stopRecording(hasActiveAudio);
+      stopLocal();
+      audioEngine.stopRecording();
     });
   }
 
   function stopAudioEngineAndSave(): void {
     getAudioEngine().then((audioEngine) => {
-      const blob = audioEngine.stopRecording(hasActiveAudio);
-      // this.props.dispatch(removeActiveAudioConfig());
-      if (blob) {
-        setLastComplete(true);
-        blobToBase64(blob).then((base64Blob: string) => {
-          // this.props.dispatch(
-          //   addRecordingToStore({
-          //     base64Blob,
-          //     startTime,
-          //     samplingRate: audioEngine.audioContext.sampleRate,
-          //     segment: this.props.activeSegment,
-          //     recordingDate: new Date().toString(),
-          //     uploadState: UploadState.CanUpload,
-          //   })
-          // );
-        });
-      }
+      stopLocal();
+      const blob = audioEngine.stopRecording();
+      setLastComplete(true);
+      setStore({
+        localRecordings: [
+          ...store.localRecordings,
+          {
+            blob,
+            dateCreated: new Date(),
+            segmentId: segment!.id,
+          },
+        ],
+      });
     });
   }
 
-  function handleStartRecording(
-    recordingSessionConfig: Partial<AudioSessionConfig>
-  ) {
+  function handleStartRecording() {
     if (midi) {
       getAudioEngine().then((audioEngine) => {
-        const fullConfig = {
-          ...recordingSessionConfig,
-          startTime: audioEngine.audioContext.currentTime,
-        } as AudioSessionConfig;
+        const startTime = audioEngine.audioContext.currentTime;
+        setIsRecording(true);
+        setStartTime(startTime);
 
         const recordingLength = (midi.duration + 0.5) * 1000;
         recordStopper = setTimeout(stopAudioEngineAndSave, recordingLength);
-        audioEngine.startRecording(fullConfig);
+        audioEngine.startRecording({
+          playMetronome: !!settings.metronomeOnRecord,
+          playNotes: !!settings.notesOnRecord,
+          midi,
+          startTime,
+        });
       });
     }
-
-    // this.props.dispatch(setActiveAudioConfig(fullConfig));
   }
 
   function handleStartPlaying() {
     if (midi) {
+      setIsPlaying(true);
       getAudioEngine().then((audioEngine) => {
         const startTime = audioEngine.audioContext.currentTime;
         setStartTime(startTime);
-        const fullConfig = {
-          midi,
-          startTime,
-          playMetronome: settings.metronomeOnSegmentPlay,
-          playNotes: settings.notesOnSegmentPlay,
-        } as AudioSessionConfig;
         const recordingLength = (midi.duration + 0.5) * 1000;
         playStopper = setTimeout(stopAudioEngineAndSave, recordingLength);
-        audioEngine.startPlaying(fullConfig);
-        // this.props.dispatch(setActiveAudioConfig(fullConfig));
+        audioEngine.startPlayingNotes({
+          midi,
+          startTime,
+          playMetronome: !!settings.metronomeOnSegmentPlay,
+          playNotes: !!settings.notesOnSegmentPlay,
+        });
       });
     } else {
       // TODO: make UI so this is impossible
@@ -184,13 +183,7 @@ function Interactive() {
     } else if (isRecording) {
       return <CloseIcon onClick={basicStopAudioEngine} />;
     } else {
-      const config: Partial<AudioSessionConfig> = {
-        midi,
-        // playMetronome: settings.playRecordConfigs.recordConfig.playMetronome,
-        // playNotes: settings.playRecordConfigs.recordConfig.playNotes,
-      };
-
-      return <RecordIcon onClick={() => handleStartRecording(config)} />;
+      return <RecordIcon onClick={() => handleStartRecording()} />;
     }
   }
 
