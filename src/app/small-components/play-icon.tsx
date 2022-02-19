@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { FaPlay as PlayIcon, FaStop as StopIcon } from "react-icons/fa";
 
 import { AnyRecording } from "../../types";
 import { getAudioEngine } from "../../audio-engine";
 import { useStore } from "../../providers/store";
+import { PlayIcon, StopIcon } from "../../icon";
 
 export interface PlayIconWrapperProps {
   recording: AnyRecording;
@@ -12,8 +12,6 @@ export interface PlayIconWrapperProps {
 function PlayIconWrapper(props: PlayIconWrapperProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { store, setStore } = useStore();
-
-  const className = isLoading ? "reimagine-spin reimagine-unclickable" : "";
 
   function handleAudioStoppedPlaying() {
     setStore({ isPlaying: false });
@@ -38,9 +36,9 @@ function PlayIconWrapper(props: PlayIconWrapperProps) {
   }
 
   return store.isPlaying ? (
-    <StopIcon onClick={handleStopClicked} {...{ className }} />
+    <StopIcon onClick={handleStopClicked} isLoading={isLoading} />
   ) : (
-    <PlayIcon onClick={handleStartClicked} {...{ className }} />
+    <PlayIcon onClick={handleStartClicked} isLoading={isLoading} />
   );
 }
 

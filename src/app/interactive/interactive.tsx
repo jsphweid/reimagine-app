@@ -26,7 +26,7 @@ function Interactive() {
   const { store, setStore } = useStore();
   const [dims, setDims] = useState<Dimensions | null>(null);
   const [lastComplete, setLastComplete] = useState(false);
-  const [startTime, setStartTime] = useState<number | null>(null);
+  const [startTime, setStartTime] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [getSeg, getSegRes] = useGetNextSegmentLazyQuery();
@@ -54,7 +54,7 @@ function Interactive() {
   }, [segment?.id]);
 
   useEffect(() => {
-    getSeg();
+    getSeg().then(getAudioEngine);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -68,11 +68,11 @@ function Interactive() {
   function stopLocal() {
     setIsPlaying(false);
     setIsRecording(false);
-    setStartTime(null);
+    setStartTime(0);
   }
 
   function renderMidiVisualizer() {
-    if (!midi || !dims || isLoading || !startTime) return null;
+    if (!midi || !dims || isLoading) return null;
     const { notes } = midi.tracks[0];
     const { height, width } = dims;
 
@@ -115,6 +115,7 @@ function Interactive() {
             blob,
             dateCreated: new Date(),
             segmentId: segment!.id,
+            sampleRate: audioEngine.audioContext.sampleRate,
           },
         ],
       });

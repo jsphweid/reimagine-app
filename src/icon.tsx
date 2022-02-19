@@ -45,3 +45,5 @@ export const CheckIcon = genIcon(Fa.FaCheckSquare);
 export const EmptyIcon = genIcon(Fa.FaSquareFull);
 export const SpinnerIcon = genIcon(Fa.FaSpinner);
 export const CloseIcon = genIcon(Fa.FaTimes);
+export const PlayIcon = genIcon(Fa.FaPlay);
+export const StopIcon = genIcon(Fa.FaStop);

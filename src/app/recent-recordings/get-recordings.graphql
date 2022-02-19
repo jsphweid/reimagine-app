@@ -1,0 +1,8 @@
+query GetRecordings($userId: String!) {
+  getRecordingsByUserId(userId: $userId) {
+    id
+    segmentId
+    objectKey
+    dateCreated
+  }
+}
