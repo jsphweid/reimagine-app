@@ -1,4 +1,4 @@
-import React, { Reducer } from "react";
+import { createContext, Reducer, useContext, useReducer } from "react";
 
 import { Section } from "../common/constants";
 import { LocalRecording } from "../types";
@@ -15,11 +15,11 @@ const storeDefaultValues: StoreInterface = {
   isPlaying: false,
 };
 
-const StoreContext = React.createContext(storeDefaultValues);
-const DispatchStoreContext = React.createContext(undefined);
+const StoreContext = createContext(storeDefaultValues);
+const DispatchStoreContext = createContext(undefined);
 
 const StoreProvider = ({ children }: { children: React.ReactNode }) => {
-  const [state, dispatch] = React.useReducer<Reducer<StoreInterface, any>>(
+  const [state, dispatch] = useReducer<Reducer<StoreInterface, any>>(
     (state, newValue) => ({ ...state, ...newValue }),
     storeDefaultValues
   );
@@ -34,8 +34,8 @@ const StoreProvider = ({ children }: { children: React.ReactNode }) => {
 };
 
 const useStore = () => ({
-  store: React.useContext(StoreContext),
-  setStore: React.useContext(DispatchStoreContext) as any,
+  store: useContext(StoreContext),
+  setStore: useContext(DispatchStoreContext) as any,
 });
 
 export { StoreProvider, useStore };

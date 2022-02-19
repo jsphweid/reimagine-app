@@ -1,4 +1,5 @@
-import React from "react";
+import { createContext, useContext } from "react";
+
 import { Env } from "../models/env";
 
 const domain: string | undefined = process.env.REACT_APP_AUTH0_DOMAIN;
@@ -19,10 +20,10 @@ const dotenv: Env = {
   apiServerUrl: apiServerUrl,
 };
 
-export const EnvContext = React.createContext<Env>(dotenv);
+export const EnvContext = createContext<Env>(dotenv);
 
 export const useEnv = () => {
-  const context = React.useContext(EnvContext);
+  const context = useContext(EnvContext);
   if (!context) {
     throw new Error(`useEnv must be used within a EnvProvider`);
   }

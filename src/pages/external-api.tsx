@@ -1,11 +1,8 @@
-import React from "react";
 import { AccessControlLevel, useExternalApi } from "../hooks/use-external-api";
 
 export const ExternalApi = () => {
   const {
     selectedAccessControlLevel,
-    apiEndpoint,
-    apiResponse,
     getPublicResource,
     getProtectedResource,
     getRbacResource,

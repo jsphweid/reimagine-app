@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   FaCircle as RecordIcon,
   FaRecycle as NewIcon,
@@ -59,12 +59,12 @@ function Interactive() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [segment?.id]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     getSeg();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (ref) {
       const { clientWidth: width, clientHeight: height } = ref.current as any;
       setDims({ width, height });
@@ -212,7 +212,7 @@ function Interactive() {
         </div>
         <div>
           {renderRecordButton()}
-          <UploadIconWrapper recording={lastRecording} />
+          {/* <UploadIconWrapper recording={lastRecording} /> */}
         </div>
       </div>
     );

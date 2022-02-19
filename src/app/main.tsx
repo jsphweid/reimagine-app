@@ -1,5 +1,3 @@
-import React from "react";
-
 import { useStore } from "../providers/store";
 import About from "./about/about";
 import { Section } from "../common/constants";

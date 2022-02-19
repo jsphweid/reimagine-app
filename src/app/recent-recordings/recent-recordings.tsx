@@ -1,5 +1,3 @@
-import React from "react";
-
 import { timeSince } from "../../common/helpers";
 import UploadIconWrapper from "../small-components/upload-icon";
 import PlayIconWrapper from "../small-components/play-icon";
@@ -24,7 +22,7 @@ function RecentRecordings() {
         </div>
         <div className="reimagine-recentRecordings-item-icons">
           <PlayIconWrapper recording={recording} />
-          {/* <UploadIconWrapper recording={recording} /> */}
+          <UploadIconWrapper recording={recording} />
         </div>
       </li>
     );

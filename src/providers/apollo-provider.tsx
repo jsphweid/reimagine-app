@@ -6,7 +6,6 @@ import {
 } from "@apollo/client";
 import { setContext } from "@apollo/link-context";
 import { useAuth0 } from "@auth0/auth0-react";
-import React from "react";
 
 const AuthorizedApolloProvider = ({ children }: any) => {
   const { getAccessTokenSilently } = useAuth0();

@@ -1,3 +1,3 @@
-import React, { Fragment } from "react";
+import { Fragment } from "react";
 
 export const Home = () => <Fragment></Fragment>;

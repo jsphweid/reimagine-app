@@ -1,4 +1,3 @@
-import React from "react";
 import Dropzone from "react-dropzone";
 
 // generic styles from their examples

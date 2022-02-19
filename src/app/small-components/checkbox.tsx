@@ -1,4 +1,3 @@
-import React from "react";
 import {
   FaCheckSquare as CheckIcon,
   FaSquareFull as EmptyIcon, // TODO: don't know if this icon is correct
