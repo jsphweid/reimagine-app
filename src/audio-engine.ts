@@ -5,7 +5,6 @@ import { getSecondsPerBeat, midiToFreq } from "./common/helpers";
 import WavEncoder from "./encoders/wav-encoder";
 import { waitUntil } from "./utils";
 import { click } from "./click";
-import { AnyRecording, isLocalRecording } from "./types";
 export interface AudioSessionConfig {
   playMetronome?: boolean;
   playNotes?: boolean;

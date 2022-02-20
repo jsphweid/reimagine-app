@@ -1,0 +1,12 @@
+query GetSegment($segmentId: String!) {
+  getSegmentById(segmentId: $segmentId) {
+    id
+    arrangementId
+    difficulty
+    midiJson
+    offset
+    highestNote
+    lowestNote
+    dateCreated
+  }
+}

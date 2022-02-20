@@ -25,10 +25,10 @@ export function Navigation() {
   }
 
   function renderQuickSwap() {
-    return pathname === "/interactive" ? (
+    return pathname === "/recording" ? (
       <RecordingIcon onClick={() => goto("/recordings")} />
     ) : (
-      <MicrophoneIcon onClick={() => goto("/interactive")} />
+      <MicrophoneIcon onClick={() => goto("/recording")} />
     );
   }
 
@@ -73,7 +73,7 @@ export function Navigation() {
     return headerExpanded ? (
       <div className="reimagine-navigation-overlay">
         <ul>
-          {renderMenuItem("Main", <MicrophoneIcon />, "/interactive")}
+          {renderMenuItem("Main", <MicrophoneIcon />, "/recording")}
           {renderMenuItem(
             "Recent Recordings",
             <RecordingIcon />,

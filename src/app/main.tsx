@@ -6,7 +6,7 @@ import Navigation from "./navigation/navigation";
 import Settings from "./settings/settings";
 import Listen from "./listen/listen";
 import RecentRecordings from "./recent-recordings/recent-recordings";
-import Interactive from "./interactive/interactive";
+import Recording from "./recording/recording";
 
 function Main() {
   return (
@@ -14,8 +14,8 @@ function Main() {
       <Navigation />
       <div className="reimagine-mainArea">
         <Switch>
-          <Route path="/interactive">
-            <Interactive />
+          <Route path="/recording">
+            <Recording />
           </Route>
           <Route path="/settings">
             <Settings />

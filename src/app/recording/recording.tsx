@@ -11,6 +11,8 @@ import {
 } from "../../generated";
 import { useStore } from "../../providers/store";
 import { CloseIcon, EarIcon, NewIcon, RecordIcon } from "../../icon";
+import { useParams } from "../../hooks/use-params";
+import { useGetSegmentLazyQuery } from "../../generated";
 
 let recordStopper: NodeJS.Timer | null = null;
 let playStopper: NodeJS.Timer | null = null;
@@ -20,7 +22,7 @@ interface Dimensions {
   width: number;
 }
 
-function Interactive() {
+function Recording() {
   const { user } = useAuth0();
   const userId = user?.sub as string;
   const { store, setStore } = useStore();
@@ -29,15 +31,18 @@ function Interactive() {
   const [startTime, setStartTime] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [getSeg, getSegRes] = useGetNextSegmentLazyQuery();
+  const [getNxtSeg, getNxtSegRes] = useGetNextSegmentLazyQuery();
+  const [getSeg, getSegRes] = useGetSegmentLazyQuery();
   const [audioCtx, setAudioCtx] = useState<AudioContext | null>(null);
-  const ref = useRef(null);
+  const { params, setParams } = useParams();
 
+  const ref = useRef(null);
   const settingsRes = useGetUserSettingsQuery({ variables: { userId } });
   const settings = settingsRes?.data?.getUserSettingsByUserId || {};
 
-  const segment = getSegRes.data?.getNextSegment || null;
-  const isLoading = !!getSegRes.loading;
+  const segment =
+    getNxtSegRes.data?.getNextSegment || getSegRes.data?.getSegmentById || null;
+  const isLoading = !!getNxtSegRes.loading;
   const hasActiveAudio = isPlaying || isRecording;
 
   const getAudioEngine = () =>
@@ -54,7 +59,12 @@ function Interactive() {
   }, [segment?.id]);
 
   useEffect(() => {
-    getSeg().then(getAudioEngine);
+    if (params.has("segmentId")) {
+      const segmentId = params.get("segmentId")!;
+      getSeg({ variables: { segmentId } }).then(getAudioEngine);
+    } else {
+      getNextSegment().then(getAudioEngine);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -64,6 +74,13 @@ function Interactive() {
       setDims({ width, height });
     }
   }, [ref]);
+
+  function getNextSegment() {
+    return getNxtSeg().then(({ data }) => {
+      const nxtSegmentId = data?.getNextSegment?.id!;
+      setParams({ segmentId: nxtSegmentId });
+    });
+  }
 
   function stopLocal() {
     setIsPlaying(false);
@@ -162,7 +179,7 @@ function Interactive() {
   }
 
   function renderNewSegmentIcon() {
-    return <NewIcon isDisabled={hasActiveAudio} onClick={() => getSeg()} />;
+    return <NewIcon isDisabled={hasActiveAudio} onClick={getNextSegment} />;
   }
 
   function renderRecordButton() {
@@ -193,7 +210,7 @@ function Interactive() {
     //     ? store.recordings[store.recordings.length - 1]
     //     : null;
     return (
-      <div className="reimagine-interactive-buttons">
+      <div className="reimagine-recording-buttons">
         <div>
           {renderNewSegmentIcon()}
           {renderEarIcon()}
@@ -207,13 +224,13 @@ function Interactive() {
   }
 
   return (
-    <div ref={ref} className="reimagine-interactive">
+    <div ref={ref} className="reimagine-recording">
       {renderOverlay()}
-      <div className="reimagine-interactive-midiVisualizer">
+      <div className="reimagine-recording-midiVisualizer">
         {renderMidiVisualizer()}
       </div>
     </div>
   );
 }
 
-export default Interactive;
+export default Recording;

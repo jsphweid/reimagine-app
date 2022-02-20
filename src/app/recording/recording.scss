@@ -1,12 +1,12 @@
-.reimagine-interactive {
+.reimagine-recording {
   height: 100vh;
 }
 
-.reimagine-interactive-midiVisualizer {
+.reimagine-recording-midiVisualizer {
   height: 100%;
 }
 
-.reimagine-interactive-buttons {
+.reimagine-recording-buttons {
   position: absolute;
   width: 100%;
   margin-top: 8px;
@@ -28,7 +28,7 @@
 }
 
 @media (max-width: 584px) {
-  .reimagine-interactive-buttons {
+  .reimagine-recording-buttons {
     svg {
       margin: 12px;
     }
