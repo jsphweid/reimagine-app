@@ -1,6 +1,11 @@
-// TODO: this was never originally implemented
+import Section from "../small-components/section";
+
 function Listen() {
-  return <div>listen</div>;
+  return (
+    <Section className="reimagine-settings" title="Listen">
+      {" "}
+    </Section>
+  );
 }
 
 export default Listen;

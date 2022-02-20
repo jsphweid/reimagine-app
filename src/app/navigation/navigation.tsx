@@ -1,8 +1,7 @@
 import React from "react";
 import { useAuth0 } from "@auth0/auth0-react";
+import { Link, useHistory, useLocation } from "react-router-dom";
 
-import { Section } from "../../common/constants";
-import { useStore } from "../../providers/store";
 import {
   BarsIcon,
   CloseIcon,
@@ -14,27 +13,22 @@ import {
   RecordingIcon,
 } from "../../icon";
 
-interface NavigationProps {
-  id?: string;
-}
-
-export function Navigation(props: NavigationProps) {
-  const { store, setStore } = useStore();
+export function Navigation() {
   const [headerExpanded, setHeaderExpanded] = React.useState(false);
   const { isAuthenticated, logout, loginWithRedirect } = useAuth0();
+  const history = useHistory();
+  const { pathname } = useLocation();
 
-  function genActivate(section: Section) {
-    return () => {
-      setHeaderExpanded(false);
-      setStore({ activeSection: section });
-    };
+  function goto(route: string) {
+    history.push(route);
+    setHeaderExpanded(false);
   }
 
   function renderQuickSwap() {
-    return store.activeSection === Section.Interactive ? (
-      <RecordingIcon onClick={genActivate(Section.RecentRecordings)} />
+    return pathname === "/interactive" ? (
+      <RecordingIcon onClick={() => goto("/recordings")} />
     ) : (
-      <MicrophoneIcon onClick={genActivate(Section.Interactive)} />
+      <MicrophoneIcon onClick={() => goto("/interactive")} />
     );
   }
 
@@ -46,11 +40,13 @@ export function Navigation(props: NavigationProps) {
     );
   }
 
-  function renderMenuItem(text: string, icon: JSX.Element, section: Section) {
+  function renderMenuItem(text: string, icon: JSX.Element, route: string) {
     return (
-      <li onClick={genActivate(section)}>
-        <div>{text}</div>
-        {icon}
+      <li>
+        <Link onClick={() => setHeaderExpanded(false)} to={route}>
+          <div>{text}</div>
+          {icon}
+        </Link>
       </li>
     );
   }
@@ -70,22 +66,22 @@ export function Navigation(props: NavigationProps) {
 
   function renderPossibleAdminSection() {
     // TODO: change to only if admin permission on token
-    return renderMenuItem("Admin", <ComputerIcon />, Section.Admin);
+    return renderMenuItem("Admin", <ComputerIcon />, "/admin");
   }
 
   function renderPossibleOverlay() {
     return headerExpanded ? (
       <div className="reimagine-navigation-overlay">
         <ul>
-          {renderMenuItem("Main", <MicrophoneIcon />, Section.Interactive)}
+          {renderMenuItem("Main", <MicrophoneIcon />, "/interactive")}
           {renderMenuItem(
             "Recent Recordings",
             <RecordingIcon />,
-            Section.RecentRecordings
+            "/recordings"
           )}
-          {renderMenuItem("Listen", <HeadphonesIcon />, Section.Listen)}
-          {renderMenuItem("Settings", <CogIcon />, Section.Settings)}
-          {renderMenuItem("About", <InfoIcon />, Section.About)}
+          {renderMenuItem("Listen to Mixes", <HeadphonesIcon />, "/listen")}
+          {renderMenuItem("Settings", <CogIcon />, "/settings")}
+          {renderMenuItem("About", <InfoIcon />, "/about")}
           {renderPossibleAdminSection()}
           {renderLoginLogout()}
         </ul>
@@ -95,10 +91,7 @@ export function Navigation(props: NavigationProps) {
 
   return (
     <div className="reimagine-navigation">
-      <h1
-        className="reimagine-navigation-title"
-        onClick={genActivate(Section.About)}
-      >
+      <h1 className="reimagine-navigation-title" onClick={() => goto("/about")}>
         re:imagine
       </h1>
       <div className="reimagine-navigation-mainIcons">

@@ -9,8 +9,8 @@ import AuthorizedApolloProvider from "./providers/apollo-provider";
 import { App } from "./app";
 
 ReactDOM.render(
-  <React.StrictMode>
-    <BrowserRouter>
+  <BrowserRouter>
+    <React.StrictMode>
       <StoreProvider>
         <EnvProvider>
           <Auth0ProviderWithHistory>
@@ -20,7 +20,8 @@ ReactDOM.render(
           </Auth0ProviderWithHistory>
         </EnvProvider>
       </StoreProvider>
-    </BrowserRouter>
-  </React.StrictMode>,
+    </React.StrictMode>
+  </BrowserRouter>,
+
   document.getElementById("root")
 );
