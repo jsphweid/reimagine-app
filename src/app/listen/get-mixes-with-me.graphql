@@ -1,0 +1,7 @@
+query GetMixesWithMe($userId: String!) {
+  getMixesByUserId(userId: $userId) {
+    id
+    url
+    dateCreated
+  }
+}

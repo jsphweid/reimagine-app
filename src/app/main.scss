@@ -1,4 +1,3 @@
-@import "recent-recordings/recent-recordings";
 @import "navigation/navigation";
 @import "interactive/interactive";
 @import "settings/settings";
@@ -7,6 +6,7 @@
 
 @import "small-components/checkbox";
 @import "small-components/section";
+@import "small-components/audios";
 
 .reimagine {
   max-width: 1280px;

@@ -191,13 +191,7 @@ class AudioEngine {
     }
   }
 
-  public async startPlayingRecording(
-    recording: AnyRecording,
-    onStop?: Function
-  ) {
-    const url = isLocalRecording(recording)
-      ? URL.createObjectURL(recording.blob)
-      : recording.url;
+  public async startPlayingUrl(url: string, onStop?: Function) {
     this.activeAudioElement = new Audio(url);
     this.activeAudioElement.play();
     this.activeAudioElement.onended = onStop as any;

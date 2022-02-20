@@ -1,4 +1,4 @@
-.reimagine-recentRecordings {
+.reimagine-audios {
   p {
     padding: 24px 0;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
@@ -17,7 +17,7 @@
 
       @extend .reimagine-colorProfile3;
 
-      .reimagine-recentRecordings-item-text {
+      .reimagine-audios-item-text {
         text-overflow: ellipsis;
         padding-left: 14px;
         overflow: hidden;
@@ -25,7 +25,7 @@
         white-space: nowrap;
       }
 
-      .reimagine-recentRecordings-item-icons {
+      .reimagine-audios-item-icons {
         position: absolute;
         right: 0;
         top: 0;

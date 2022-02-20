@@ -1,12 +1,10 @@
 import { useState } from "react";
 
-import { AnyRecording } from "../../types";
 import { getAudioEngine } from "../../audio-engine";
-import { useStore } from "../../providers/store";
 import { PlayIcon, StopIcon } from "../../icon";
 
 export interface PlayIconWrapperProps {
-  recording: AnyRecording;
+  url: string;
 }
 
 function PlayIconWrapper(props: PlayIconWrapperProps) {
@@ -29,7 +27,7 @@ function PlayIconWrapper(props: PlayIconWrapperProps) {
   function handleStartClicked() {
     setIsLoading(true);
     getAudioEngine().then((e) => {
-      e.startPlayingRecording(props.recording, handleAudioStoppedPlaying);
+      e.startPlayingUrl(props.url, handleAudioStoppedPlaying);
       setIsLoading(false);
       setIsPlaying(true);
     });
