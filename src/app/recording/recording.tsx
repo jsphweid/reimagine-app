@@ -6,6 +6,7 @@ import MidiVisualizer from "react-midi-visualizer";
 import { getAudioEngine as _getAudioEngine } from "../../audio-engine";
 import { loadMidiFromJson } from "../../common/helpers";
 import {
+  Segment,
   useGetNextSegmentLazyQuery,
   useGetUserSettingsQuery,
 } from "../../generated";
@@ -31,6 +32,9 @@ interface Dimensions {
   width: number;
 }
 
+// If we don't do this, then `loading` will not be accurate
+const queryConfig = { notifyOnNetworkStatusChange: true };
+
 function Recording() {
   const { user } = useAuth0();
   const userId = user?.sub as string;
@@ -41,8 +45,8 @@ function Recording() {
   const [startTime, setStartTime] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [getNxtSeg, getNxtSegRes] = useGetNextSegmentLazyQuery();
-  const [getSeg, getSegRes] = useGetSegmentLazyQuery();
+  const [getNxtSeg, getNxtSegRes] = useGetNextSegmentLazyQuery(queryConfig);
+  const [getSeg, getSegRes] = useGetSegmentLazyQuery(queryConfig);
   const [audioCtx, setAudioCtx] = useState<AudioContext | null>(null);
   const { params, setParams } = useParams();
 
@@ -50,9 +54,8 @@ function Recording() {
   const settingsRes = useGetUserSettingsQuery({ variables: { userId } });
   const settings = settingsRes?.data?.getUserSettingsByUserId || {};
 
-  const segment =
-    getNxtSegRes.data?.getNextSegment || getSegRes.data?.getSegmentById || null;
-  const isLoading = !!getNxtSegRes.loading;
+  const segment = store.segments[store.segmentIndex];
+  const isLoading = getNxtSegRes.loading || getSegRes.loading;
   const hasActiveAudio = isPlaying || isRecording;
 
   const getAudioEngine = () =>
@@ -68,28 +71,62 @@ function Recording() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [segment?.id]);
 
-  useEffect(() => {
+  function handleNewSegmentFetched(segment: Segment) {
+    // For now, we'll just always push it to the store unless it's the last one
+    const last = store.segments[store.segments.length - 1];
+    if (!last || last.id !== segment.id) {
+      const segments = [...store.segments, segment];
+      setStore({ segments, segmentIndex: segments.length - 1 });
+    }
+  }
+
+  function handleComponentLoad() {
     if (params.has("segmentId")) {
       const segmentId = params.get("segmentId")!;
-      getSeg({ variables: { segmentId } }).then(getAudioEngine);
-    } else {
-      getNextSegment().then(getAudioEngine);
+      getCurrSegment(segmentId);
+    } else if (!store.segments.length) {
+      getNextSegment();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }
 
-  useEffect(() => {
+  function setRefIfExists() {
     if (ref) {
       const { clientWidth: width, clientHeight: height } = ref.current as any;
       setDims({ width, height });
     }
-  }, [ref]);
+  }
+
+  useEffect(handleComponentLoad, []);
+  useEffect(setRefIfExists, [ref]);
 
   function getNextSegment() {
     return getNxtSeg().then(({ data }) => {
-      const nxtSegmentId = data?.getNextSegment?.id!;
-      setParams({ segmentId: nxtSegmentId });
+      const nxtSegment = data?.getNextSegment!;
+      setParams({ segmentId: nxtSegment.id });
+      handleNewSegmentFetched(nxtSegment);
     });
+  }
+
+  function getCurrSegment(segmentId: string) {
+    getSeg({ variables: { segmentId } }).then(({ data }) => {
+      handleNewSegmentFetched(data?.getSegmentById!);
+    });
+  }
+
+  function handleForwardClicked() {
+    if (store.segments.length - 1 === store.segmentIndex) {
+      getNextSegment();
+    } else {
+      const segmentIndex = store.segmentIndex + 1;
+      setStore({ segmentIndex });
+      setParams({ segmentId: store.segments[segmentIndex].id });
+    }
+  }
+
+  function handleBackwardsClicked() {
+    const segmentIndex = store.segmentIndex - 1;
+    setStore({ segmentIndex });
+    setParams({ segmentId: store.segments[segmentIndex].id });
   }
 
   function stopLocal() {
@@ -215,7 +252,6 @@ function Recording() {
 
   function renderOverlay() {
     const bounce = uploadIconBounce ? "reimagine-bounce-icon" : "";
-
     return (
       <div className="reimagine-recording-buttons">
         {lastRec ? (
@@ -227,10 +263,16 @@ function Recording() {
           </div>
         ) : null}
         <div className="reimagine-recording-buttons-center">
-          <BackwardsIcon />
+          <BackwardsIcon
+            onClick={handleBackwardsClicked}
+            isDisabled={hasActiveAudio || isLoading || store.segmentIndex === 0}
+          />
           {renderPlayStop()}
           {renderRecordButton()}
-          <ForwardIcon isDisabled={hasActiveAudio} onClick={getNextSegment} />
+          <ForwardIcon
+            isDisabled={hasActiveAudio || isLoading}
+            onClick={handleForwardClicked}
+          />
         </div>
       </div>
     );

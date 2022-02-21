@@ -23,11 +23,17 @@ function genIcon(Component: IconType, colorOverride?: string) {
       classNames.add("reimagine-unclickable");
     }
 
+    function handleClicked() {
+      if (!props.isDisabled && props.onClick) {
+        props.onClick();
+      }
+    }
+
     return (
       <Component
         color={colorOverride}
         className={Array.from(classNames).join(" ")}
-        onClick={props.onClick}
+        onClick={handleClicked}
       />
     );
   };

@@ -30,6 +30,7 @@ const AuthorizedApolloProvider = ({ children }: any) => {
     link: authLink.concat(httpLink),
     cache: new InMemoryCache(),
     connectToDevTools: true,
+    defaultOptions: {},
   });
 
   return <ApolloProvider client={apolloClient}>{children}</ApolloProvider>;

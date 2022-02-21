@@ -1,13 +1,18 @@
 import { createContext, Reducer, useContext, useReducer } from "react";
 
 import { LocalRecording } from "../types";
+import { Segment } from "../generated";
 
 export interface StoreInterface {
   localRecordings: LocalRecording[];
+  segments: Segment[];
+  segmentIndex: number;
 }
 
 const storeDefaultValues: StoreInterface = {
   localRecordings: [],
+  segments: [],
+  segmentIndex: 0,
 };
 
 const StoreContext = createContext(storeDefaultValues);
