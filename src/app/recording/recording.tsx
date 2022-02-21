@@ -165,7 +165,7 @@ function Recording() {
         const startTime = audioEngine.audioContext.currentTime;
         setStartTime(startTime);
         const recordingLength = (midi.duration + 0.5) * 1000;
-        playStopper = setTimeout(stopAudioEngineAndSave, recordingLength);
+        playStopper = setTimeout(basicStopAudioEngine, recordingLength);
         audioEngine.startPlayingNotes({
           midi,
           startTime,
