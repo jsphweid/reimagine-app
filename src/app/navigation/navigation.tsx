@@ -4,13 +4,15 @@ import { Link, useHistory, useLocation } from "react-router-dom";
 
 import {
   BarsIcon,
+  CabinetIcon,
   CloseIcon,
   CogIcon,
   ComputerIcon,
   HeadphonesIcon,
   InfoIcon,
+  LoginIcon,
+  LogoutIcon,
   MicrophoneIcon,
-  RecordingIcon,
 } from "../../icon";
 
 export function Navigation() {
@@ -26,7 +28,7 @@ export function Navigation() {
 
   function renderQuickSwap() {
     return pathname === "/recording" ? (
-      <RecordingIcon onClick={() => goto("/recordings")} />
+      <HeadphonesIcon onClick={() => goto("/listen")} />
     ) : (
       <MicrophoneIcon onClick={() => goto("/recording")} />
     );
@@ -56,10 +58,15 @@ export function Navigation() {
       logout({
         returnTo: window.location.origin,
       });
-
-    return (
-      <li onClick={isAuthenticated ? handleLogout : loginWithRedirect}>
-        <div>{isAuthenticated ? "Logout" : "Login"}</div>
+    return isAuthenticated ? (
+      <li onClick={handleLogout}>
+        <div>Logout</div>
+        <LogoutIcon />
+      </li>
+    ) : (
+      <li onClick={loginWithRedirect}>
+        <div>Login</div>
+        <LoginIcon />
       </li>
     );
   }
@@ -74,11 +81,7 @@ export function Navigation() {
       <div className="reimagine-navigation-overlay">
         <ul>
           {renderMenuItem("Main", <MicrophoneIcon />, "/recording")}
-          {renderMenuItem(
-            "Recent Recordings",
-            <RecordingIcon />,
-            "/recordings"
-          )}
+          {renderMenuItem("My Recordings", <CabinetIcon />, "/my-recordings")}
           {renderMenuItem("Listen to Mixes", <HeadphonesIcon />, "/listen")}
           {renderMenuItem("Settings", <CogIcon />, "/settings")}
           {renderMenuItem("About", <InfoIcon />, "/about")}

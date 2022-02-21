@@ -7,7 +7,7 @@ import { AnyRecording, isLocalRecording } from "../../types";
 import { useGetRecordingsQuery } from "../../generated";
 import Audios from "../small-components/audios";
 
-function RecentRecordings() {
+function MyRecordings() {
   const { user } = useAuth0();
   const userId = user?.sub as string;
   const { store } = useStore();
@@ -35,10 +35,10 @@ function RecentRecordings() {
   });
 
   return (
-    <Section title="Recent Recordings">
+    <Section title="My Recordings">
       <Audios items={audioItems} />
     </Section>
   );
 }
 
-export default RecentRecordings;
+export default MyRecordings;

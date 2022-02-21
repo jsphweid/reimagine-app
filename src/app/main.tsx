@@ -5,7 +5,7 @@ import Admin from "./admin/admin";
 import Navigation from "./navigation/navigation";
 import Settings from "./settings/settings";
 import Listen from "./listen/listen";
-import RecentRecordings from "./recent-recordings/recent-recordings";
+import MyRecordings from "./my-recordings/my-recordings";
 import Recording from "./recording/recording";
 
 function Main() {
@@ -26,8 +26,8 @@ function Main() {
           <Route path="/listen">
             <Listen />
           </Route>
-          <Route path="/recordings">
-            <RecentRecordings />
+          <Route path="/my-recordings">
+            <MyRecordings />
           </Route>
           <Route path="/">
             <About />

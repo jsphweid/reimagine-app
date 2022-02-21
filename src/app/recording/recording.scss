@@ -13,17 +13,16 @@
   @extend .reimagine-colorProfile1;
   background-color: #c1b18544;
 
-  div:first-child {
-  }
-
-  div:last-child {
-    position: absolute;
-    top: 0;
-    right: 0;
-  }
-
   svg {
     @extend %reimagine-default-icon;
+  }
+
+  .reimagine-recording-buttons-uploadLast {
+    position: absolute;
+  }
+
+  .reimagine-recording-buttons-center {
+    text-align: center;
   }
 }
 

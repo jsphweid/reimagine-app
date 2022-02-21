@@ -2,6 +2,8 @@ import { IconType } from "react-icons";
 import * as Fa from "react-icons/fa";
 import * as Md from "react-icons/md";
 import * as Io from "react-icons/io";
+import * as Ai from "react-icons/ai";
+import * as Bi from "react-icons/bi";
 
 interface IconProps {
   isLoading?: boolean;
@@ -9,7 +11,7 @@ interface IconProps {
   onClick?: () => void;
 }
 
-function genIcon(Component: IconType) {
+function genIcon(Component: IconType, colorOverride?: string) {
   return (props: IconProps) => {
     const classNames: Set<string> = new Set();
     if (props.isLoading) {
@@ -23,6 +25,7 @@ function genIcon(Component: IconType) {
 
     return (
       <Component
+        color={colorOverride}
         className={Array.from(classNames).join(" ")}
         onClick={props.onClick}
       />
@@ -30,7 +33,7 @@ function genIcon(Component: IconType) {
   };
 }
 
-export const UploadIcon = genIcon(Fa.FaUpload);
+export const UploadIcon = genIcon(Ai.AiOutlineCloudUpload);
 export const BarsIcon = genIcon(Fa.FaBars);
 export const CogIcon = genIcon(Fa.FaCog);
 export const InfoIcon = genIcon(Fa.FaInfoCircle);
@@ -39,7 +42,7 @@ export const ComputerIcon = genIcon(Fa.FaDesktop);
 export const HeadphonesIcon = genIcon(Fa.FaHeadphones);
 export const EarIcon = genIcon(Md.MdHearing);
 export const RecordingIcon = genIcon(Io.IoIosRecording);
-export const RecordIcon = genIcon(Fa.FaCircle);
+export const RecordIcon = genIcon(Fa.FaCircle, "#ea3546");
 export const NewIcon = genIcon(Fa.FaRecycle);
 export const CheckIcon = genIcon(Fa.FaCheckSquare);
 export const EmptyIcon = genIcon(Fa.FaSquareFull);
@@ -47,3 +50,9 @@ export const SpinnerIcon = genIcon(Fa.FaSpinner);
 export const CloseIcon = genIcon(Fa.FaTimes);
 export const PlayIcon = genIcon(Fa.FaPlay);
 export const StopIcon = genIcon(Fa.FaStop);
+export const ForwardIcon = genIcon(Ai.AiFillStepForward);
+export const BackwardsIcon = genIcon(Ai.AiFillStepBackward);
+export const RedoIcon = genIcon(Ai.AiOutlineRedo);
+export const CabinetIcon = genIcon(Bi.BiCabinet);
+export const LogoutIcon = genIcon(Md.MdLogout);
+export const LoginIcon = genIcon(Md.MdLogin);

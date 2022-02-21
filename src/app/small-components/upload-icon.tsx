@@ -16,6 +16,7 @@ import { useStore } from "../../providers/store";
 
 export interface UploadIconWrapperProps {
   recording: LocalRecording;
+  uploadComplete?: () => void;
 }
 
 function UploadIconWrapper(props: UploadIconWrapperProps) {
@@ -56,6 +57,10 @@ function UploadIconWrapper(props: UploadIconWrapperProps) {
               ],
             })
           );
+
+          if (props.uploadComplete) {
+            props.uploadComplete();
+          }
         }
       });
     });

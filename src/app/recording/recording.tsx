@@ -10,9 +10,18 @@ import {
   useGetUserSettingsQuery,
 } from "../../generated";
 import { useStore } from "../../providers/store";
-import { CloseIcon, EarIcon, NewIcon, RecordIcon } from "../../icon";
+import {
+  CloseIcon,
+  ForwardIcon,
+  PlayIcon,
+  RecordIcon,
+  StopIcon,
+} from "../../icon";
 import { useParams } from "../../hooks/use-params";
 import { useGetSegmentLazyQuery } from "../../generated";
+import { BackwardsIcon } from "../../icon";
+import UploadIconWrapper from "../small-components/upload-icon";
+import { LocalRecording } from "../../types";
 
 let recordStopper: NodeJS.Timer | null = null;
 let playStopper: NodeJS.Timer | null = null;
@@ -27,7 +36,8 @@ function Recording() {
   const userId = user?.sub as string;
   const { store, setStore } = useStore();
   const [dims, setDims] = useState<Dimensions | null>(null);
-  const [lastComplete, setLastComplete] = useState(false);
+  const [uploadIconBounce, setUploadIconBounce] = useState(false);
+  const [lastRec, setLastRec] = useState<LocalRecording | null>(null);
   const [startTime, setStartTime] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -93,7 +103,7 @@ function Recording() {
     const { notes } = midi.tracks[0];
     const { height, width } = dims;
 
-    return notes && audioCtx ? (
+    return notes ? (
       <MidiVisualizer
         audioContext={audioCtx}
         height={height}
@@ -114,27 +124,31 @@ function Recording() {
         clearTimeout(playStopper);
         playStopper = null;
       }
-      setLastComplete(false);
+      setLastRec(null);
       stopLocal();
       audioEngine.stopRecording();
     });
+  }
+
+  function triggerUploadBounce() {
+    setUploadIconBounce(true);
+    setTimeout(() => setUploadIconBounce(false), 2000);
   }
 
   function stopAudioEngineAndSave(): void {
     getAudioEngine().then((audioEngine) => {
       stopLocal();
       const blob = audioEngine.stopRecording();
-      setLastComplete(true);
+      const recording = {
+        blob,
+        dateCreated: new Date(),
+        segmentId: segment!.id,
+        sampleRate: audioEngine.audioContext.sampleRate,
+      };
+      setLastRec(recording);
+      triggerUploadBounce();
       setStore({
-        localRecordings: [
-          ...store.localRecordings,
-          {
-            blob,
-            dateCreated: new Date(),
-            segmentId: segment!.id,
-            sampleRate: audioEngine.audioContext.sampleRate,
-          },
-        ],
+        localRecordings: [...store.localRecordings, recording],
       });
     });
   }
@@ -178,10 +192,6 @@ function Recording() {
     }
   }
 
-  function renderNewSegmentIcon() {
-    return <NewIcon isDisabled={hasActiveAudio} onClick={getNextSegment} />;
-  }
-
   function renderRecordButton() {
     if (!midi || isPlaying) {
       return <RecordIcon isDisabled />;
@@ -192,32 +202,35 @@ function Recording() {
     }
   }
 
-  function renderEarIcon() {
+  function renderPlayStop() {
     // TODO: this looks almost exactly like the fn above it...?
     if (!midi || isRecording) {
-      return <EarIcon isDisabled />;
+      return <PlayIcon isDisabled />;
     } else if (isPlaying) {
-      return <CloseIcon onClick={basicStopAudioEngine} />;
+      return <StopIcon onClick={basicStopAudioEngine} />;
     } else {
-      return <EarIcon onClick={() => handleStartPlaying()} />;
+      return <PlayIcon onClick={() => handleStartPlaying()} />;
     }
   }
 
   function renderOverlay() {
-    const lastRecording = null;
-    // const lastRecording =
-    //   lastComplete && store.recordings.length
-    //     ? store.recordings[store.recordings.length - 1]
-    //     : null;
+    const bounce = uploadIconBounce ? "reimagine-bounce-icon" : "";
+
     return (
       <div className="reimagine-recording-buttons">
-        <div>
-          {renderNewSegmentIcon()}
-          {renderEarIcon()}
-        </div>
-        <div>
+        {lastRec ? (
+          <div className={`reimagine-recording-buttons-uploadLast ${bounce}`}>
+            <UploadIconWrapper
+              recording={lastRec}
+              uploadComplete={() => setLastRec(null)}
+            />
+          </div>
+        ) : null}
+        <div className="reimagine-recording-buttons-center">
+          <BackwardsIcon />
+          {renderPlayStop()}
           {renderRecordButton()}
-          {/* <UploadIconWrapper recording={lastRecording} /> */}
+          <ForwardIcon isDisabled={hasActiveAudio} onClick={getNextSegment} />
         </div>
       </div>
     );
