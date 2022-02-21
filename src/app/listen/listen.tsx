@@ -11,7 +11,12 @@ function Listen() {
   const mixes = mixesWithMe.data?.getMixesByUserId || [];
   return (
     <Section title="Listen">
-      <Audios items={mixes} />
+      <Audios
+        items={mixes.map((m) => ({
+          ...m,
+          name: m.arrangement?.name || "untitled",
+        }))}
+      />
     </Section>
   );
 }

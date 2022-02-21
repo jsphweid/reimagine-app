@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import {
   useCreateSimpleArrangementMutation,
@@ -13,6 +13,7 @@ interface ArrangementsProps {
 }
 
 function Arrangements(props: ArrangementsProps) {
+  const [name, setName] = useState("some arrangement");
   const [createArr, createArrRes] = useCreateSimpleArrangementMutation();
   const [deleteArr, deleteArrRes] = useDeleteArrangementMutation();
   const [getArr, getArrRes] = useGetArrangementsLazyQuery();
@@ -31,6 +32,7 @@ function Arrangements(props: ArrangementsProps) {
       const base64Blob = await toBase64(files[0]);
       await createArr({
         variables: {
+          name,
           base64Blob: base64Blob.split(",")[1],
           pieceId: props.pieceId,
         },
@@ -77,6 +79,7 @@ function Arrangements(props: ArrangementsProps) {
     <>
       {renderArrangements()}
       {renderArrangementCreation()}
+      <input value={name} onChange={(e) => setName(e.target.value)} />
       <AudioDropzone onFiles={handleFiles} />
     </>
   );

@@ -3,5 +3,8 @@ query GetMixesWithMe($userId: String!) {
     id
     url
     dateCreated
+    arrangement {
+      name
+    }
   }
 }
