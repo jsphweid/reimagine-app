@@ -5,6 +5,9 @@ query GetMixesWithMe($userId: String!) {
     dateCreated
     arrangement {
       name
+      piece {
+        name
+      }
     }
   }
 }

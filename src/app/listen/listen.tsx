@@ -1,7 +1,7 @@
 import { useAuth0 } from "@auth0/auth0-react";
 
 import Section from "../small-components/section";
-import { useGetMixesWithMeQuery } from "../../generated";
+import { useGetMixesWithMeQuery, Mix } from "../../generated";
 import Audios from "../small-components/audios";
 
 function Listen() {
@@ -9,12 +9,19 @@ function Listen() {
   const userId = user?.sub as string;
   const mixesWithMe = useGetMixesWithMeQuery({ variables: { userId } });
   const mixes = mixesWithMe.data?.getMixesByUserId || [];
+
+  function makeName(mix: Mix) {
+    const arrName = mix.arrangement?.name || "some arrangement";
+    const pieceName = mix.arrangement?.piece?.name || "Untitled";
+    return `${pieceName} (${arrName})`;
+  }
+
   return (
     <Section title="Listen">
       <Audios
         items={mixes.map((m) => ({
           ...m,
-          name: m.arrangement?.name || "untitled",
+          name: makeName(m as Mix),
         }))}
       />
     </Section>

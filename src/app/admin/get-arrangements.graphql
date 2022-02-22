@@ -1,7 +1,6 @@
 query GetArrangements($pieceId: String!) {
   getArrangementsByPieceId(pieceId: $pieceId) {
-    pieceId
-    dateCreated
     id
+    dateCreated
   }
 }
