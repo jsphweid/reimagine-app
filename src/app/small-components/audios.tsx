@@ -1,9 +1,11 @@
 import { timeSince } from "../../common/helpers";
 import PlayIconWrapper from "../small-components/play-icon";
+import { prettyPrintDuration } from "../../utils";
 
 interface AudioItem {
   url: string;
   dateCreated: Date | string;
+  duration: number;
   name?: string;
 
   // I don't really like this but it's the easiest thing to do for now
@@ -24,7 +26,9 @@ function Audios(props: AudiosProps) {
         <div className="reimagine-audios-item-text">
           {name}
           <br />
-          {timeSince(date)}
+          Created {timeSince(date)}
+          <br />
+          {prettyPrintDuration(item.duration)}
         </div>
         <div className="reimagine-audios-item-icons">
           {item.uploadIcon || null}

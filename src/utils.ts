@@ -35,3 +35,9 @@ export const waitUntil = async (
     return waitUntil(fn, maxMilli - 10);
   }
 };
+
+export function prettyPrintDuration(duration: number): string {
+  const minutes = Math.floor(duration / 60);
+  const seconds = Math.round(duration - minutes * 60);
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}

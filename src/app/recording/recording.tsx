@@ -176,11 +176,13 @@ function Recording() {
     getAudioEngine().then((audioEngine) => {
       stopLocal();
       const blob = audioEngine.stopRecording();
+      const { sampleRate, currentTime } = audioEngine.audioContext;
       const recording = {
         blob,
+        sampleRate,
         dateCreated: new Date(),
         segmentId: segment!.id,
-        sampleRate: audioEngine.audioContext.sampleRate,
+        duration: currentTime - startTime,
       };
       setLastRec(recording);
       triggerUploadBounce();

@@ -5,6 +5,7 @@ export interface LocalRecording {
   segmentId: string;
   blob: Blob;
   sampleRate: number;
+  duration: number;
 }
 
 export type AnyRecording = Recording | LocalRecording;

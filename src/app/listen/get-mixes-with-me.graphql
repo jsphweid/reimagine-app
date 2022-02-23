@@ -2,6 +2,7 @@ query GetMixesWithMe($userId: String!) {
   getMixesByUserId(userId: $userId) {
     id
     url
+    duration
     dateCreated
     arrangement {
       name

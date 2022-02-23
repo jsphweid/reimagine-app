@@ -11,6 +11,7 @@ mutation CreateRecording(
     id
     objectKey
     url
+    duration
     segmentId
     dateCreated
   }
