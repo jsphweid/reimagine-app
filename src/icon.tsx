@@ -9,6 +9,8 @@ interface IconProps {
   isLoading?: boolean;
   isDisabled?: boolean;
   onClick?: () => void;
+  size?: string;
+  className?: string;
 }
 
 function genIcon(Component: IconType, colorOverride?: string) {
@@ -23,6 +25,10 @@ function genIcon(Component: IconType, colorOverride?: string) {
       classNames.add("reimagine-unclickable");
     }
 
+    if (props.className) {
+      classNames.add(props.className);
+    }
+
     function handleClicked() {
       if (!props.isDisabled && props.onClick) {
         props.onClick();
@@ -34,6 +40,7 @@ function genIcon(Component: IconType, colorOverride?: string) {
         color={colorOverride}
         className={Array.from(classNames).join(" ")}
         onClick={handleClicked}
+        size={props.size}
       />
     );
   };
