@@ -6,12 +6,13 @@ import { useStore } from "../../providers/store";
 import { AnyRecording, isLocalRecording } from "../../types";
 import { useGetRecordingsQuery } from "../../generated";
 import Audios from "../small-components/audios";
+import { Spinner } from "../../components/spinner";
 
 function MyRecordings() {
   const { user } = useAuth0();
   const userId = user?.sub as string;
   const { store } = useStore();
-  const { data } = useGetRecordingsQuery({ variables: { userId } });
+  const { data, loading } = useGetRecordingsQuery({ variables: { userId } });
 
   // NOTE: this shouldn't be done every render
   const localRecordings = store.localRecordings;
@@ -36,7 +37,7 @@ function MyRecordings() {
 
   return (
     <Section title="My Recordings">
-      <Audios items={audioItems} />
+      {loading ? <Spinner /> : <Audios items={audioItems} />}
     </Section>
   );
 }

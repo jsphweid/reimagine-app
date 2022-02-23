@@ -8,15 +8,13 @@ import Settings from "./settings/settings";
 import Listen from "./listen/listen";
 import MyRecordings from "./my-recordings/my-recordings";
 import Recording from "./recording/recording";
-import { SpinnerIcon } from "../icon";
+import { Spinner } from "../components/spinner";
 
 function Main() {
   const { isLoading } = useAuth0();
 
   const mainArea = isLoading ? (
-    <div className="reimagine-mainArea-spinner">
-      <SpinnerIcon isLoading={true} size="50px" />
-    </div>
+    <Spinner />
   ) : (
     <Switch>
       <Route path="/recording">
