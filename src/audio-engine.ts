@@ -21,6 +21,7 @@ class AudioEngine {
   private processor?: ScriptProcessorNode;
   private wavEncoder: WavEncoder;
   private activeAudioElement: HTMLAudioElement | null = null;
+  private gain?: GainNode;
 
   constructor() {
     // enforce singleton
@@ -31,6 +32,8 @@ class AudioEngine {
     this.audioContext = new ((<any>window).AudioContext ||
       (<any>window).webkitAudioContext)();
 
+    this.gain = this.audioContext.createGain();
+
     this.wavEncoder = new WavEncoder(this.audioContext.sampleRate, 1);
 
     return AudioEngine.instance;
@@ -39,7 +42,8 @@ class AudioEngine {
   private scheduleBuffer(buffer: AudioBuffer, time: number) {
     const source = this.audioContext.createBufferSource();
     source.buffer = buffer;
-    source.connect(this.audioContext.destination);
+    source.connect(this.gain!);
+    this.gain!.connect(this.audioContext.destination);
     source.start(time);
     this.bufferSources.push(source);
   }
@@ -169,21 +173,44 @@ class AudioEngine {
     });
   }
 
-  private shutOffOscillatorsAndDisconnectRecordingNodes() {
-    this.bufferSources.forEach((source) => source.disconnect());
-    this.bufferSources = [];
-    if (this.source) this.source.disconnect();
-    if (this.processor) this.processor.disconnect();
+  private shutoff() {
+    const rampDownMillis = 3000;
+    const originalGain = this.gain?.gain.value || 1;
+    if (this.gain) {
+      // In theory this works but we still get a click...
+      this.gain.gain.exponentialRampToValueAtTime(
+        0.0001,
+        this.audioContext.currentTime + rampDownMillis / 1000
+      );
+    }
+
+    setTimeout(() => {
+      this.bufferSources.forEach((source) => source.disconnect());
+      this.bufferSources = [];
+
+      if (this.gain) {
+        // disconnect but reset gain value so it's ready for next time
+        this.gain.gain.setValueAtTime(
+          originalGain,
+          this.audioContext.currentTime
+        );
+        this.gain.disconnect();
+      }
+      if (this.source) this.source.disconnect();
+      if (this.processor) this.processor.disconnect();
+    }, rampDownMillis);
   }
 
   public stopRecording(): Blob {
-    this.shutOffOscillatorsAndDisconnectRecordingNodes();
+    this.shutoff();
+    // TODO: click may be coming from this...
     const blob: Blob = this.wavEncoder.finish();
     this.wavEncoder = new WavEncoder(this.audioContext.sampleRate, 1);
     return blob;
   }
 
   public stopPlayingRecording() {
+    this.shutoff();
     if (this.activeAudioElement) {
       this.activeAudioElement.pause();
       this.activeAudioElement = null;

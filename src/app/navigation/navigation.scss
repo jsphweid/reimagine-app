@@ -28,6 +28,7 @@
   }
 
   .reimagine-navigation-overlay {
+    max-width: 1280px;
     position: fixed;
     top: 64px;
     height: calc(100% - 64px);
@@ -54,6 +55,7 @@
         display: inline-block;
         width: 100%;
         cursor: pointer;
+        max-width: 1266px; // TODO: hack
 
         svg {
           position: absolute;
