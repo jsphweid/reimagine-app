@@ -2,10 +2,17 @@ import { createContext, useContext } from "react";
 
 import { Env } from "../models/env";
 
-const domain: string | undefined = process.env.REACT_APP_AUTH0_DOMAIN;
-const clientId: string | undefined = process.env.REACT_APP_AUTH0_CLIENT_ID;
-const audience: string | undefined = process.env.REACT_APP_AUTH0_AUDIENCE;
-const apiServerUrl: string | undefined = process.env.REACT_APP_API_SERVER_URL;
+let domain = "dev-p3nv00ki.us.auth0.com";
+let clientId = "31VwMqMKGBeQqMwD26efB3qA08ANXKpk";
+let audience = "https://hello-world.example.com";
+let apiServerUrl = "http://localhost:6060";
+
+if (process.env.NODE_ENV !== "development") {
+  domain = "carryoaky.us.auth0.com";
+  clientId = "ooLI4bCTS8wVS63S1AKpsUNdTPYXx68r";
+  audience = "https://api.carryoaky.com";
+  apiServerUrl = "https://api.carryoaky.com";
+}
 
 const isEnvValid = domain && clientId && audience && apiServerUrl;
 

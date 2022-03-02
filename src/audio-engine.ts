@@ -174,7 +174,7 @@ class AudioEngine {
   }
 
   private shutoff() {
-    const rampDownMillis = 3000;
+    const rampDownMillis = 30;
     const originalGain = this.gain?.gain.value || 1;
     if (this.gain) {
       // In theory this works but we still get a click...

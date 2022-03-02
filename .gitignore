@@ -317,3 +317,5 @@ $RECYCLE.BIN/
 .env.test.local
 .env.production.local
 generated.ts
+cdk/*.js
+cdk/cdk.out

@@ -95,7 +95,7 @@ export function Navigation() {
   return (
     <div className="reimagine-navigation">
       <h1 className="reimagine-navigation-title" onClick={() => goto("/about")}>
-        re:imagine
+        carryoaky
       </h1>
       <div className="reimagine-navigation-mainIcons">
         {renderQuickSwap()}

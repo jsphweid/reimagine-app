@@ -11,7 +11,10 @@ const AuthorizedApolloProvider = ({ children }: any) => {
   const { getAccessTokenSilently } = useAuth0();
 
   const httpLink = createHttpLink({
-    uri: "http://localhost:4000/graphql",
+    uri:
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:4000/graphql"
+        : "https://api.carryoaky.com/graphql",
   });
 
   const authLink = setContext(async () => {
