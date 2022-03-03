@@ -1,24 +1,36 @@
-import * as React from 'react'
-import { withSiteData } from 'react-static'
-import { connect } from 'react-redux'
-import { StoreType } from '../../connectors/redux/reducers'
+import { useAuth0 } from "@auth0/auth0-react";
 
-export interface ListenProps {
-	dispatch: any
+import Section from "../small-components/section";
+import { useGetMixesWithMeQuery, Mix } from "../../generated";
+import Audios from "../small-components/audios";
+import { Spinner } from "../../components/spinner";
+
+function Listen() {
+  const { user } = useAuth0();
+  const userId = user?.sub as string;
+  const { data, loading } = useGetMixesWithMeQuery({ variables: { userId } });
+  const mixes = data?.getMixesByUserId || [];
+
+  function makeName(mix: Mix) {
+    const arrName = mix.arrangement?.name || "some arrangement";
+    const pieceName = mix.arrangement?.piece?.name || "Untitled";
+    return `${pieceName} (${arrName})`;
+  }
+
+  return (
+    <Section title="Listen">
+      {loading ? (
+        <Spinner />
+      ) : (
+        <Audios
+          items={mixes.map((m) => ({
+            ...m,
+            name: makeName(m as Mix),
+          }))}
+        />
+      )}
+    </Section>
+  );
 }
 
-export class Listen extends React.Component<ListenProps> {
-	constructor(props: ListenProps) {
-		super(props)
-	}
-
-	public render() {
-		return <div>listen</div>
-	}
-}
-
-const mapStateToProps = (store: StoreType, ownProp?: any): ListenProps => ({
-	dispatch: ownProp.dispatch
-})
-
-export default withSiteData(connect(mapStateToProps)(Listen))
+export default Listen;

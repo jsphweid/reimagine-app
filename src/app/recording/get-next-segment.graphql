@@ -1,0 +1,19 @@
+query GetNextSegment {
+  getNextSegment {
+    id
+    arrangementId
+    difficulty
+    bpm
+    notes {
+      velocity
+      time
+      midi
+      duration
+      lyric
+    }
+    offset
+    highestNote
+    lowestNote
+    dateCreated
+  }
+}

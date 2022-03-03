@@ -1,25 +1,25 @@
 {
-	"compileOnSave": false,
-	"compilerOptions": {
-		"target": "esnext",
-		"module": "esnext",
-		"jsx": "preserve",
-		"allowJs": true,
-		"moduleResolution": "node",
-		"allowSyntheticDefaultImports": true,
-		"noImplicitAny": true,
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
-		"removeComments": false,
-		"preserveConstEnums": true,
-		"sourceMap": true,
-		"skipLibCheck": true,
-		"baseUrl": ".",
-		"paths": {
-			"@myPathAlias/*": ["src/path-alias-example/*"]
-		},
-		"typeRoots": ["./node_modules/@types", "./local-types"],
-		"lib": ["dom", "es2015", "es2016"]
-	},
-	"exclude": ["dist/**/*", "public/**/*"]
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "outDir": "build",
+    "downlevelIteration": true
+  },
+  "include": ["src"]
 }

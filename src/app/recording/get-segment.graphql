@@ -1,0 +1,19 @@
+query GetSegment($segmentId: String!) {
+  getSegmentById(segmentId: $segmentId) {
+    id
+    arrangementId
+    difficulty
+    bpm
+    notes {
+      velocity
+      midi
+      time
+      duration
+      lyric
+    }
+    offset
+    highestNote
+    lowestNote
+    dateCreated
+  }
+}

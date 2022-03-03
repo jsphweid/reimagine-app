@@ -1,0 +1,10 @@
+mutation UpdateUserSettings($userId: String!, $input: UserSettingsInput!) {
+  updateUserSettings(userId: $userId, input: $input) {
+    metronomeOnSegmentPlay
+    notesOnSegmentPlay
+    metronomeOnRecord
+    notesOnRecord
+    metronomeOnRecordingPlay
+    notesOnRecordingPlay
+  }
+}

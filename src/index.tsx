@@ -1,27 +1,27 @@
-import * as React from 'react'
-import ReactDOM from 'react-dom'
-import { AppContainer } from 'react-hot-loader'
+import React from "react";
+import ReactDOM from "react-dom";
+import { BrowserRouter } from "react-router-dom";
 
-import App from './App'
+import { Auth0ProviderWithHistory } from "./auth0-provider-with-history";
+import { EnvProvider } from "./context/env.context";
+import { StoreProvider } from "./providers/store";
+import AuthorizedApolloProvider from "./providers/apollo-provider";
+import { App } from "./app";
 
-if (typeof document !== 'undefined') {
-	const renderMethod = module.hot ? ReactDOM.render : ReactDOM.hydrate
-	const render = (Comp: React.ComponentType) => {
-		renderMethod(
-			<AppContainer>
-				<Comp />
-			</AppContainer>,
-			document.getElementById('root')
-		)
-	}
+ReactDOM.render(
+  <BrowserRouter>
+    <React.StrictMode>
+      <StoreProvider>
+        <EnvProvider>
+          <Auth0ProviderWithHistory>
+            <AuthorizedApolloProvider>
+              <App />
+            </AuthorizedApolloProvider>
+          </Auth0ProviderWithHistory>
+        </EnvProvider>
+      </StoreProvider>
+    </React.StrictMode>
+  </BrowserRouter>,
 
-	render(App)
-
-	if (module.hot) {
-		module.hot.accept('./App', () => {
-			render(require('./App').default)
-		})
-	}
-}
-
-export default App
+  document.getElementById("root")
+);

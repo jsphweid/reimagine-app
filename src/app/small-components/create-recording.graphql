@@ -1,0 +1,18 @@
+mutation CreateRecording(
+  $base64Blob: String!
+  $segmentId: String!
+  $sampleRate: Int!
+) {
+  createRecording(
+    base64Blob: $base64Blob
+    segmentId: $segmentId
+    sampleRate: $sampleRate
+  ) {
+    id
+    objectKey
+    url
+    duration
+    segmentId
+    dateCreated
+  }
+}

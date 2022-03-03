@@ -1,29 +1,21 @@
-import * as React from 'react'
-import { withSiteData } from 'react-static'
-import { connect } from 'react-redux'
-import { StoreType } from '../../connectors/redux/reducers'
+import { useAuth0 } from "@auth0/auth0-react";
 
-export interface AboutProps {
-	dispatch: any
+import { LoginButton } from "../../components/buttons/login-button";
+
+function About() {
+  const { isAuthenticated } = useAuth0();
+
+  return (
+    <div className="reimagine-about">
+      <p>
+        <b>carryoaky</b> explores a new way to make music. Music is the
+        organization of sounds. This app is an experimental way of collecting
+        and organizing sounds.
+      </p>
+      <p>Click on the microphone to get started!</p>
+      {isAuthenticated ? null : <LoginButton />}
+    </div>
+  );
 }
 
-export class About extends React.Component<AboutProps> {
-	constructor(props: AboutProps) {
-		super(props)
-	}
-
-	public render() {
-		return (
-			<div className="reimagine-about">
-				re:imagine is a webapp that explores a new type of music: one that
-				leverages the power of the internet.
-			</div>
-		)
-	}
-}
-
-const mapStateToProps = (store: StoreType, ownProp?: any): AboutProps => ({
-	dispatch: ownProp.dispatch
-})
-
-export default withSiteData(connect(mapStateToProps)(About))
+export default About;

@@ -1,18 +1,16 @@
-import * as React from 'react'
-import CheckIcon from 'react-icons/lib/fa/check-square'
-import EmptyIcon from 'react-icons/lib/fa/square-o'
-
+import { CheckIcon, EmptyIcon } from "../../icon";
 export interface CheckboxProps {
-	isChecked: boolean
-	onClick: () => void
+  isChecked: boolean;
+  onClick: () => void;
+  disabled?: boolean;
 }
 
-const Checkbox: React.SFC<CheckboxProps> = (props): JSX.Element => {
-	return (
-		<div className="reimagine-checkbox" onClick={props.onClick}>
-			{props.isChecked ? <CheckIcon /> : <EmptyIcon />}
-		</div>
-	)
+function Checkbox(props: CheckboxProps) {
+  return (
+    <div className="reimagine-checkbox" onClick={props.onClick}>
+      {props.isChecked ? <CheckIcon /> : <EmptyIcon />}
+    </div>
+  );
 }
 
-export default Checkbox
+export default Checkbox;

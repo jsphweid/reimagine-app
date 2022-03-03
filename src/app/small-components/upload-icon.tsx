@@ -1,54 +1,71 @@
-import { UploadState, RecordingType } from '../../common/types'
-import SpinnerIcon from 'react-icons/lib/fa/spinner'
-import Upload from 'react-icons/lib/fa/upload'
+import { useAuth0 } from "@auth0/auth0-react";
+import { useApolloClient } from "@apollo/client";
 
-const { Uploading, CanUpload, Uploaded } = UploadState
-
-import * as React from 'react'
-import { withSiteData } from 'react-static'
-import { connect } from 'react-redux'
-import { StoreType } from '../../connectors/redux/reducers'
-import { uploadRecording } from '../../connectors/redux/actions/recording'
+import { LocalRecording } from "../../types";
+import { UploadIcon } from "../../icon";
+import { blobToBase64 } from "../../common/helpers";
+import {
+  GetRecordingsQuery,
+  GetRecordingsQueryVariables,
+} from "../../generated";
+import {
+  useCreateRecordingMutation,
+  GetRecordingsDocument,
+} from "../../generated";
+import { useStore } from "../../providers/store";
 
 export interface UploadIconWrapperProps {
-	dispatch: any
-	recording: RecordingType
-	isRecording: boolean
+  recording: LocalRecording;
+  uploadComplete?: () => void;
 }
 
-export class UploadIconWrapper extends React.Component<UploadIconWrapperProps> {
-	constructor(props: UploadIconWrapperProps) {
-		super(props)
-	}
+function UploadIconWrapper(props: UploadIconWrapperProps) {
+  const { store, setStore } = useStore();
+  const [createRec, createRecRes] = useCreateRecordingMutation();
+  const client = useApolloClient();
+  const { user } = useAuth0();
+  const userId = user?.sub as string;
 
-	public render() {
-		const { isRecording, recording, dispatch } = this.props
-		if (!recording) return <Upload className="reimagine-unclickable" />
+  function handleUpload() {
+    blobToBase64(props.recording.blob).then((str) => {
+      createRec({
+        variables: {
+          base64Blob: str,
+          segmentId: props.recording.segmentId,
+          sampleRate: props.recording.sampleRate,
+        },
+      }).then((res) => {
+        const recording = res.data?.createRecording;
+        if (recording) {
+          // delete from store
+          setStore({
+            localRecordings: store.localRecordings.filter(
+              (r) => r.dateCreated !== props.recording.dateCreated
+            ),
+          });
 
-		const { uploadState } = recording
-		const clickHandler =
-			uploadState === CanUpload
-				? () => dispatch(uploadRecording(recording))
-				: null
-		const isBusy = uploadState === Uploaded || isRecording
-		return uploadState === Uploading ? (
-			<SpinnerIcon className="reimagine-spin" />
-		) : (
-			<Upload
-				className={isBusy ? 'reimagine-unclickable' : ''}
-				onClick={clickHandler}
-			/>
-		)
-	}
+          // add to apollo cache for get query
+          client.cache.updateQuery<
+            GetRecordingsQuery,
+            GetRecordingsQueryVariables
+          >(
+            { query: GetRecordingsDocument, variables: { userId } },
+            (data) => ({
+              getRecordingsByUserId: [
+                ...(data?.getRecordingsByUserId || []),
+                recording,
+              ],
+            })
+          );
+
+          if (props.uploadComplete) {
+            props.uploadComplete();
+          }
+        }
+      });
+    });
+  }
+  return <UploadIcon onClick={handleUpload} isLoading={createRecRes.loading} />;
 }
 
-const mapStateToProps = (
-	store: StoreType,
-	ownProp?: any
-): UploadIconWrapperProps => ({
-	dispatch: ownProp.dispatch,
-	isRecording: !!store.audio.activeAudioConfig,
-	recording: ownProp.recording
-})
-
-export default withSiteData(connect(mapStateToProps)(UploadIconWrapper))
+export default UploadIconWrapper;

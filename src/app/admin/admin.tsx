@@ -1,81 +1,29 @@
-import * as React from 'react'
-import { connect } from 'react-redux'
-import { withSiteData } from 'react-static'
-import { StoreType } from '../../connectors/redux/reducers'
-import Dropzone from 'react-dropzone'
-import { postMidiFiles } from '../../connectors/redux/actions/admin'
+import Section from "../small-components/section";
+import { useGetAllPiecesQuery } from "../../generated";
+import Arrangements from "./arrangements";
 
-export interface AdminProps {
-	dispatch: any
-	uploadingMidiFailure: any
-	uploadingMidi: boolean
-	idsOfLatestUpload: string[]
+function Admin() {
+  const { data, loading } = useGetAllPiecesQuery();
+
+  function renderPieceAndArrangements() {
+    if (data && data.getAllPieces) {
+      const name = data.getAllPieces[0]?.name;
+      const pieceId = data.getAllPieces[0]?.id;
+      return name ? (
+        <>
+          <div>Using piece {name}</div>
+          <div>{pieceId ? <Arrangements pieceId={pieceId} /> : null}</div>
+        </>
+      ) : (
+        <p>You need a piece first!</p>
+      );
+    }
+
+    return loading ? "Loading Piece" : null;
+  }
+
+  // TODO: add in error handling for wrong file types or multiple files.
+  return <Section>{renderPieceAndArrangements()}</Section>;
 }
 
-export interface AdminState {
-	rejectedFiles: any[]
-}
-
-export class Admin extends React.Component<AdminProps, AdminState> {
-	constructor(props: AdminProps) {
-		super(props)
-		this.state = {
-			rejectedFiles: []
-		}
-	}
-
-	onDrop(acceptedFiles: any[], rejectedFiles: any[]) {
-		this.setState({ rejectedFiles })
-		this.props.dispatch(postMidiFiles(acceptedFiles))
-	}
-
-	renderPossibleRejectedFilesError() {
-		const { rejectedFiles } = this.state
-		return rejectedFiles && rejectedFiles.length ? (
-			<div>
-				There are {rejectedFiles.length} files in this batch that cannot be
-				uploaded because they aren't midi files.
-			</div>
-		) : null
-	}
-
-	renderPostMidiInfo() {
-		const {
-			uploadingMidiFailure,
-			uploadingMidi,
-			idsOfLatestUpload
-		} = this.props
-		console.log('idsOfLatestUpload', idsOfLatestUpload)
-		switch (true) {
-			case !!uploadingMidiFailure:
-				return <p>{uploadingMidiFailure}</p>
-			case uploadingMidi:
-				return <p>Uploading</p>
-			case !!idsOfLatestUpload && !!idsOfLatestUpload.length:
-				return <p>{JSON.stringify(idsOfLatestUpload)}</p>
-			default:
-				return null
-		}
-	}
-
-	render() {
-		return (
-			<div>
-				<Dropzone onDrop={this.onDrop.bind(this)} accept="audio/midi">
-					<p>Upload .mid</p>
-				</Dropzone>
-				{this.renderPostMidiInfo()}
-				{this.renderPossibleRejectedFilesError()}
-			</div>
-		)
-	}
-}
-
-const mapStateToProps = (store: StoreType, ownProp?: any): AdminProps => ({
-	dispatch: ownProp.dispatch,
-	uploadingMidi: store.admin.uploadingMidi,
-	uploadingMidiFailure: store.admin.uploadingMidiFailure,
-	idsOfLatestUpload: store.admin.idsOfLatestUpload
-})
-
-export default withSiteData(connect(mapStateToProps)(Admin))
+export default Admin;

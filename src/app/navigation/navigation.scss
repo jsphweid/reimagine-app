@@ -1,65 +1,77 @@
 .reimagine-navigation {
-	width: 100%;
-	height: 64px;
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	z-index: 400;
-	@extend .reimagine-colorProfile2;
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+  height: 64px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 400;
+  @extend .reimagine-colorProfile2;
 
-	.reimagine-navigation-title {
-		margin: 0;
-		position: absolute;
-		left: 0;
-		top: 0;
-		font-size: 34px;
-		font-weight: bold;
-		padding: 12px 8px;
-		width: 160px;
-	}
+  .reimagine-navigation-title {
+    margin: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 34px;
+    font-weight: bold;
+    padding: 12px 8px;
+    width: 160px;
+  }
 
-	.reimagine-navigation-mainIcons {
-		position: absolute;
-		right: 0;
-		top: 0;
-	}
+  .reimagine-navigation-mainIcons {
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
 
-	.reimagine-navigation-overlay {
-		position: fixed;
-		top: 64px;
-		height: calc(100% - 64px);
-		width: 100%;
-		@extend .reimagine-colorProfile1;
-		box-shadow: inset 0 11px 8px -10px $charcoal;
+  .reimagine-navigation-overlay {
+    max-width: 1280px;
+    position: fixed;
+    top: 64px;
+    height: calc(100% - 64px);
+    width: 100%;
+    @extend .reimagine-colorProfile1;
+    box-shadow: inset 0 11px 8px -10px $charcoal;
 
-		ul {
-			margin: 0;
-			padding: 0;
-			li {
-				position: relative;
-				padding: 25px 0 25px 14px;
-				border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-				list-style-type: none;
-				display: inline-block;
-				width: 100%;
-				cursor: pointer;
+    a,
+    a:hover,
+    a:visited,
+    a:active {
+      color: inherit;
+      text-decoration: none;
+    }
 
-				svg {
-					position: absolute;
-					margin: 18px;
-					top: 0;
-					right: 24px;
-				}
-			}
-			li:hover {
-				@extend .reimagine-colorProfile2;
-			}
-		}
-	}
+    ul {
+      margin: 0;
+      padding: 0;
+      li {
+        position: relative;
+        padding: 25px 0 25px 14px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        list-style-type: none;
+        display: inline-block;
+        width: 100%;
+        cursor: pointer;
+        max-width: 1266px; // TODO: hack
 
-	svg {
-		@extend %reimagine-default-icon;
-		margin: 16px;
-	}
+        svg {
+          position: absolute;
+          margin: 18px;
+          top: 0;
+          right: 24px;
+        }
+      }
+      li:hover {
+        @extend .reimagine-colorProfile2;
+      }
+    }
+  }
+
+  svg {
+    @extend %reimagine-default-icon;
+    margin: 16px;
+  }
 }

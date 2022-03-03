@@ -1,120 +1,109 @@
-import * as React from 'react'
-import { connect } from 'react-redux'
-import { withSiteData } from 'react-static'
-import { StoreType } from '../../connectors/redux/reducers'
+import React from "react";
+import { useAuth0 } from "@auth0/auth0-react";
+import { Link, useHistory, useLocation } from "react-router-dom";
 
-import BarsIcon from 'react-icons/lib/fa/bars'
-import CloseIcon from 'react-icons/lib/fa/close'
-import RecordingIcon from 'react-icons/lib/io/ios-recording'
-import CogIcon from 'react-icons/lib/fa/cog'
-import InfoIcon from 'react-icons/lib/fa/info-circle'
-import HeadphonesIcon from 'react-icons/lib/fa/headphones'
-import MicrophoneIcon from 'react-icons/lib/fa/microphone'
-import ComputerIcon from 'react-icons/lib/fa/desktop'
-
-import { MainSection } from '../../common/constants'
 import {
-	contractHeader,
-	expandHeader,
-	activateSettings,
-	activateInteractive,
-	activateRecentRecordings,
-	activateListen,
-	activateAbout,
-	activateAdmin
-} from '../../connectors/redux/actions/navigation'
+  BarsIcon,
+  CabinetIcon,
+  CloseIcon,
+  CogIcon,
+  ComputerIcon,
+  HeadphonesIcon,
+  InfoIcon,
+  LoginIcon,
+  LogoutIcon,
+  MicrophoneIcon,
+} from "../../icon";
 
-export interface NavigationProps {
-	dispatch: any
-	activeMainSection: MainSection
-	headerExpanded: boolean
-	id: string
+export function Navigation() {
+  const [headerExpanded, setHeaderExpanded] = React.useState(false);
+  const { isAuthenticated, logout, loginWithRedirect } = useAuth0();
+  const history = useHistory();
+  const { pathname } = useLocation();
+
+  function goto(route: string) {
+    history.push(route);
+    setHeaderExpanded(false);
+  }
+
+  function renderQuickSwap() {
+    return pathname === "/recording" ? (
+      <HeadphonesIcon onClick={() => goto("/listen")} />
+    ) : (
+      <MicrophoneIcon onClick={() => goto("/recording")} />
+    );
+  }
+
+  function renderBarsOrClose() {
+    return headerExpanded ? (
+      <CloseIcon onClick={() => setHeaderExpanded(false)} />
+    ) : (
+      <BarsIcon onClick={() => setHeaderExpanded(true)} />
+    );
+  }
+
+  function renderMenuItem(text: string, icon: JSX.Element, route: string) {
+    return (
+      <li>
+        <Link onClick={() => setHeaderExpanded(false)} to={route}>
+          <div>{text}</div>
+          {icon}
+        </Link>
+      </li>
+    );
+  }
+
+  function renderLoginLogout() {
+    const handleLogout = () =>
+      logout({
+        returnTo: window.location.origin,
+      });
+    return isAuthenticated ? (
+      <li onClick={handleLogout}>
+        <div>Logout</div>
+        <LogoutIcon />
+      </li>
+    ) : (
+      <li onClick={loginWithRedirect}>
+        <div>Login</div>
+        <LoginIcon />
+      </li>
+    );
+  }
+
+  function renderPossibleAdminSection() {
+    // TODO: change to only if admin permission on token
+    return renderMenuItem("Admin", <ComputerIcon />, "/admin");
+  }
+
+  function renderPossibleOverlay() {
+    return headerExpanded ? (
+      <div className="reimagine-navigation-overlay">
+        <ul>
+          {renderMenuItem("Main", <MicrophoneIcon />, "/recording")}
+          {renderMenuItem("My Recordings", <CabinetIcon />, "/my-recordings")}
+          {renderMenuItem("Listen to Mixes", <HeadphonesIcon />, "/listen")}
+          {renderMenuItem("Settings", <CogIcon />, "/settings")}
+          {renderMenuItem("About", <InfoIcon />, "/about")}
+          {renderPossibleAdminSection()}
+          {renderLoginLogout()}
+        </ul>
+      </div>
+    ) : null;
+  }
+
+  return (
+    <div className="reimagine-navigation">
+      <h1 className="reimagine-navigation-title" onClick={() => goto("/about")}>
+        carryoaky
+      </h1>
+      <div className="reimagine-navigation-mainIcons">
+        {renderQuickSwap()}
+        {renderBarsOrClose()}
+      </div>
+      {renderPossibleOverlay()}
+    </div>
+  );
 }
 
-export class Navigation extends React.Component<NavigationProps, any> {
-	constructor(props: NavigationProps) {
-		super(props)
-	}
-
-	private renderQuickSwap() {
-		return this.props.activeMainSection === MainSection.Interactive ? (
-			<RecordingIcon
-				onClick={() => this.props.dispatch(activateRecentRecordings())}
-			/>
-		) : (
-			<MicrophoneIcon
-				onClick={() => this.props.dispatch(activateInteractive())}
-			/>
-		)
-	}
-
-	private renderBarsOrClose() {
-		const { headerExpanded, dispatch } = this.props
-		return headerExpanded ? (
-			<CloseIcon onClick={() => dispatch(contractHeader())} />
-		) : (
-			<BarsIcon onClick={() => dispatch(expandHeader())} />
-		)
-	}
-
-	private renderMenuItem(
-		text: string,
-		icon: JSX.Element,
-		action: Function
-	): JSX.Element {
-		return (
-			<li onClick={() => this.props.dispatch(action())}>
-				<div>{text}</div>
-				{icon}
-			</li>
-		)
-	}
-
-	private renderPossibleAdminSection(): JSX.Element {
-		console.log('this.props.id', this.props.id)
-		return this.props.id === 'us-east-1:4c19032d-8f02-4129-a1af-32403becb60e'
-			? this.renderMenuItem('Admin', <ComputerIcon />, activateAdmin)
-			: null
-	}
-
-	private renderPossibleOverlay(): JSX.Element {
-		return this.props.headerExpanded ? (
-			<div className="reimagine-navigation-overlay">
-				<ul>
-					{this.renderMenuItem('Main', <MicrophoneIcon />, activateInteractive)}
-					{this.renderMenuItem(
-						'Recent Recordings',
-						<RecordingIcon />,
-						activateRecentRecordings
-					)}
-					{/* {this.renderMenuItem('Listen', <HeadphonesIcon />, activateListen)} */}
-					{this.renderMenuItem('Settings', <CogIcon />, activateSettings)}
-					{this.renderMenuItem('About', <InfoIcon />, activateAbout)}
-					{this.renderPossibleAdminSection()}
-				</ul>
-			</div>
-		) : null
-	}
-
-	public render() {
-		return (
-			<div className="reimagine-navigation">
-				<h1 className="reimagine-navigation-title">re:imagine</h1>
-				<div className="reimagine-navigation-mainIcons">
-					{this.renderQuickSwap()}
-					{this.renderBarsOrClose()}
-				</div>
-				{this.renderPossibleOverlay()}
-			</div>
-		)
-	}
-}
-
-const mapStateToProps = (store: StoreType, ownProp?: any): NavigationProps => ({
-	dispatch: ownProp.dispatch,
-	headerExpanded: store.navigation.headerExpanded,
-	activeMainSection: store.navigation.activeMainSection,
-	id: store.general.id
-})
-
-export default withSiteData(connect(mapStateToProps)(Navigation))
+export default Navigation;

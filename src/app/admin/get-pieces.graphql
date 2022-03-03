@@ -1,0 +1,7 @@
+query GetAllPieces {
+  getAllPieces {
+    dateCreated
+    name
+    id
+  }
+}
