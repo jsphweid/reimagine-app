@@ -141,6 +141,9 @@ function Recording() {
         width={width}
         startTime={startTime}
         notes={segment.notes}
+        options={{
+          fps: 120,
+        }}
       />
     );
   }
