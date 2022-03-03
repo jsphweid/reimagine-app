@@ -1,16 +1,15 @@
-import { Midi } from "@tonejs/midi";
-import { Note } from "@tonejs/midi/dist/Note";
-
 import { getSecondsPerBeat, midiToFreq } from "./common/helpers";
 import WavEncoder from "./encoders/wav-encoder";
 import { waitUntil } from "./utils";
 import { click } from "./click";
+import { Note } from "./generated";
 export interface AudioSessionConfig {
   playMetronome?: boolean;
   playNotes?: boolean;
   startTime: number;
-  midi?: Midi;
+  notes: Note[];
   recordingDate?: string;
+  bpm: number;
 }
 
 class AudioEngine {
@@ -128,16 +127,8 @@ class AudioEngine {
   private scheduleSynthNotes(config: AudioSessionConfig) {
     const { playMetronome, playNotes, startTime } = config;
 
-    // TODO: temporary
-    if (!config.midi) {
-      throw new Error(
-        "We are playing but expectedd synth notes... no midi on plays..."
-      );
-    }
+    const { notes, bpm } = config;
 
-    const notes = config.midi.tracks[0].notes;
-    // NOTE: for now we assume there is only 1 bpm for the project...
-    const bpm = config.midi.header.tempos[0].bpm;
     if (playMetronome) {
       this.scheduleMetronomeClicks(config.startTime, bpm);
     }

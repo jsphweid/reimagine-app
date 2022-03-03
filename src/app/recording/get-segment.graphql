@@ -3,7 +3,14 @@ query GetSegment($segmentId: String!) {
     id
     arrangementId
     difficulty
-    midiJson
+    bpm
+    notes {
+      velocity
+      midi
+      time
+      duration
+      lyric
+    }
     offset
     highestNote
     lowestNote

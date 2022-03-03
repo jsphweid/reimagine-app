@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 
 import MidiVisualizer from "react-midi-visualizer";
 
 import { getAudioEngine as _getAudioEngine } from "../../audio-engine";
-import { loadMidiFromJson } from "../../common/helpers";
 import {
   Segment,
   useGetNextSegmentLazyQuery,
@@ -23,6 +22,7 @@ import { useGetSegmentLazyQuery } from "../../generated";
 import { BackwardsIcon } from "../../icon";
 import UploadIconWrapper from "../small-components/upload-icon";
 import { LocalRecording } from "../../types";
+import { getRecordDurationMillis } from "../../utils";
 
 let recordStopper: NodeJS.Timer | null = null;
 let playStopper: NodeJS.Timer | null = null;
@@ -65,11 +65,6 @@ function Recording() {
       }
       return audioEngine;
     });
-
-  const midi = useMemo(() => {
-    return segment ? loadMidiFromJson(segment.midiJson) : null;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [segment?.id]);
 
   function handleNewSegmentFetched(segment: Segment) {
     // For now, we'll just always push it to the store unless it's the last one
@@ -136,19 +131,18 @@ function Recording() {
   }
 
   function renderMidiVisualizer() {
-    if (!midi || !dims || isLoading) return null;
-    const { notes } = midi.tracks[0];
+    if (!segment || !dims || isLoading) return null;
     const { height, width } = dims;
 
-    return notes ? (
+    return (
       <MidiVisualizer
         audioContext={audioCtx}
         height={height}
         width={width}
         startTime={startTime}
-        notes={notes}
+        notes={segment.notes}
       />
-    ) : null;
+    );
   }
 
   function basicStopAudioEngine(): void {
@@ -193,37 +187,39 @@ function Recording() {
   }
 
   function handleStartRecording() {
-    if (midi) {
+    if (segment.notes) {
       getAudioEngine().then((audioEngine) => {
         const startTime = audioEngine.audioContext.currentTime;
         setIsRecording(true);
         setStartTime(startTime);
 
-        const recordingLength = (midi.duration + 0.5) * 1000;
+        const recordingLength = getRecordDurationMillis(segment.notes);
         recordStopper = setTimeout(stopAudioEngineAndSave, recordingLength);
         audioEngine.startRecording({
           playMetronome: !!settings.metronomeOnRecord,
           playNotes: !!settings.notesOnRecord,
-          midi,
+          notes: segment.notes,
           startTime,
+          bpm: segment.bpm,
         });
       });
     }
   }
 
   function handleStartPlaying() {
-    if (midi) {
+    if (segment.notes) {
       setIsPlaying(true);
       getAudioEngine().then((audioEngine) => {
         const startTime = audioEngine.audioContext.currentTime;
         setStartTime(startTime);
-        const recordingLength = (midi.duration + 0.5) * 1000;
+        const recordingLength = getRecordDurationMillis(segment.notes);
         playStopper = setTimeout(basicStopAudioEngine, recordingLength);
         audioEngine.startPlayingNotes({
-          midi,
+          notes: segment.notes,
           startTime,
           playMetronome: !!settings.metronomeOnSegmentPlay,
           playNotes: !!settings.notesOnSegmentPlay,
+          bpm: segment.bpm,
         });
       });
     } else {
@@ -232,7 +228,7 @@ function Recording() {
   }
 
   function renderRecordButton() {
-    if (!midi || isPlaying) {
+    if (!segment || isPlaying) {
       return <RecordIcon isDisabled />;
     } else if (isRecording) {
       return <CloseIcon onClick={basicStopAudioEngine} />;
@@ -243,12 +239,12 @@ function Recording() {
 
   function renderPlayStop() {
     // TODO: this looks almost exactly like the fn above it...?
-    if (!midi || isRecording) {
+    if (!segment || isRecording) {
       return <PlayIcon isDisabled />;
     } else if (isPlaying) {
       return <StopIcon onClick={basicStopAudioEngine} />;
     } else {
-      return <PlayIcon onClick={() => handleStartPlaying()} />;
+      return <PlayIcon onClick={handleStartPlaying} />;
     }
   }
 

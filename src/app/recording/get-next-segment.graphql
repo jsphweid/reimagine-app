@@ -3,7 +3,14 @@ query GetNextSegment {
     id
     arrangementId
     difficulty
-    midiJson
+    bpm
+    notes {
+      velocity
+      time
+      midi
+      duration
+      lyric
+    }
     offset
     highestNote
     lowestNote
