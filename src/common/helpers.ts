@@ -1,5 +1,3 @@
-import { Midi } from "@tonejs/midi";
-
 export function cloneDeep<T>(simpleObj: T): T {
   return JSON.parse(JSON.stringify(simpleObj)) as T;
 }
