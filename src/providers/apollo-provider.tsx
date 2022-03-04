@@ -8,7 +8,7 @@ import { setContext } from "@apollo/link-context";
 import { useAuth0 } from "@auth0/auth0-react";
 
 const AuthorizedApolloProvider = ({ children }: any) => {
-  const { getAccessTokenSilently } = useAuth0();
+  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
 
   const httpLink = createHttpLink({
     uri:
@@ -18,15 +18,12 @@ const AuthorizedApolloProvider = ({ children }: any) => {
   });
 
   const authLink = setContext(async () => {
-    const token = await getAccessTokenSilently();
-
-    return {
-      headers: token
-        ? {
-            Authorization: `Bearer ${token}`,
-          }
-        : {},
-    };
+    const headers = isAuthenticated
+      ? {
+          Authorization: `Bearer ${await getAccessTokenSilently()}`,
+        }
+      : {};
+    return { headers };
   });
 
   const apolloClient = new ApolloClient({
