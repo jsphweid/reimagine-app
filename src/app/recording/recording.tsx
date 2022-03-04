@@ -22,7 +22,7 @@ import { useGetSegmentLazyQuery } from "../../generated";
 import { BackwardsIcon } from "../../icon";
 import UploadIconWrapper from "../small-components/upload-icon";
 import { LocalRecording } from "../../types";
-import { getRecordDurationMillis } from "../../utils";
+import { getRecordDurationMillis, isIOS } from "../../utils";
 
 let recordStopper: NodeJS.Timer | null = null;
 let playStopper: NodeJS.Timer | null = null;
@@ -79,7 +79,9 @@ function Recording() {
     if (params.has("segmentId")) {
       const segmentId = params.get("segmentId")!;
       getCurrSegment(segmentId);
-    } else if (!store.segments.length) {
+    } else if (store.segments.length) {
+      setParams({ segmentId: store.segments[store.segmentIndex].id });
+    } else {
       getNextSegment();
     }
   }
@@ -196,7 +198,7 @@ function Recording() {
         setIsRecording(true);
         setStartTime(startTime);
 
-        const recordingLength = getRecordDurationMillis(segment.notes);
+        const recordingLength = getRecordDurationMillis(segment.notes) + 500;
         recordStopper = setTimeout(stopAudioEngineAndSave, recordingLength);
         audioEngine.startRecording({
           playMetronome: !!settings.metronomeOnRecord,
@@ -215,7 +217,7 @@ function Recording() {
       getAudioEngine().then((audioEngine) => {
         const startTime = audioEngine.audioContext.currentTime;
         setStartTime(startTime);
-        const recordingLength = getRecordDurationMillis(segment.notes);
+        const recordingLength = getRecordDurationMillis(segment.notes) + 500;
         playStopper = setTimeout(basicStopAudioEngine, recordingLength);
         audioEngine.startPlayingNotes({
           notes: segment.notes,
@@ -251,6 +253,18 @@ function Recording() {
     }
   }
 
+  function renderIOS() {
+    if (isIOS()) {
+      return (
+        <p className="reimagine-recording-ios">
+          NOTE: You may need to physically take your phone off silent mode to
+          hear.
+        </p>
+      );
+    }
+    return null;
+  }
+
   function renderOverlay() {
     const bounce = uploadIconBounce ? "reimagine-bounce-icon" : "";
     return (
@@ -259,7 +273,10 @@ function Recording() {
           <div className={`reimagine-recording-buttons-uploadLast ${bounce}`}>
             <UploadIconWrapper
               recording={lastRec}
-              uploadComplete={() => setLastRec(null)}
+              uploadComplete={() => {
+                setLastRec(null);
+                getNextSegment();
+              }}
             />
           </div>
         ) : null}
@@ -282,6 +299,7 @@ function Recording() {
   return (
     <div ref={ref} className="reimagine-recording">
       {renderOverlay()}
+      {renderIOS()}
       <div className="reimagine-recording-midiVisualizer">
         {renderMidiVisualizer()}
       </div>

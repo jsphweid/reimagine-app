@@ -138,11 +138,19 @@ class AudioEngine {
     }
   }
 
+  private turnOnGain() {
+    if (this.gain) {
+      this.gain.gain.setValueAtTime(1, this.audioContext.currentTime);
+    }
+  }
+
   public startPlayingNotes(config: AudioSessionConfig): void {
+    this.turnOnGain();
     this.scheduleSynthNotes(config);
   }
 
   public startRecording(config: AudioSessionConfig): void {
+    this.turnOnGain();
     this.connectRecordingNodes();
     this.scheduleSynthNotes(config);
   }
