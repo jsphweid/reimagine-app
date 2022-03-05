@@ -14,7 +14,7 @@ function Listen() {
   }
 
   return (
-    <Section title="Listen">
+    <Section title="My Mixes">
       {loading ? (
         <Spinner />
       ) : (

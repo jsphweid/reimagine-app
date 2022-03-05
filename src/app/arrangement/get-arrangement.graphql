@@ -1,0 +1,13 @@
+query GetArrangement($arrangementId: String!) {
+  getArrangementById(arrangementId: $arrangementId) {
+    id
+    name
+    mixes {
+      id
+      url
+      duration
+      dateCreated
+    }
+    dateCreated
+  }
+}

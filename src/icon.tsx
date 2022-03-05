@@ -69,3 +69,5 @@ export const RedoIcon = genIcon(Ai.AiOutlineRedo);
 export const CabinetIcon = genIcon(Bi.BiCabinet);
 export const LogoutIcon = genIcon(Md.MdLogout);
 export const LoginIcon = genIcon(Md.MdLogin);
+export const WorldIcon = genIcon(Bi.BiWorld);
+export const BackIcon = genIcon(Io.IoMdArrowBack);

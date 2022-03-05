@@ -96,9 +96,7 @@ function Settings() {
           </table>
         </div>
       </div>
-      <div className="reimagine-settings-identity">
-        <p>TODO: add back in identity</p>
-      </div>
+      <div className="reimagine-settings-identity"></div>
     </Section>
   );
 }

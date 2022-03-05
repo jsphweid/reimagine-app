@@ -1,8 +1,19 @@
 .reimagine-section {
+  position: relative;
+
+  svg {
+    position: absolute;
+    opacity: 50%;
+    font-size: 40px;
+    left: 16px;
+    top: 15px;
+  }
+
   h2 {
     padding: 20px 0;
     border-bottom: 3px solid rgba(0, 0, 0, 0.1);
   }
+
   h2 {
     text-align: center;
     width: 100%;

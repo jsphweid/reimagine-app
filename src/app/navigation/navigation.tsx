@@ -13,6 +13,7 @@ import {
   LoginIcon,
   LogoutIcon,
   MicrophoneIcon,
+  WorldIcon,
 } from "../../icon";
 
 export function Navigation() {
@@ -82,7 +83,8 @@ export function Navigation() {
         <ul>
           {renderMenuItem("Main", <MicrophoneIcon />, "/recording")}
           {renderMenuItem("My Recordings", <CabinetIcon />, "/my-recordings")}
-          {renderMenuItem("Listen", <HeadphonesIcon />, "/listen")}
+          {renderMenuItem("My Mixes", <HeadphonesIcon />, "/listen")}
+          {renderMenuItem("Explore", <WorldIcon />, "/pieces")}
           {renderMenuItem("Settings", <CogIcon />, "/settings")}
           {renderMenuItem("About", <InfoIcon />, "/about")}
           {renderPossibleAdminSection()}

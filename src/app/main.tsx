@@ -9,6 +9,9 @@ import Listen from "./listen/listen";
 import MyRecordings from "./my-recordings/my-recordings";
 import Recording from "./recording/recording";
 import { Spinner } from "../components/spinner";
+import Pieces from "./pieces/pieces";
+import Piece from "./piece/piece";
+import Arrangement from "./arrangement/arrangement";
 
 function Main() {
   const { isLoading } = useAuth0();
@@ -28,6 +31,15 @@ function Main() {
       </Route>
       <Route path="/listen">
         <Listen />
+      </Route>
+      <Route path="/arrangements/:arrangementId">
+        <Arrangement />
+      </Route>
+      <Route path="/pieces/:pieceId">
+        <Piece />
+      </Route>
+      <Route path="/pieces">
+        <Pieces />
       </Route>
       <Route path="/my-recordings">
         <MyRecordings />
