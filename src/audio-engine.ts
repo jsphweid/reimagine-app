@@ -98,7 +98,9 @@ class AudioEngine {
     for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
       const nowBuffering = buffer.getChannelData(channel);
       for (let i = 0; i < buffer.length; i++) {
-        nowBuffering[i] = Math.sin((i / 44100) * angularFrequency);
+        nowBuffering[i] = Math.sin(
+          (i / this.audioContext.sampleRate) * angularFrequency
+        );
       }
 
       // taper off end so no click

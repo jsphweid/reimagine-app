@@ -24,13 +24,6 @@
       top: 0;
 
       svg {
-        // HACKY but unsets it from the global rules...
-        position: initial;
-        opacity: initial;
-        font-size: initial;
-        left: initial;
-        top: initial;
-
         @extend %reimagine-default-icon;
         height: 28px;
         width: 28px;
