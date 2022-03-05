@@ -1,15 +1,11 @@
-import { useAuth0 } from "@auth0/auth0-react";
-
 import Section from "../small-components/section";
 import { useGetMixesWithMeQuery, Mix } from "../../generated";
 import Audios from "../small-components/audios";
 import { Spinner } from "../../components/spinner";
 
 function Listen() {
-  const { user } = useAuth0();
-  const userId = user?.sub as string;
-  const { data, loading } = useGetMixesWithMeQuery({ variables: { userId } });
-  const mixes = data?.getMixesByUserId || [];
+  const { data, loading } = useGetMixesWithMeQuery();
+  const mixes = data?.getMixesWithMe || [];
 
   function makeName(mix: Mix) {
     const arrName = mix.arrangement?.name || "some arrangement";
@@ -18,7 +14,7 @@ function Listen() {
   }
 
   return (
-    <Section title="Listen">
+    <Section title="My Mixes">
       {loading ? (
         <Spinner />
       ) : (

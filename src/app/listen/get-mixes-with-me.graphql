@@ -1,5 +1,5 @@
-query GetMixesWithMe($userId: String!) {
-  getMixesByUserId(userId: $userId) {
+query GetMixesWithMe {
+  getMixesWithMe {
     id
     url
     duration

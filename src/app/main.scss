@@ -3,6 +3,7 @@
 @import "settings/settings";
 @import "listen/listen";
 @import "about/about";
+@import "pieces/pieces";
 
 @import "small-components/checkbox";
 @import "small-components/section";
@@ -45,4 +46,19 @@ body,
   padding: 15px 16px 14px 16px;
   border: 1px solid $charcoal;
   border-radius: 8px;
+}
+
+.reimagine-list {
+  margin: 0;
+  padding: 0;
+  li {
+    position: relative;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    list-style-type: none;
+    display: inline-block;
+    width: 100%;
+
+    @extend .reimagine-colorProfile3;
+  }
 }

@@ -41,7 +41,11 @@ function Audios(props: AudiosProps) {
   const items = props.items.map(renderRecordingItem);
   return (
     <div className="reimagine-audios">
-      {items.length ? <ul>{items}</ul> : <p>I got nothing...</p>}
+      {items.length ? (
+        <ul className="reimagine-list">{items}</ul>
+      ) : (
+        <p>I got nothing...</p>
+      )}
     </div>
   );
 }

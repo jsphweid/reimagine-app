@@ -4,38 +4,37 @@
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   }
 
-  ul {
-    margin: 0;
-    padding: 0;
-    li {
-      position: relative;
-      padding: 7px 0;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-      list-style-type: none;
-      display: inline-block;
-      width: 100%;
+  li {
+    // HACKY but unsets it from the global rules...
+    height: initial;
+    line-height: initial;
+    text-align: initial;
 
-      @extend .reimagine-colorProfile3;
+    .reimagine-audios-item-text {
+      text-overflow: ellipsis;
+      padding-left: 14px;
+      overflow: hidden;
+      max-width: 60%;
+      white-space: nowrap;
+    }
 
-      .reimagine-audios-item-text {
-        text-overflow: ellipsis;
-        padding-left: 14px;
-        overflow: hidden;
-        max-width: 60%;
-        white-space: nowrap;
-      }
+    .reimagine-audios-item-icons {
+      position: absolute;
+      right: 0;
+      top: 0;
 
-      .reimagine-audios-item-icons {
-        position: absolute;
-        right: 0;
-        top: 0;
+      svg {
+        // HACKY but unsets it from the global rules...
+        position: initial;
+        opacity: initial;
+        font-size: initial;
+        left: initial;
+        top: initial;
 
-        svg {
-          @extend %reimagine-default-icon;
-          height: 28px;
-          width: 28px;
-          margin: 20px 12px;
-        }
+        @extend %reimagine-default-icon;
+        height: 28px;
+        width: 28px;
+        margin: 20px 12px;
       }
     }
   }

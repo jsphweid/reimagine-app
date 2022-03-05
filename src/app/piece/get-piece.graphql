@@ -1,0 +1,12 @@
+query GetPiece($pieceId: String!) {
+  getPieceById(pieceId: $pieceId) {
+    id
+    name
+    arrangements {
+      id
+      name
+      dateCreated
+    }
+    dateCreated
+  }
+}
