@@ -1,23 +1,28 @@
 .reimagine-section {
   position: relative;
 
+  .reimagine-section-textContainer {
+    padding: 20px 0;
+    border-bottom: 3px solid rgba(0, 0, 0, 0.1);
+    width: 100%;
+    @extend .reimagine-colorProfile3;
+
+    h2 {
+      margin: 0 auto;
+      text-align: center;
+      text-overflow: ellipsis;
+      padding-left: 14px;
+      overflow: hidden;
+      max-width: 70%;
+      white-space: nowrap;
+    }
+  }
+
   svg {
     position: absolute;
     opacity: 50%;
     font-size: 40px;
     left: 16px;
     top: 15px;
-  }
-
-  h2 {
-    padding: 20px 0;
-    border-bottom: 3px solid rgba(0, 0, 0, 0.1);
-  }
-
-  h2 {
-    text-align: center;
-    width: 100%;
-    @extend .reimagine-colorProfile3;
-    margin: 0;
   }
 }

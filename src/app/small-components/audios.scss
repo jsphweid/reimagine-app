@@ -5,6 +5,11 @@
   }
 
   li {
+    // HACKY but unsets it from the global rules...
+    height: initial;
+    line-height: initial;
+    text-align: initial;
+
     .reimagine-audios-item-text {
       text-overflow: ellipsis;
       padding-left: 14px;
@@ -19,6 +24,13 @@
       top: 0;
 
       svg {
+        // HACKY but unsets it from the global rules...
+        position: initial;
+        opacity: initial;
+        font-size: initial;
+        left: initial;
+        top: initial;
+
         @extend %reimagine-default-icon;
         height: 28px;
         width: 28px;

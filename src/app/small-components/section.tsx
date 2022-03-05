@@ -13,7 +13,7 @@ function Section(props: SectionProps) {
   return (
     <div className={`reimagine-section ${additionalClasses}`}>
       {props.onBack ? <BackIcon onClick={props.onBack} /> : null}
-      {title}
+      <div className="reimagine-section-textContainer">{title}</div>
       {props.children}
     </div>
   );

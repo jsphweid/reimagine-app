@@ -35,7 +35,9 @@ function Arrangement() {
   return (
     <Section
       title={arrangement?.name || "Arrangement"}
-      onBack={() => history.push("/pieces")}
+      onBack={() =>
+        history.push(arrangement ? `/pieces/${arrangement.pieceId}` : "/pieces")
+      }
     >
       {renderContent()}
     </Section>
