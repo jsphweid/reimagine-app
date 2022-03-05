@@ -82,7 +82,7 @@ export function Navigation() {
         <ul>
           {renderMenuItem("Main", <MicrophoneIcon />, "/recording")}
           {renderMenuItem("My Recordings", <CabinetIcon />, "/my-recordings")}
-          {renderMenuItem("Listen to Mixes", <HeadphonesIcon />, "/listen")}
+          {renderMenuItem("Listen", <HeadphonesIcon />, "/listen")}
           {renderMenuItem("Settings", <CogIcon />, "/settings")}
           {renderMenuItem("About", <InfoIcon />, "/about")}
           {renderPossibleAdminSection()}
