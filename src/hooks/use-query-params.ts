@@ -8,7 +8,7 @@ function parsed(params: URLSearchParams) {
   return res;
 }
 
-export function useParams() {
+export function useQueryParams() {
   const location = useLocation();
   const history = useHistory();
   const urlSearchParams = new URLSearchParams(location.search);

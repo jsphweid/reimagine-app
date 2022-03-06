@@ -32,7 +32,7 @@ function MyRecordings() {
           url: URL.createObjectURL(r.blob),
           uploadIcon: <UploadIconWrapper recording={r} />,
         }
-      : { ...r, url: r.url };
+      : { ...r, createMixFromRecordingId: r.id, url: r.url };
   });
 
   return (

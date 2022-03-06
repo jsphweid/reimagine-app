@@ -23,6 +23,12 @@
       right: 0;
       top: 0;
 
+      .reimagine-audios-startMix {
+        position: absolute;
+        right: 64px;
+        top: 24px;
+      }
+
       svg {
         @extend %reimagine-default-icon;
         height: 28px;

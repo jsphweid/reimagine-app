@@ -1,0 +1,24 @@
+query GetArrangementForMixing($recordingId: String!) {
+  getArrangementByRecordingId(recordingId: $recordingId) {
+    id
+    name
+    dateCreated
+    piece {
+      id
+      name
+      dateCreated
+    }
+    segments {
+      id
+      offset
+    }
+    myRecordings {
+      id
+      duration
+      segmentId
+      objectKey
+      dateCreated
+      url
+    }
+  }
+}

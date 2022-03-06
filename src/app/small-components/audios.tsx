@@ -1,3 +1,5 @@
+import { useHistory } from "react-router-dom";
+
 import { timeSince } from "../../common/helpers";
 import PlayIconWrapper from "../small-components/play-icon";
 import { prettyPrintDuration } from "../../utils";
@@ -10,6 +12,7 @@ interface AudioItem {
 
   // I don't really like this but it's the easiest thing to do for now
   uploadIcon?: JSX.Element;
+  createMixFromRecordingId?: string;
 }
 
 interface AudiosProps {
@@ -17,6 +20,8 @@ interface AudiosProps {
 }
 
 function Audios(props: AudiosProps) {
+  const history = useHistory();
+
   function renderRecordingItem(item: AudioItem) {
     const name = item.name || "[Untitled]";
     const date = new Date(item.dateCreated).getTime();
@@ -31,6 +36,18 @@ function Audios(props: AudiosProps) {
           {prettyPrintDuration(item.duration)}
         </div>
         <div className="reimagine-audios-item-icons">
+          {item.createMixFromRecordingId ? (
+            <button
+              className="reimagine-audios-startMix"
+              onClick={() =>
+                history.push(
+                  `/create-mix?recordingId=${item.createMixFromRecordingId}`
+                )
+              }
+            >
+              mix
+            </button>
+          ) : null}
           {item.uploadIcon || null}
           <PlayIconWrapper url={item.url} />
         </div>

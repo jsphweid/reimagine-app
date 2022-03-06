@@ -17,7 +17,7 @@ import {
   RecordIcon,
   StopIcon,
 } from "../../icon";
-import { useParams } from "../../hooks/use-params";
+import { useQueryParams } from "../../hooks/use-query-params";
 import { useGetSegmentLazyQuery } from "../../generated";
 import { BackwardsIcon } from "../../icon";
 import UploadIconWrapper from "../small-components/upload-icon";
@@ -48,7 +48,7 @@ function Recording() {
   const [getNxtSeg, getNxtSegRes] = useGetNextSegmentLazyQuery(queryConfig);
   const [getSeg, getSegRes] = useGetSegmentLazyQuery(queryConfig);
   const [audioCtx, setAudioCtx] = useState<AudioContext | null>(null);
-  const { params, setParams } = useParams();
+  const { params, setParams } = useQueryParams();
 
   const ref = useRef(null);
   const settingsRes = useGetUserSettingsQuery({ variables: { userId } });

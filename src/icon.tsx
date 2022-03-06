@@ -4,6 +4,7 @@ import * as Md from "react-icons/md";
 import * as Io from "react-icons/io";
 import * as Ai from "react-icons/ai";
 import * as Bi from "react-icons/bi";
+import * as Im from "react-icons/im";
 
 interface IconProps {
   isLoading?: boolean;
@@ -71,3 +72,5 @@ export const LogoutIcon = genIcon(Md.MdLogout);
 export const LoginIcon = genIcon(Md.MdLogin);
 export const WorldIcon = genIcon(Bi.BiWorld);
 export const BackIcon = genIcon(Io.IoMdArrowBack);
+export const RadioSelectedIcon = genIcon(Im.ImRadioChecked);
+export const RadioEmptyIcon = genIcon(Im.ImRadioUnchecked);
