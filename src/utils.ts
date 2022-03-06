@@ -38,6 +38,10 @@ export const waitUntil = async (
   }
 };
 
+export function objectIsEmpty(obj: object): boolean {
+  return JSON.stringify(obj) === "{}";
+}
+
 export function prettyPrintDuration(duration: number): string {
   const minutes = Math.floor(duration / 60);
   const seconds = Math.round(duration - minutes * 60);

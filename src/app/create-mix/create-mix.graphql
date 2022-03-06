@@ -1,0 +1,17 @@
+mutation CreateMix(
+  $recordingIds: [String!]!
+  $allowPartial: Boolean
+  $fill: Boolean
+) {
+  createMix(
+    recordingIds: $recordingIds
+    allowPartial: $allowPartial
+    fill: $fill
+  ) {
+    id
+    url
+    isPartial
+    duration
+    dateCreated
+  }
+}

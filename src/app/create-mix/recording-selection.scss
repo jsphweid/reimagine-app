@@ -1,0 +1,47 @@
+.reimagine-segment {
+  svg {
+    @extend %reimagine-default-icon;
+    height: 28px;
+    width: 28px;
+    margin: 8px 12px;
+  }
+
+  .reimagine-segment-content {
+    padding-left: 16px;
+    max-height: 0;
+    margin: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+
+    li {
+      display: flex;
+      list-style-type: none;
+      padding: 0;
+      justify-content: flex-end;
+
+      div:first-child {
+        margin-right: auto;
+
+        height: 48px;
+        line-height: 48px;
+      }
+    }
+  }
+}
+
+.reimagine-segment-segment {
+  height: 48px;
+  line-height: 48px;
+
+  display: flex;
+  list-style-type: none;
+  padding: 0;
+  justify-content: flex-end;
+
+  div:first-child {
+    margin-right: auto;
+  }
+
+  div:last-child {
+  }
+}

@@ -12,6 +12,7 @@ import { Spinner } from "../components/spinner";
 import Pieces from "./pieces/pieces";
 import Piece from "./piece/piece";
 import Arrangement from "./arrangement/arrangement";
+import CreateMix from "./create-mix/create-mix";
 
 function Main() {
   const { isLoading } = useAuth0();
@@ -31,6 +32,9 @@ function Main() {
       </Route>
       <Route path="/listen">
         <Listen />
+      </Route>
+      <Route path="/create-mix">
+        <CreateMix />
       </Route>
       <Route path="/arrangements/:arrangementId">
         <Arrangement />

@@ -1,6 +1,7 @@
 import { CheckIcon, EmptyIcon } from "../../icon";
+
 export interface CheckboxProps {
-  isChecked: boolean;
+  isChecked?: boolean;
   onClick: () => void;
   disabled?: boolean;
 }
