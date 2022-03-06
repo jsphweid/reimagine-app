@@ -96,9 +96,7 @@ function CreateMix() {
               selected={selected[s.id]}
               onSelect={(id) => setSelected({ ...selected, [s.id]: id })}
               segment={s}
-              recordings={segmentToRecordings[s.id].sort((a, b) =>
-                a.dateCreated > b.dateCreated ? -1 : 1
-              )}
+              recordings={segmentToRecordings[s.id]}
             />
           ))}
         </div>
