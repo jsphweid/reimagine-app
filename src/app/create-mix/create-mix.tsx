@@ -77,7 +77,8 @@ function CreateMix() {
 
   const myRecordings = data?.getArrangementByRecordingId?.myRecordings ?? [];
   const segmentToRecordings = makeMapping(myRecordings);
-  const segments = data?.getArrangementByRecordingId?.segments ?? [];
+
+  let segments = data?.getArrangementByRecordingId?.segments ?? [];
 
   if (loading) {
     return <Spinner />;
@@ -95,7 +96,9 @@ function CreateMix() {
               selected={selected[s.id]}
               onSelect={(id) => setSelected({ ...selected, [s.id]: id })}
               segment={s}
-              recordings={segmentToRecordings[s.id]}
+              recordings={segmentToRecordings[s.id].sort((a, b) =>
+                a.dateCreated > b.dateCreated ? -1 : 1
+              )}
             />
           ))}
         </div>

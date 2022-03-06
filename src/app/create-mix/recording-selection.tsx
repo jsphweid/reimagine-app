@@ -19,7 +19,7 @@ function RecordingSelection(props: RecordingSelectionProps) {
   return (
     <div className="reimagine-segment">
       <div className="reimagine-segment-segment">
-        <div>segment details</div>
+        <div>offset: {props.segment.offset}</div>
         <div className="reimagine-segment-checkbox">
           {props.selected ? (
             <Checkbox
