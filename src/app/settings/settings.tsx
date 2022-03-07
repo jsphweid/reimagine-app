@@ -1,57 +1,62 @@
 import { useAuth0 } from "@auth0/auth0-react";
+import { useApolloClient } from "@apollo/client";
 
-import {
-  GetUserSettingsDocument,
-  useGetUserSettingsQuery,
-  UserSettings,
-  useUpdateUserSettingsMutation,
-} from "../../generated";
 import Checkbox from "../small-components/checkbox";
 import Section from "../small-components/section";
 import { removeTypename } from "../../utils";
+import { LoginButton } from "../../components/buttons/login-button";
+import {
+  useGetMySettingsQuery,
+  GetMySettingsDocument,
+  UserSettings,
+  useUpdateUserSettingsMutation,
+} from "../../generated";
 
 function Settings() {
-  const { user } = useAuth0();
+  const { user, isAuthenticated } = useAuth0();
+  const client = useApolloClient();
 
   const userId = user?.sub as string;
 
-  const { data, loading: isLoading } = useGetUserSettingsQuery({
-    variables: { userId: userId },
-  });
+  const { data, loading: isLoading } = useGetMySettingsQuery();
   const [update, { data: updatedSettings }] = useUpdateUserSettingsMutation();
 
   const userSettings =
-    updatedSettings?.updateUserSettings ||
-    data?.getUserSettingsByUserId ||
-    null;
-
-  if (!userSettings || isLoading) {
-    return <>loading</>;
-  }
+    updatedSettings?.updateUserSettings || data?.getMyUserSettings || null;
 
   function handleFlagUpdated(flag: keyof UserSettings) {
     const newVal = !userSettings![flag];
     const input = { ...removeTypename(userSettings!), [flag]: newVal };
-    update({
-      variables: {
-        userId,
-        input,
-      },
-      optimisticResponse: {
-        __typename: "Mutation",
-        updateUserSettings: { ...input, __typename: "UserSettings" },
-      },
-      update: (store, { data }) => {
-        store.writeQuery({
-          query: GetUserSettingsDocument,
-          variables: { userId },
-          data: {
-            __typename: "Mutation",
-            getUserSettingsByUserId: data?.updateUserSettings,
-          },
-        });
-      },
-    });
+
+    if (isAuthenticated) {
+      update({
+        variables: {
+          userId,
+          input,
+        },
+        optimisticResponse: {
+          __typename: "Mutation",
+          updateUserSettings: { ...input, __typename: "UserSettings" },
+        },
+        update: (store, { data }) => {
+          store.writeQuery({
+            query: GetMySettingsDocument,
+            data: {
+              __typename: "Mutation",
+              getMyUserSettings: data?.updateUserSettings,
+            },
+          });
+        },
+      });
+    } else {
+      client.writeQuery({
+        query: GetMySettingsDocument,
+        data: {
+          __typename: "Mutation",
+          getMyUserSettings: input,
+        },
+      });
+    }
   }
 
   function renderCheckbox(flag: keyof UserSettings) {
@@ -63,11 +68,21 @@ function Settings() {
     );
   }
 
+  const warning = isAuthenticated
+    ? null
+    : "NOTE: since you're not logged in, these settings will only apply to this current session... Once you refresh the page, they'll reset to defaults!";
+
   return (
-    <Section className="reimagine-settings" title="Settings">
+    <Section
+      className="reimagine-settings"
+      title="Settings"
+      isLoading={!userSettings || isLoading}
+    >
       <div className="remagine-settings-form">
         <div className="reimagine-settings-form-playRecordConfigs">
-          Customize what you want to hear when interacting.
+          <p>Customize what you want to hear when interacting.</p>
+          <p>{warning}</p>
+          {isAuthenticated ? null : <LoginButton />}
           <table>
             <thead>
               <tr>
@@ -96,7 +111,6 @@ function Settings() {
           </table>
         </div>
       </div>
-      <div className="reimagine-settings-identity"></div>
     </Section>
   );
 }

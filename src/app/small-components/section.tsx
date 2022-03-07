@@ -1,6 +1,8 @@
 import { BackIcon } from "../../icon";
+import { Spinner } from "../../components/spinner";
 export interface SectionProps {
   title?: string;
+  isLoading?: boolean;
   children: any;
   className?: string;
   onBack?: () => void;
@@ -19,7 +21,7 @@ function Section(props: SectionProps) {
         />
       ) : null}
       <div className="reimagine-section-textContainer">{title}</div>
-      {props.children}
+      {props.isLoading ? <Spinner /> : props.children}
     </div>
   );
 }

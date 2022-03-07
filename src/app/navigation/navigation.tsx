@@ -1,6 +1,7 @@
 import React from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Link, useHistory, useLocation } from "react-router-dom";
+import { usePermissions } from "../../hooks/use-permissions";
 
 import {
   BarsIcon,
@@ -19,6 +20,7 @@ import {
 export function Navigation() {
   const [headerExpanded, setHeaderExpanded] = React.useState(false);
   const { isAuthenticated, logout, loginWithRedirect } = useAuth0();
+  const { isAdmin } = usePermissions();
   const history = useHistory();
   const { pathname } = useLocation();
 
@@ -73,8 +75,7 @@ export function Navigation() {
   }
 
   function renderPossibleAdminSection() {
-    // TODO: change to only if admin permission on token
-    return renderMenuItem("Admin", <ComputerIcon />, "/admin");
+    return isAdmin ? renderMenuItem("Admin", <ComputerIcon />, "/admin") : null;
   }
 
   function renderPossibleOverlay() {

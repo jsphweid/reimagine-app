@@ -1,4 +1,4 @@
-import { useHistory, useParams } from "react-router-dom";
+import { NavLink, useHistory, useParams } from "react-router-dom";
 
 import Section from "../small-components/section";
 import { useGetArrangementQuery } from "../../generated";
@@ -26,7 +26,12 @@ function Arrangement() {
         {arrangement.mixes?.length ? (
           <Audios items={arrangement.mixes} />
         ) : (
-          <p>No mixes yet for this piece.</p>
+          <p className="reimagine-pieces-message">
+            No mixes yet for this piece. Maybe try{" "}
+            <NavLink to="/recording">recording</NavLink> some of your own parts
+            and then <NavLink to="/my-recordings">make a mix</NavLink> out of
+            them!
+          </p>
         )}
       </ul>
     );

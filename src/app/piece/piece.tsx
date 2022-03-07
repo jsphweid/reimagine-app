@@ -15,6 +15,10 @@ function Piece() {
     return <Spinner />;
   }
 
+  function renderUpload() {
+    return null;
+  }
+
   function renderContent() {
     if (!piece) {
       return <p>This piece doesn't exist!</p>;
@@ -31,7 +35,11 @@ function Piece() {
             </li>
           ))
         ) : (
-          <p>No arrangements yet for this piece.</p>
+          <p className="reimagine-pieces-missing">
+            No arrangements yet for this piece. In the future, I may allow
+            others to create arrangements, but for now I'm only allowing myself
+            to do this.
+          </p>
         )}
       </ul>
     );
@@ -43,6 +51,7 @@ function Piece() {
       onBack={() => history.push("/pieces")}
     >
       {renderContent()}
+      {renderUpload()}
     </Section>
   );
 }

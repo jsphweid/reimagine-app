@@ -23,7 +23,7 @@ function Admin() {
   }
 
   // TODO: add in error handling for wrong file types or multiple files.
-  return <Section>{renderPieceAndArrangements()}</Section>;
+  return <Section title="Admin">{renderPieceAndArrangements()}</Section>;
 }
 
 export default Admin;

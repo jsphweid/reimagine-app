@@ -27,7 +27,7 @@ function Listen() {
               name: makeName(m as Mix),
             }))}
           />
-          <p>
+          <p className="reimagine-myMixes-message">
             To make your own mixes, go to{" "}
             <NavLink to="/my-recordings">My Recordings</NavLink> and select a
             recording to get started.
