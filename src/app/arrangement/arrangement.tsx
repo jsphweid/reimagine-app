@@ -1,19 +1,25 @@
 import { NavLink, useHistory, useParams } from "react-router-dom";
 
 import Section from "../small-components/section";
-import { useGetArrangementQuery } from "../../generated";
+import {
+  useGetArrangementQuery,
+  useGetSegmentsLazyQuery,
+} from "../../generated";
 import { Spinner } from "../../components/spinner";
 import Audios from "../small-components/audios";
+import { useStore } from "../../providers/store";
 
 function Arrangement() {
   const history = useHistory();
+  const { setStore } = useStore();
   const { arrangementId } = useParams<{ arrangementId: string }>();
   const arrangementQuery = useGetArrangementQuery({
     variables: { arrangementId },
   });
+  const [getSegments, { loading: loadingSegments }] = useGetSegmentsLazyQuery();
   const arrangement = arrangementQuery.data?.getArrangementById;
 
-  if (arrangementQuery.loading) {
+  if (arrangementQuery.loading || loadingSegments) {
     return <Spinner />;
   }
 
@@ -27,13 +33,29 @@ function Arrangement() {
           <Audios items={arrangement.mixes} />
         ) : (
           <p className="reimagine-pieces-message">
-            No mixes yet for this piece. Maybe try{" "}
-            <NavLink to="/recording">recording</NavLink> some of your own parts
-            and then <NavLink to="/my-recordings">make a mix</NavLink> out of
-            them!
+            No mixes yet for this piece. Maybe try recording some of your own
+            parts and then <NavLink to="/my-recordings">make a mix</NavLink> out
+            of them!
           </p>
         )}
       </ul>
+    );
+  }
+
+  function handleRecordIt() {
+    setStore({ segments: [], segmentIndex: 0 });
+    getSegments({ variables: { arrangementId } }).then(({ data }) => {
+      const segments = data?.getSegmentsByArrangementId!;
+      setStore({ segments });
+      history.push(`/recording`);
+    });
+  }
+
+  function renderRecordIt() {
+    return (
+      <div className="reimagine-arrangement-recordIt">
+        <button onClick={handleRecordIt}>Record it!</button>
+      </div>
     );
   }
 
@@ -45,6 +67,7 @@ function Arrangement() {
       }
     >
       {renderContent()}
+      {renderRecordIt()}
     </Section>
   );
 }
