@@ -6,6 +6,7 @@ query GetArrangement($arrangementId: String!) {
     mixes {
       id
       url
+      isPartial
       duration
       dateCreated
     }

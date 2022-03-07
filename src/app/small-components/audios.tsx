@@ -9,6 +9,7 @@ import { LoginButton } from "src/components/buttons/login-button";
 interface AudioItem {
   url: string;
   dateCreated: Date | string;
+  isPartial?: boolean;
   duration: number;
   name?: string;
 
@@ -26,7 +27,10 @@ function Audios(props: AudiosProps) {
   const { isAuthenticated } = useAuth0();
 
   function renderRecordingItem(item: AudioItem) {
-    const name = item.name || "[Untitled]";
+    let name = item.name || "[Untitled]";
+    if (item.isPartial) {
+      name += " (partial)";
+    }
     const date = new Date(item.dateCreated).getTime();
     const key = `${date}`;
     return (

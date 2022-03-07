@@ -58,7 +58,7 @@ function CreateMix() {
     },
   });
 
-  const [createMix] = useCreateMixMutation();
+  const [createMix, { loading: creating }] = useCreateMixMutation();
 
   function handleCreate() {
     createMix({
@@ -80,7 +80,7 @@ function CreateMix() {
 
   let segments = data?.getArrangementByRecordingId?.segments ?? [];
 
-  if (loading) {
+  if (loading || creating) {
     return <Spinner />;
   }
 
