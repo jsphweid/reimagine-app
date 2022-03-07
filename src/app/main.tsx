@@ -13,6 +13,7 @@ import Pieces from "./pieces/pieces";
 import Piece from "./piece/piece";
 import Arrangement from "./arrangement/arrangement";
 import CreateMix from "./create-mix/create-mix";
+import AdminRoute from "../components/admin-route";
 
 function Main() {
   const { isLoading } = useAuth0();
@@ -27,9 +28,9 @@ function Main() {
       <Route path="/settings">
         <Settings />
       </Route>
-      <Route path="/admin">
+      <AdminRoute path="/admin">
         <Admin />
-      </Route>
+      </AdminRoute>
       <Route path="/listen">
         <Listen />
       </Route>

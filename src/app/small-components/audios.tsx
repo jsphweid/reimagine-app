@@ -61,7 +61,7 @@ function Audios(props: AudiosProps) {
       {items.length ? (
         <ul className="reimagine-list">{items}</ul>
       ) : (
-        <p>I got nothing...</p>
+        <p className="reimagine-list-empty">Couldn't find anything...</p>
       )}
     </div>
   );

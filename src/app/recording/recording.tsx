@@ -7,7 +7,8 @@ import { getAudioEngine as _getAudioEngine } from "../../audio-engine";
 import {
   Segment,
   useGetNextSegmentLazyQuery,
-  useGetUserSettingsQuery,
+  useGetSegmentLazyQuery,
+  useGetMySettingsQuery,
 } from "../../generated";
 import { useStore } from "../../providers/store";
 import {
@@ -18,7 +19,6 @@ import {
   StopIcon,
 } from "../../icon";
 import { useQueryParams } from "../../hooks/use-query-params";
-import { useGetSegmentLazyQuery } from "../../generated";
 import { BackwardsIcon } from "../../icon";
 import UploadIconWrapper from "../small-components/upload-icon";
 import { LocalRecording } from "../../types";
@@ -36,8 +36,6 @@ interface Dimensions {
 const queryConfig = { notifyOnNetworkStatusChange: true };
 
 function Recording() {
-  const { user } = useAuth0();
-  const userId = user?.sub as string;
   const { store, setStore } = useStore();
   const [dims, setDims] = useState<Dimensions | null>(null);
   const [uploadIconBounce, setUploadIconBounce] = useState(false);
@@ -51,8 +49,8 @@ function Recording() {
   const { params, setParams } = useQueryParams();
 
   const ref = useRef(null);
-  const settingsRes = useGetUserSettingsQuery({ variables: { userId } });
-  const settings = settingsRes?.data?.getUserSettingsByUserId || {};
+  const settingsRes = useGetMySettingsQuery();
+  const settings = settingsRes?.data?.getMyUserSettings || {};
 
   const segment = store.segments[store.segmentIndex];
   const isLoading = getNxtSegRes.loading || getSegRes.loading;

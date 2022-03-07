@@ -1,5 +1,5 @@
-query GetUserSettings($userId: String!) {
-  getUserSettingsByUserId(userId: $userId) {
+query GetMySettings {
+  getMyUserSettings {
     metronomeOnSegmentPlay
     notesOnSegmentPlay
     metronomeOnRecord
