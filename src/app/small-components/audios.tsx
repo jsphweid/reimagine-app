@@ -1,8 +1,10 @@
 import { useHistory } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
 
 import { timeSince } from "../../common/helpers";
 import PlayIconWrapper from "../small-components/play-icon";
 import { prettyPrintDuration } from "../../utils";
+import { LoginButton } from "src/components/buttons/login-button";
 
 interface AudioItem {
   url: string;
@@ -21,6 +23,7 @@ interface AudiosProps {
 
 function Audios(props: AudiosProps) {
   const history = useHistory();
+  const { isAuthenticated } = useAuth0();
 
   function renderRecordingItem(item: AudioItem) {
     const name = item.name || "[Untitled]";
@@ -36,7 +39,7 @@ function Audios(props: AudiosProps) {
           {prettyPrintDuration(item.duration)}
         </div>
         <div className="reimagine-audios-item-icons">
-          {item.createMixFromRecordingId ? (
+          {item.createMixFromRecordingId && isAuthenticated ? (
             <button
               className="reimagine-audios-startMix"
               onClick={() =>
@@ -61,7 +64,17 @@ function Audios(props: AudiosProps) {
       {items.length ? (
         <ul className="reimagine-list">{items}</ul>
       ) : (
-        <p className="reimagine-list-empty">Couldn't find anything...</p>
+        <div className="reimagine-list-empty">Couldn't find anything...</div>
+      )}
+      {isAuthenticated ? null : (
+        <p className="reimagine-audios-notLoggedIn">
+          Keep in mind that since you're not logged in, your history is reduced
+          to a single session and you won't be able to create custom mixes...
+          For a better app experience, login!
+          <br />
+          <br />
+          <LoginButton />
+        </p>
       )}
     </div>
   );

@@ -26,17 +26,20 @@ function Settings() {
 
   function handleFlagUpdated(flag: keyof UserSettings) {
     const newVal = !userSettings![flag];
-    const input = { ...removeTypename(userSettings!), [flag]: newVal };
+    const updates = { ...userSettings, [flag]: newVal };
 
     if (isAuthenticated) {
       update({
         variables: {
           userId,
-          input,
+          input: removeTypename(updates),
         },
         optimisticResponse: {
           __typename: "Mutation",
-          updateUserSettings: { ...input, __typename: "UserSettings" },
+          updateUserSettings: {
+            ...removeTypename(updates),
+            __typename: "UserSettings",
+          },
         },
         update: (store, { data }) => {
           store.writeQuery({
@@ -49,11 +52,12 @@ function Settings() {
         },
       });
     } else {
+      // although they are not logged in, as far as "their" settings are concerned, they are
       client.writeQuery({
         query: GetMySettingsDocument,
         data: {
           __typename: "Mutation",
-          getMyUserSettings: input,
+          getMyUserSettings: updates,
         },
       });
     }
