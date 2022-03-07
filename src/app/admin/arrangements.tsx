@@ -5,7 +5,6 @@ import {
   useGetArrangementsLazyQuery,
   useDeleteArrangementMutation,
 } from "../../generated";
-import AudioDropzone from "./audio-dropzone";
 import { toBase64 } from "../../utils";
 
 interface ArrangementsProps {
@@ -25,20 +24,6 @@ function Arrangements(props: ArrangementsProps) {
   async function handleDeleteArrangement(id: string) {
     await deleteArr({ variables: { arrangementId: id } });
     getArrRes.refetch();
-  }
-
-  async function handleFiles(files: File[]) {
-    if (files.length === 1) {
-      const base64Blob = await toBase64(files[0]);
-      await createArr({
-        variables: {
-          name,
-          base64Blob: base64Blob.split(",")[1],
-          pieceId: props.pieceId,
-        },
-      });
-      getArrRes.refetch();
-    }
   }
 
   function renderArrangementCreation() {
@@ -80,7 +65,6 @@ function Arrangements(props: ArrangementsProps) {
       {renderArrangements()}
       {renderArrangementCreation()}
       <input value={name} onChange={(e) => setName(e.target.value)} />
-      <AudioDropzone onFiles={handleFiles} />
     </>
   );
 }

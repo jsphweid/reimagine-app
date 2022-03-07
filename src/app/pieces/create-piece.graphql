@@ -1,0 +1,7 @@
+mutation CreatePiece($name: String!) {
+  createPiece(name: $name) {
+    id
+    name
+    dateCreated
+  }
+}

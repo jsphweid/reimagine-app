@@ -2,23 +2,21 @@ import { useHistory } from "react-router-dom";
 
 import Section from "../small-components/section";
 import { useGetAllPiecesQuery } from "../../generated";
-import { Spinner } from "../../components/spinner";
+import { usePermissions } from "../../hooks/use-permissions";
+import AddNewPiece from "./add-new-piece";
 
 function Pieces() {
   const history = useHistory();
-  const { data, loading } = useGetAllPiecesQuery();
-  const pieces = data?.getAllPieces;
+  const { isAdmin } = usePermissions();
+  const { data, loading, refetch } = useGetAllPiecesQuery();
+  const pieces = data?.getAllPieces || [];
 
-  if (loading) {
-    return <Spinner />;
-  }
-
-  if (!pieces) {
-    return null;
+  function renderAdminAddPiece() {
+    return isAdmin ? <AddNewPiece onNewPiece={refetch} /> : null;
   }
 
   return (
-    <Section title="Pieces">
+    <Section title="Pieces" isLoading={loading}>
       <ul className="reimagine-list reimagine-pieces-list">
         {pieces.map((piece) => (
           <li
@@ -29,6 +27,7 @@ function Pieces() {
           </li>
         ))}
       </ul>
+      {renderAdminAddPiece()}
     </Section>
   );
 }
