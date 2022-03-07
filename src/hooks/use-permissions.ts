@@ -8,15 +8,19 @@ function getPermissions(jwt: string): string[] {
 export function usePermissions() {
   const [permissions, setPermissions] = useState<string[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
-  const { isAuthenticated } = useAuth0();
-  const { getAccessTokenSilently } = useAuth0();
+  const { isAuthenticated, getAccessTokenSilently } = useAuth0();
 
   useEffect(() => {
-    getAccessTokenSilently().then((data) => {
-      const permissions = getPermissions(data);
-      setPermissions(permissions);
-      setIsAdmin(permissions.includes("reimagine:admin"));
-    });
+    getAccessTokenSilently()
+      .then((data) => {
+        const permissions = getPermissions(data);
+        setPermissions(permissions);
+        setIsAdmin(permissions.includes("reimagine:admin"));
+      })
+      .catch(() => {
+        setPermissions([]);
+        setIsAdmin(false);
+      });
   }, [getAccessTokenSilently, isAuthenticated]);
 
   if (!isAuthenticated) {
