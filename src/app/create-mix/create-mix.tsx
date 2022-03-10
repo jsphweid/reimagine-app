@@ -84,9 +84,6 @@ function CreateMix() {
     return <Spinner />;
   }
 
-  console.log("segments", segments);
-  console.log("segmentToRecordings", segmentToRecordings);
-
   return (
     <Section title="Create Mix">
       {firstLoad ? (
