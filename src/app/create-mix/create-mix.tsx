@@ -84,6 +84,9 @@ function CreateMix() {
     return <Spinner />;
   }
 
+  console.log("segments", segments);
+  console.log("segmentToRecordings", segmentToRecordings);
+
   return (
     <Section title="Create Mix">
       {firstLoad ? (
@@ -96,7 +99,7 @@ function CreateMix() {
               selected={selected[s.id]}
               onSelect={(id) => setSelected({ ...selected, [s.id]: id })}
               segment={s}
-              recordings={segmentToRecordings[s.id]}
+              recordings={segmentToRecordings[s.id] || []}
             />
           ))}
         </div>
