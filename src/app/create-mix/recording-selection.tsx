@@ -16,10 +16,17 @@ interface RecordingSelectionProps {
 
 function RecordingSelection(props: RecordingSelectionProps) {
   const [collapsed, setCollapsed] = useState(!!props.selected);
+  const name = `Segment ${props.segment.id.slice(0, 8)}`;
+  const noneRecorded =
+    props.recordings.length === 0 ? " -- (none recorded)" : null;
+
   return (
     <div className="reimagine-segment">
       <div className="reimagine-segment-segment">
-        <div>offset: {props.segment.offset}</div>
+        <div>
+          {name} -- offset: {props.segment.offset}
+          {noneRecorded}
+        </div>
         <div className="reimagine-segment-checkbox">
           {props.selected ? (
             <Checkbox
