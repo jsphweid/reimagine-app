@@ -13,6 +13,7 @@ import Pieces from "./pieces/pieces";
 import Piece from "./piece/piece";
 import Arrangement from "./arrangement/arrangement";
 import CreateMix from "./create-mix/create-mix";
+import Segmentizer from "./segmentizer/segmentizer";
 import AdminRoute from "../components/admin-route";
 
 function Main() {
@@ -30,6 +31,9 @@ function Main() {
       </Route>
       <AdminRoute path="/admin">
         <Admin />
+      </AdminRoute>
+      <AdminRoute path="/segmentizer">
+        <Segmentizer />
       </AdminRoute>
       <Route path="/listen">
         <Listen />

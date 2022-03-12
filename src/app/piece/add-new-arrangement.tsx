@@ -4,6 +4,7 @@ import { Spinner } from "../../components/spinner";
 import { useCreateSimpleArrangementMutation } from "../../generated";
 import AudioDropzone from "../small-components/audio-dropzone";
 import { toBase64 } from "../../utils";
+import { useHistory } from "react-router-dom";
 
 interface AddNewArrangementProps {
   onNewArrangement?: () => void;
@@ -13,6 +14,7 @@ interface AddNewArrangementProps {
 function AddNewArrangement(props: AddNewArrangementProps) {
   const [name, setName] = useState("");
   const [filename, setFilename] = useState("");
+  const history = useHistory();
   const [base64Blob, setBase64Blob] = useState("");
   const [createArr, { loading }] = useCreateSimpleArrangementMutation({
     notifyOnNetworkStatusChange: true,
@@ -51,16 +53,25 @@ function AddNewArrangement(props: AddNewArrangementProps) {
     );
   }
 
+  function handleStartSegmentizer() {
+    history.push(`/segmentizer?pieceId=${props.pieceId}`);
+  }
+
   return (
     <div className="reimagine-addNewArrangement">
       {loading ? (
         <Spinner />
       ) : (
-        <>
+        <div>
+          <button onClick={handleStartSegmentizer}>Start Segmentizer</button>
+          <br />
+          or...
+          <br />
           <input value={name} onChange={(e) => setName(e.target.value)} />
           {renderDropzone()}
-          <button onClick={handleSave}>Save</button>
-        </>
+          <br />
+          <button onClick={handleSave}>Save Simple Arrangement</button>
+        </div>
       )}
     </div>
   );

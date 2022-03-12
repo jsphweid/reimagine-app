@@ -74,3 +74,4 @@ export const WorldIcon = genIcon(Bi.BiWorld);
 export const BackIcon = genIcon(Io.IoMdArrowBack);
 export const RadioSelectedIcon = genIcon(Im.ImRadioChecked);
 export const RadioEmptyIcon = genIcon(Im.ImRadioUnchecked);
+export const SegmentIcon = genIcon(Md.MdSegment);
