@@ -1,0 +1,11 @@
+mutation CreateArrangement(
+  $pieceId: String!
+  $name: String!
+  $segments: [SegmentInput!]!
+) {
+  createArrangement(pieceId: $pieceId, name: $name, segments: $segments) {
+    id
+    name
+    dateCreated
+  }
+}

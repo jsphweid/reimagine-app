@@ -94,6 +94,15 @@ function Recording() {
   useEffect(setRefIfExists, [ref]);
 
   function getNextSegment() {
+    // TODO: this was a quick fix, but this whole thing should be cleaner
+    // this logic shouldn't exist in multiple places
+    if (store.segments.length - 1 !== store.segmentIndex) {
+      const segmentIndex = store.segmentIndex + 1;
+      setStore({ segmentIndex });
+      setParams({ segmentId: store.segments[segmentIndex].id });
+      return;
+    }
+
     return getNxtSeg().then(({ data }) => {
       const nxtSegment = data?.getNextSegment!;
       setParams({ segmentId: nxtSegment.id });
