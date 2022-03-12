@@ -1,10 +1,10 @@
 import { useState } from "react";
+import { useHistory } from "react-router-dom";
 
 import { Spinner } from "../../components/spinner";
 import { useCreateSimpleArrangementMutation } from "../../generated";
 import AudioDropzone from "../small-components/audio-dropzone";
 import { toBase64 } from "../../utils";
-import { useHistory } from "react-router-dom";
 
 interface AddNewArrangementProps {
   onNewArrangement?: () => void;

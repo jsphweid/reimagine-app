@@ -1,14 +1,14 @@
 import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 
 import MidiSegmentizer from "midi-segmentizer/dist/segmentizer";
+import { Segment } from "midi-segmentizer";
 
 import { useCreateArrangementMutation } from "../../generated";
 import { useQueryParams } from "../../hooks/use-query-params";
 import AudioDropzone from "../small-components/audio-dropzone";
 import { toBase64 } from "../../utils";
 import { Spinner } from "../../components/spinner";
-import { useHistory } from "react-router-dom";
-import { Segment } from "midi-segmentizer";
 
 function Segmentizer() {
   const [data, setData] = useState<string | null>(null);

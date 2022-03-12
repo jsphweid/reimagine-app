@@ -46,7 +46,6 @@ function Arrangement() {
     setStore({ segments: [], segmentIndex: 0 });
     getSegments({ variables: { arrangementId } }).then(({ data }) => {
       const segments = data?.getSegmentsByArrangementId!;
-      console.log("setting segments", segments);
       setStore({ segments });
       history.push(`/recording`);
     });
