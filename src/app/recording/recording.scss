@@ -32,6 +32,12 @@
   .reimagine-recording-buttons-center {
     text-align: center;
   }
+
+  .reimagine-recording-buttons-mixer {
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
 }
 
 @media (max-width: 584px) {

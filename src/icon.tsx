@@ -75,3 +75,4 @@ export const BackIcon = genIcon(Io.IoMdArrowBack);
 export const RadioSelectedIcon = genIcon(Im.ImRadioChecked);
 export const RadioEmptyIcon = genIcon(Im.ImRadioUnchecked);
 export const SegmentIcon = genIcon(Md.MdSegment);
+export const MixerIcon = genIcon(Ai.AiOutlineControl);

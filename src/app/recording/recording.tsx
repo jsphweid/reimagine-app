@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useHistory } from "react-router-dom";
 
 import MidiVisualizer from "react-midi-visualizer";
 
@@ -13,6 +14,7 @@ import { useStore } from "../../providers/store";
 import {
   CloseIcon,
   ForwardIcon,
+  MixerIcon,
   PlayIcon,
   RecordIcon,
   StopIcon,
@@ -39,12 +41,14 @@ function Recording() {
   const [dims, setDims] = useState<Dimensions | null>(null);
   const [uploadIconBounce, setUploadIconBounce] = useState(false);
   const [lastRec, setLastRec] = useState<LocalRecording | null>(null);
+  const [lastUploaded, setLastUploaded] = useState<string | null>(null);
   const [startTime, setStartTime] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [getNxtSeg, getNxtSegRes] = useGetNextSegmentLazyQuery(queryConfig);
   const [getSeg, getSegRes] = useGetSegmentLazyQuery(queryConfig);
   const [audioCtx, setAudioCtx] = useState<AudioContext | null>(null);
+  const history = useHistory();
   const { params, setParams } = useQueryParams();
 
   const ref = useRef(null);
@@ -274,21 +278,43 @@ function Recording() {
     return null;
   }
 
-  function renderOverlay() {
+  function renderUploadMixIcon() {
+    // should render upload after recording, and mix after uploading
+    // then nothing else once interacted with
+    // <MixerIcon />
     const bounce = uploadIconBounce ? "reimagine-bounce-icon" : "";
+    if (lastRec) {
+      return (
+        <div className={`reimagine-recording-buttons-uploadLast ${bounce}`}>
+          <UploadIconWrapper
+            recording={lastRec}
+            uploadComplete={(recording) => {
+              setLastRec(null);
+              setLastUploaded(recording.id);
+              getNextSegment();
+            }}
+          />
+        </div>
+      );
+    } else if (lastUploaded) {
+      return (
+        <div className={`reimagine-recording-buttons-uploadLast`}>
+          <MixerIcon
+            onClick={() =>
+              history.push(`/create-mix?recordingId=${lastUploaded}`)
+            }
+          />
+        </div>
+      );
+    } else {
+      return null;
+    }
+  }
+
+  function renderOverlay() {
     return (
       <div className="reimagine-recording-buttons">
-        {lastRec ? (
-          <div className={`reimagine-recording-buttons-uploadLast ${bounce}`}>
-            <UploadIconWrapper
-              recording={lastRec}
-              uploadComplete={() => {
-                setLastRec(null);
-                getNextSegment();
-              }}
-            />
-          </div>
-        ) : null}
+        {renderUploadMixIcon()}
         <div className="reimagine-recording-buttons-center">
           <BackwardsIcon
             onClick={handleBackwardsClicked}

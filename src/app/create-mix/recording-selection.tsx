@@ -6,6 +6,7 @@ import Checkbox from "../small-components/checkbox";
 import PlayIconWrapper from "../small-components/play-icon";
 import { MinimalSegment } from "./create-mix";
 import RadioButton from "../small-components/radio-button";
+import { Link } from "react-router-dom";
 
 interface RecordingSelectionProps {
   selected: string | null;
@@ -16,16 +17,22 @@ interface RecordingSelectionProps {
 
 function RecordingSelection(props: RecordingSelectionProps) {
   const [collapsed, setCollapsed] = useState(!!props.selected);
-  const name = `Segment ${props.segment.id.slice(0, 8)}`;
-  const noneRecorded =
-    props.recordings.length === 0 ? " -- (none recorded)" : null;
+  const name = `Segment ${props.segment.id.slice(0, 4)}`;
+  const record = (
+    <span>
+      {" "}
+      <Link to={`/recording?segmentId=${props.segment.id}`}>
+        (record{props.recordings.length ? " again" : ""})
+      </Link>
+    </span>
+  );
 
   return (
     <div className="reimagine-segment">
       <div className="reimagine-segment-segment">
         <div>
-          {name} -- offset: {props.segment.offset}
-          {noneRecorded}
+          {name}
+          {record}
         </div>
         <div className="reimagine-segment-checkbox">
           {props.selected ? (

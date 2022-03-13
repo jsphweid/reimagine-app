@@ -5,12 +5,14 @@ import { Segment } from "../generated";
 
 export interface StoreInterface {
   localRecordings: LocalRecording[];
+  recentlyUploaded: string[]; // recording ids recently uploaded
   segments: Segment[];
   segmentIndex: number;
 }
 
 const storeDefaultValues: StoreInterface = {
   localRecordings: [],
+  recentlyUploaded: [],
   segments: [],
   segmentIndex: 0,
 };

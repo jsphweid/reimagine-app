@@ -4,19 +4,18 @@ import { useApolloClient } from "@apollo/client";
 import { LocalRecording } from "../../types";
 import { UploadIcon } from "../../icon";
 import { blobToBase64 } from "../../common/helpers";
+import { useStore } from "../../providers/store";
 import {
   GetRecordingsQuery,
   GetRecordingsQueryVariables,
-} from "../../generated";
-import {
+  Recording,
   useCreateRecordingMutation,
   GetRecordingsDocument,
 } from "../../generated";
-import { useStore } from "../../providers/store";
 
 export interface UploadIconWrapperProps {
   recording: LocalRecording;
-  uploadComplete?: () => void;
+  uploadComplete?: (recording: Recording) => void;
 }
 
 function UploadIconWrapper(props: UploadIconWrapperProps) {
@@ -42,6 +41,7 @@ function UploadIconWrapper(props: UploadIconWrapperProps) {
             localRecordings: store.localRecordings.filter(
               (r) => r.dateCreated !== props.recording.dateCreated
             ),
+            recentlyUploaded: [...store.recentlyUploaded, recording.id],
           });
 
           // add to apollo cache for get query
@@ -59,7 +59,7 @@ function UploadIconWrapper(props: UploadIconWrapperProps) {
           );
 
           if (props.uploadComplete) {
-            props.uploadComplete();
+            props.uploadComplete(recording);
           }
         }
       });

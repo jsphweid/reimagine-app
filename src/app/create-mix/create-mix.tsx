@@ -5,6 +5,7 @@ import Section from "../small-components/section";
 import { useQueryParams } from "../../hooks/use-query-params";
 import { Spinner } from "../../components/spinner";
 import RecordingSelection from "./recording-selection";
+import { useStore } from "../../providers/store";
 import {
   Recording,
   useGetArrangementForMixingQuery,
@@ -18,6 +19,9 @@ export type MinimalSegment = NonNullable<
   >["segments"]
 >[0];
 
+// mapping of segmentId -> selected recording id
+type SelectedMap = { [key: string]: string | null };
+
 function makeMapping(recordings: Recording[]) {
   const res = {} as { [key: string]: Recording[] };
   for (const recording of recordings) {
@@ -30,6 +34,25 @@ function makeMapping(recordings: Recording[]) {
   return res;
 }
 
+function createdSelectedMap(
+  recordings: Recording[],
+  recentlyUploaded: string[]
+): SelectedMap {
+  const keep = new Set(recentlyUploaded);
+  const res: SelectedMap = {};
+
+  // TODO: this should be ordered by default latest first...
+  const recent = recordings.filter((r) => keep.has(r.id));
+  for (const recording of recent) {
+    if (recording.segmentId in res) {
+      continue;
+    } else {
+      res[recording.segmentId] = recording.id;
+    }
+  }
+  return res;
+}
+
 // TODO: This whole get arrangement by recording Id is
 // just a sign the DB needs to be denormalized more
 function CreateMix() {
@@ -37,22 +60,22 @@ function CreateMix() {
   const recordingId = params.get("recordingId");
   const [firstLoad, setFirstLoad] = useState(false);
   const history = useHistory();
-
-  // mapping of segmentId -> selected recording id
-  const [selected, setSelected] = useState(
-    {} as { [key: string]: string | null }
-  );
+  const { store } = useStore();
+  const [selected, setSelected] = useState({} as SelectedMap);
 
   const { data, loading } = useGetArrangementForMixingQuery({
     variables: { recordingId: recordingId! },
     skip: !recordingId,
     onCompleted: (data) => {
       if (!firstLoad) {
-        data.getArrangementByRecordingId?.myRecordings?.forEach((r) => {
-          if (r.id === recordingId) {
-            setSelected({ [r.segmentId]: recordingId });
-          }
-        });
+        const recordings = data.getArrangementByRecordingId?.myRecordings;
+        if (recordings) {
+          const selected = createdSelectedMap(
+            recordings,
+            store.recentlyUploaded
+          );
+          setSelected(selected);
+        }
         setFirstLoad(true);
       }
     },
