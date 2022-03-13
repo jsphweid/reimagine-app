@@ -45,13 +45,16 @@ export function Navigation() {
     );
   }
 
+  function handleClick(route: string) {
+    setHeaderExpanded(false);
+    history.push(route);
+  }
+
   function renderMenuItem(text: string, icon: JSX.Element, route: string) {
     return (
-      <li>
-        <Link onClick={() => setHeaderExpanded(false)} to={route}>
-          <div>{text}</div>
-          {icon}
-        </Link>
+      <li onClick={() => handleClick(route)}>
+        <div>{text}</div>
+        {icon}
       </li>
     );
   }
