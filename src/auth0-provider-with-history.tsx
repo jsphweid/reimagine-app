@@ -20,6 +20,7 @@ export const Auth0ProviderWithHistory = ({
 
   return (
     <Auth0Provider
+      cacheLocation="localstorage"
       domain={domain}
       clientId={clientId}
       audience={audience}
