@@ -55,7 +55,7 @@ function Segmentizer() {
             midi: note.midi,
             duration: note.duration,
             velocity: 1,
-            lyric: null, // TODO: fix
+            lyric: note.lyric,
           })),
         })),
         pieceId: pieceId!,
