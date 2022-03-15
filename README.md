@@ -1,12 +1,6 @@
-# Hello, React World!
+# Reimagine app
 
-This code sample demonstrates how to implement authentication in a React Single-Page Application (SPA).
-
-![Hello, React World!](https://cdn.auth0.com/blog/hello-auth0/hello-react.png)
-
-## Get Started
-
-Install the project dependencies:
+project board is [here](https://www.notion.so/1fab52dab44846839b5965650f6de2a5?v=74a5f448a3244a168f4b09085bd998fb)
 
 ```bash
 npm install
@@ -26,5 +20,3 @@ Run the application:
 ```bash
 npm start
 ```
-
-Visit [`http://localhost:4040/`](http://localhost:4040/) to access the starter application.
