@@ -51,6 +51,14 @@ function Recording() {
   const history = useHistory();
   const { params, setParams } = useQueryParams();
 
+  useEffect(() => {
+    return () => {
+      getAudioEngine().then((e) => {
+        e.stopPlayingRecording();
+      });
+    };
+  }, []);
+
   const ref = useRef(null);
   const settingsRes = useGetMySettingsQuery();
   const settings = settingsRes?.data?.getMyUserSettings || {};

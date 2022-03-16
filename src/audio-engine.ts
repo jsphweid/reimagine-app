@@ -95,12 +95,16 @@ class AudioEngine {
 
     const angularFrequency = frequency * 2 * Math.PI;
 
+    // cheap hack to make sure these sine
+    // wavs don't clip when they are polyphonic
+    const amplify = 0.3;
+
     for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
       const nowBuffering = buffer.getChannelData(channel);
       for (let i = 0; i < buffer.length; i++) {
-        nowBuffering[i] = Math.sin(
-          (i / this.audioContext.sampleRate) * angularFrequency
-        );
+        nowBuffering[i] =
+          Math.sin((i / this.audioContext.sampleRate) * angularFrequency) *
+          amplify;
       }
 
       // taper off end so no click

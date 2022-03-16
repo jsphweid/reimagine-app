@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { getAudioEngine } from "../../audio-engine";
 import { PlayIcon, StopIcon } from "../../icon";
@@ -10,6 +10,14 @@ export interface PlayIconWrapperProps {
 function PlayIconWrapper(props: PlayIconWrapperProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      getAudioEngine().then((e) => {
+        e.stopPlayingRecording();
+      });
+    };
+  }, []);
 
   function handleAudioStoppedPlaying() {
     setIsPlaying(false);
